@@ -1,0 +1,124 @@
+{
+  "Users" : [
+    {
+      "user_id" : "id1234",
+      "first_name" : "Daniel",
+      "middle_name" : "Owings",
+      "last_name" : "Becker",
+      "primary_email_address" : "dbecker.fl@gmail.com",
+      "secondary_email_address" : "dbecker@gatech.edu",
+      "phone_number" : "850-567-1020",
+      "major" : "Computer Science",
+      "am_class" : "Fall 16",
+      "role_id" : "roleId"
+    }
+  ],
+  "Roles": [
+    {
+      "role_id": "1234",
+      "roleDescription": "Brother"
+    },
+  ],
+  "EmailLists" : [
+    {
+      "list_id": "1234",
+      "prefix": "all",
+      "suffix": "gtdeltachi",
+      "role_permissions": [
+        {
+          "role_id": "roleId1",
+          "can_self_join": true,
+          "can_be_invited": true,
+          "joined_by_default": true
+        }
+      ],
+      "description": "Email list for all chapter communications",
+      "notify_positions_on_change": ["positionId1", "positionId2"]
+    }
+  ],
+  "Subscriptions": [
+    {
+      "list_id": "1234",
+      "user_id": "1234"
+    }
+  ],
+  "Positions": [
+    {
+      "position_id": "2345",
+      "positionTitle": "A",
+      "has_email": true,
+      "position_email_prefix": "a",
+      "currently_held_by": ["userId1", "userId2"],
+      "permissions": [
+        {
+          "can_edit_email_lists": true
+        },
+        {
+          "can_manage_finances": true
+        },
+        {
+          "can_create_form": true
+        },
+        {
+          "can_manage_all_forms": true
+        },
+        {
+          "can_edit_email_lists": true
+        },
+        {
+          "can_manage_positions": true
+        },
+        {
+          "can_edit_email_lists": true
+        },
+        {
+          "can_manage_attendance": true
+        },
+        {
+          "can_manage_users": true
+        },
+        {
+          "can_send_text_messages": true
+        },
+        {
+          "can_add_calendar_events": true
+        },
+        {
+          "can_manage_all_calendar": true
+        }
+      ]
+    }
+  ],
+  "ReportTypes": [
+    {
+      "report_type_id": "1234",
+      "description": "Attendance",
+      "value_type": "Either Financial, Numeric, or OptionSelect",
+      "required_management_permissions": ["can_manage_attendance"],
+      "default_values": [
+        {
+          "visible_to_role_ids": ["1324"],
+          "options": ["Present", "Tardy", "Absent"]
+        }
+      ]
+    }
+  ],
+  "Reports": [
+    {
+      "report_id": "1234",
+      "report_description" : "Spring 19 Attendance",
+      "report_type_id": "1234",
+      "visible_to_role_ids": ["1234"],
+      "options": ["Present", "Tardy", "Absent"],
+      "entries": [
+        {
+          "entry_date": "date",
+          "entered_by_user": "1234",
+          "entered_for_user": "1234",
+          "value": "Present",
+          "description": "Chapter Attendance 2/19"
+        }
+      ]
+    }
+  ]
+}
