@@ -1,0 +1,183 @@
+{
+   "notificationType":"Received",
+   "mail":{
+      "timestamp":"2019-03-04T18:42:35.719Z",
+      "source":"dbecker.fl@gmail.com",
+      "messageId":"64af9c9i61tnvoaa0082mvskr8tmtar3nesim581",
+      "destination":[
+         "test@nozuus.com"
+      ],
+      "headersTruncated":false,
+      "headers":[
+         {
+            "name":"Return-Path",
+            "value":"<dbecker.fl@gmail.com>"
+         },
+         {
+            "name":"Received",
+            "value":"from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182]) by inbound-smtp.us-east-1.amazonaws.com with SMTP id 64af9c9i61tnvoaa0082mvskr8tmtar3nesim581 for test@nozuus.com; Mon, 04 Mar 2019 18:42:35 +0000 (UTC)"
+         },
+         {
+            "name":"X-SES-Spam-Verdict",
+            "value":"PASS"
+         },
+         {
+            "name":"X-SES-Virus-Verdict",
+            "value":"PASS"
+         },
+         {
+            "name":"Received-SPF",
+            "value":"pass (spfCheck: domain of _spf.google.com designates 209.85.210.182 as permitted sender) client-ip=209.85.210.182; envelope-from=dbecker.fl@gmail.com; helo=mail-pf1-f182.google.com;"
+         },
+         {
+            "name":"Authentication-Results",
+            "value":"amazonses.com; spf=pass (spfCheck: domain of _spf.google.com designates 209.85.210.182 as permitted sender) client-ip=209.85.210.182; envelope-from=dbecker.fl@gmail.com; helo=mail-pf1-f182.google.com; dkim=pass header.i=@gmail.com; dmarc=pass header.from=gmail.com;"
+         },
+         {
+            "name":"X-SES-RECEIPT",
+            "value":"AEFBQUFBQUFBQUFIYnE1N2E0SER0Y0wwcDNtNkhoM2JSOUNqbXpPbjhSYjN2UU9UYmIrSDhlS1h3NTFJcWpHV0Z1SklXdEthc0RSZ0FPc2dXdzJFWGZyZldBNThYQ1NDZHhNc1NXd3NRMDU2YmprcGJIR0NETUpoTzFYTlo5THlVR2ZucDVSaTRDOTJRYjFyWjhOSEtOOUZ1TDV3YXlFVXo5SkhlcEdubEQra3haYzE2MzFGV0JnM2w3NU1kbVJZUHFkSG1IZ3pQOTFGb0ZEbFlFcGJjTVRkT1dCYXJMTG1ZQ3lUQnpSRHJHNlNXbllqNDk2OEJRc0dVWXdZNzV1dHdlSUpwMGJLOGhaQ29WZXpDQTlhWE1SRmRRdWlEOW9Eb1dra01zM3B6RWk3VGRCZENCbWpNZ0E9PQ=="
+         },
+         {
+            "name":"X-SES-DKIM-SIGNATURE",
+            "value":"a=rsa-sha256; q=dns/txt; b=KNhvOHKe2+ctAP6ppEGYYTbqpvB92XY1h4HA0wuoMf636sFkvUgPRrcS4kmdAGHCJXvAOw+qAbQcm9IUW03hvMI89yZbfUeUj13ENvPr913Lhr0GRq11CMJEyuVnV9cgSdmQYZT4NhHmZuQPMseRK7Ul0Za5cnES8KXFDGoD4WU=; c=relaxed/simple; s=ug7nbtf4gccmlpwj322ax3p6ow6yfsug; d=amazonses.com; t=1551724956; v=1; bh=wZRX7I+IEu5QiY+8KfS+CUuMs3Ufe/NcOTpejLX6wR0=; h=From:To:Cc:Bcc:Subject:Date:Message-ID:MIME-Version:Content-Type:X-SES-RECEIPT;"
+         },
+         {
+            "name":"Received",
+            "value":"by mail-pf1-f182.google.com with SMTP id s22so3640340pfh.4 for <test@nozuus.com>; Mon, 04 Mar 2019 10:42:35 -0800 (PST)"
+         },
+         {
+            "name":"DKIM-Signature",
+            "value":"v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025; h=from:to:subject:thread-topic:thread-index:date:message-id:accept-language:content-language:mime-version; bh=zm4Mh148MTGTNxaR7DIHNvjFzmuQ6gQM3NC0KJYcFGM=; b=E7nhALg1prjXTap4u/Cx4QzFveUEmngxmjddtSNlZhRRxngv0Q4TVM4o0GAliinnMls34tgpcOJKMmNOr3c0AbRcQeCjUk7ZLsNJoWgq3eQLL7AUWMRvGB2bw4LY5nKWjG48mdkiWptgXc1pSNN0g8YIx2HBMj/mbQbnsh8KKet/epcfK9RZOt5y93fvlTiRLR7myq8g6/ptY6TXN4/O0rehdueyE29FiiRz2qBHQFp/hI4BOBRORE1O6EQ5xwT2Q/7D66Ktdaai17Fscu0xcBST6Xo/noHaoBBWAOOsAporrv5IMT1sxRReLVUifhHjMAxB9D+htzGZALgXvriIrg=="
+         },
+         {
+            "name":"X-Google-DKIM-Signature",
+            "value":"v=1; a=rsa-sha256; c=relaxed/relaxed; d=1e100.net; s=20161025; h=x-gm-message-state:from:to:subject:thread-topic:thread-index:date :message-id:accept-language:content-language:mime-version; bh=zm4Mh148MTGTNxaR7DIHNvjFzmuQ6gQM3NC0KJYcFGM=; b=mtJicgx4t9tav/jKrXJp5YBcGpYUqP5CGODt3oQi2HCN/3CzNU+64Oprs+nesL2lIj hmrxN42HxTD/0LKMeqKCZ8+6J863aKnhZmqJ2qDaFWl41QzkRXpkEqHGc7wytbKPBnjo fRxjX5/XVHssnEtxVMcZm+ur3g+VSw7nql7XRpz0+Ibwc1uu+JVE/85ZSYh2xVX2q0G2 uzt2bRxhQW7T1K0uwS1nfRGVAGXbE68RI5XZa1KfylgOUc5rkQHS1cIwUbg2Aa2M9+sf VG1yg3pqVQWVANHkJwFj/bJJBHtVzgtCOXM4bpN8hGzsP1x6owk8R2P66bR+qSSSH9q0 vdjw=="
+         },
+         {
+            "name":"X-Gm-Message-State",
+            "value":"APjAAAU+KyhGuf/KH23zovjTjW0NbSVs4UsIsN1AzengcpQWjsd9Z8N5 xtUBTSJZYbKwzUtqLK07Lms6HNCB"
+         },
+         {
+            "name":"X-Google-Smtp-Source",
+            "value":"APXvYqx64+H+zIzB4Vr4X9iKoazHU756m35atVmFD3j5JApTSvO6ODO6ANzvMWSrdb72ceAcOjla0w=="
+         },
+         {
+            "name":"X-Received",
+            "value":"by 2002:a63:4206:: with SMTP id p6mr20030149pga.26.1551724954260; Mon, 04 Mar 2019 10:42:34 -0800 (PST)"
+         },
+         {
+            "name":"Return-Path",
+            "value":"<dbecker.fl@gmail.com>"
+         },
+         {
+            "name":"Received",
+            "value":"from MWHPR17MB0925.namprd17.prod.outlook.com ([40.97.141.21]) by smtp.gmail.com with ESMTPSA id v15sm13379381pfa.75.2019.03.04.10.42.33 for <test@nozuus.com> (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128); Mon, 04 Mar 2019 10:42:33 -0800 (PST)"
+         },
+         {
+            "name":"From",
+            "value":"Daniel Becker <dbecker.fl@gmail.com>"
+         },
+         {
+            "name":"To",
+            "value":"\"test@nozuus.com\" <test@nozuus.com>"
+         },
+         {
+            "name":"Subject",
+            "value":"Test 2"
+         },
+         {
+            "name":"Thread-Topic",
+            "value":"Test 2"
+         },
+         {
+            "name":"Thread-Index",
+            "value":"AQHU0roGBVA68IchmUqYl3ZB248XOA=="
+         },
+         {
+            "name":"X-MS-Exchange-MessageSentRepresentingType",
+            "value":"1"
+         },
+         {
+            "name":"Date",
+            "value":"Mon, 4 Mar 2019 18:42:31 +0000"
+         },
+         {
+            "name":"Message-ID",
+            "value":"<MWHPR17MB0925742E8489FFAFBD8BC092FB710@MWHPR17MB0925.namprd17.prod.outlook.com>"
+         },
+         {
+            "name":"Accept-Language",
+            "value":"en-US"
+         },
+         {
+            "name":"Content-Language",
+            "value":"en-US"
+         },
+         {
+            "name":"X-MS-Has-Attach",
+            "value":""
+         },
+         {
+            "name":"X-MS-Exchange-Organization-SCL",
+            "value":"-1"
+         },
+         {
+            "name":"X-MS-TNEF-Correlator",
+            "value":""
+         },
+         {
+            "name":"X-MS-Exchange-Organization-RecordReviewCfmType",
+            "value":"0"
+         },
+         {
+            "name":"Content-Type",
+            "value":"multipart/alternative; boundary=\"_000_MWHPR17MB0925742E8489FFAFBD8BC092FB710MWHPR17MB0925namp_\""
+         },
+         {
+            "name":"MIME-Version",
+            "value":"1.0"
+         }
+      ],
+      "commonHeaders":{
+         "returnPath":"dbecker.fl@gmail.com",
+         "from":[
+            "Daniel Becker <dbecker.fl@gmail.com>"
+         ],
+         "date":"Mon, 4 Mar 2019 18:42:31 +0000",
+         "to":[
+            "\"test@nozuus.com\" <test@nozuus.com>"
+         ],
+         "messageId":"<MWHPR17MB0925742E8489FFAFBD8BC092FB710@MWHPR17MB0925.namprd17.prod.outlook.com>",
+         "subject":"Test 2"
+      }
+   },
+   "receipt":{
+      "timestamp":"2019-03-04T18:42:35.719Z",
+      "processingTimeMillis":424,
+      "recipients":[
+         "test@nozuus.com"
+      ],
+      "spamVerdict":{
+         "status":"PASS"
+      },
+      "virusVerdict":{
+         "status":"PASS"
+      },
+      "spfVerdict":{
+         "status":"PASS"
+      },
+      "dkimVerdict":{
+         "status":"PASS"
+      },
+      "dmarcVerdict":{
+         "status":"PASS"
+      },
+      "action":{
+         "type":"S3",
+         "topicArn":"arn:aws:sns:us-east-1:992977000246:email_received",
+         "bucketName":"nozuus-emails",
+         "objectKeyPrefix":"received",
+         "objectKey":"received/64af9c9i61tnvoaa0082mvskr8tmtar3nesim581"
+      }
+   }
+}

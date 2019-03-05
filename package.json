@@ -1,5 +1,5 @@
 {
-  "name": "api",
+  "name": "backend",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,17 +8,22 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nozuus/api.git"
+    "url": "git+https://github.com/nozuus/backend.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/nozuus/api/issues"
+    "url": "https://github.com/nozuus/backend/issues"
   },
-  "homepage": "https://github.com/nozuus/api#readme",
+  "homepage": "https://github.com/nozuus/backend#readme",
   "devDependencies": {
     "serverless-python-requirements": "^4.3.0",
     "serverless-wsgi": "^1.7.1"
+  },
+  "dependencies": {
+    "serverless-offline-sns": "^0.52.0",
+    "serverless-plugin-existing-s3": "^2.3.3",
+    "serverless-pseudo-parameters": "^2.4.0"
   }
 }

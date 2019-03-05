@@ -1,8 +1,9 @@
-service: serverless-flask
+service: nozuus-backend
 
 plugins:
   - serverless-python-requirements
   - serverless-wsgi
+  - serverless-plugin-existing-s3
 
 custom:
   wsgi:
@@ -16,10 +17,52 @@ provider:
   runtime: python3.6
   stage: dev
   region: us-east-1
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:GetBucketNotification"
+        - "s3:PutBucketNotification"
+      Resource:
+        Fn::Join:
+          - ""
+          - - "arn:aws:s3:::nozuus-emails or *"
+    - Effect: "Allow"
+      Resource: "*"
+      Action:
+        - "sns:*"
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeTable
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - "Fn::GetAtt": [ UsersTable, Arn ]
+
+package: # Optional deployment packaging configuration
+  include: # Specify the directories and files which should be included in the deployment package
+    - email/**
+    - api/**
+
+# Create our resources with separate CloudFormation templates
+resources:
+  # DynamoDB
+  - ${file(resources/dynamodb.yml)}
 
 functions:
   api:
-    handler: wsgi.handler
+    handler: wsgi_handler.handler
     events:
       - http: ANY /
       - http: 'ANY {proxy+}'
+  email_received:
+    handler: email.emailmanager.email_received
+    events:
+      - sns: email_received
+      - existingS3:
+          bucket: nozuus-emails
+          events:
+            - s3:ObjectCreated:*
