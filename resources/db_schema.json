@@ -9,8 +9,26 @@
       "secondary_email_address" : "dbecker@gatech.edu",
       "phone_number" : "850-567-1020",
       "major" : "Computer Science",
-      "am_class" : "Fall 16",
-      "role_id" : "roleId"
+      "class_id" : "1234",
+      "role_id" : "roleId",
+      "student_id_number": "123123123",
+      "birthday": "date",
+      "active_status": "Active",
+      "contacts": [
+        {
+          "name": "Marie Becker",
+          "email": "mbecker.fl@gmail.com",
+          "phone_number": "850-508-8936",
+          "relationship": "mother",
+          "is_parent": true
+        }
+      ]
+    }
+  ],
+  "Class": [
+    {
+      "class_id": "1234",
+      "initiation_class_description": "Fall 16"
     }
   ],
   "Roles": [
@@ -23,7 +41,7 @@
     {
       "list_id": "1234",
       "prefix": "all",
-      "suffix": "gtdeltachi",
+      "domain": "gtdeltachi.com",
       "role_permissions": [
         {
           "role_id": "roleId1",
@@ -57,22 +75,19 @@
           "can_manage_finances": true
         },
         {
-          "can_create_form": true
+          "can_create_forms": true
         },
         {
           "can_manage_all_forms": true
         },
         {
-          "can_edit_email_lists": true
-        },
-        {
           "can_manage_positions": true
         },
         {
-          "can_edit_email_lists": true
+          "can_manage_attendance": true
         },
         {
-          "can_manage_attendance": true
+          "can_take_attendance": true
         },
         {
           "can_manage_users": true
@@ -117,6 +132,24 @@
           "entered_for_user": "1234",
           "value": "Present",
           "description": "Chapter Attendance 2/19"
+        }
+      ]
+    }
+  ],
+  "QuestionTypes": [
+    {
+      "question_type_id": "1234",
+
+    }
+  ],
+  "Respondables": [
+    {
+      "form_id": "1234",
+      "questions": [
+        {
+          "question_id": "1234",
+          "question_type_id" : "1234",
+          "description": "What size shirt are you?"
         }
       ]
     }
