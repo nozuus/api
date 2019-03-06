@@ -1,5 +1,6 @@
 import boto3
 import json
+import core.db as db
 
 def email_received(event, context):
     record = event["Records"][0]
@@ -14,5 +15,8 @@ def email_received(event, context):
         print("From email: ", from_email)
         print("Message ID: ", message_id)
         print("To Emails: ", to_emails)
+
+        response = db.get_email_list_id("all", "nozuus.com")
+        print(response)
     else:
         print("Message not received. Terminating")

@@ -41,6 +41,11 @@ provider:
         - dynamodb:DeleteItem
       Resource:
         - "Fn::GetAtt": [ UsersTable, Arn ]
+        - "Fn::GetAtt": [ EmailListsTable, Arn ]
+        - "Fn::GetAtt": [ SubscriptionsTable, Arn ]
+        - { "Fn::Join": [ "/", [
+          { "Fn::GetAtt": [EmailListsTable, Arn] }, "index", "*"
+          ]]}
 
 package: # Optional deployment packaging configuration
   include: # Specify the directories and files which should be included in the deployment package

@@ -2,16 +2,60 @@ Resources:
   UsersTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: Users
+      TableName: Users-1
       AttributeDefinitions:
-        - AttributeName: username
-          AttributeType: S
-        - AttributeName: userId
+        - AttributeName: user_id
           AttributeType: S
       KeySchema:
-        - AttributeName: username
+        - AttributeName: user_id
           KeyType: HASH
-        - AttributeName: userId
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+  EmailListsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: EmailLists-1
+      AttributeDefinitions:
+        - AttributeName: list_id
+          AttributeType: S
+        - AttributeName: prefix
+          AttributeType: S
+        - AttributeName: domain
+          AttributeType: S
+      KeySchema:
+        - AttributeName: list_id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: EmailListCombined
+          KeySchema:
+            - AttributeName: domain
+              KeyType: HASH
+            - AttributeName: prefix
+              KeyType: RANGE
+          Projection:
+            NonKeyAttributes :
+              - list_id
+            ProjectionType: INCLUDE
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+  SubscriptionsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Subscriptions-1
+      AttributeDefinitions:
+        - AttributeName: list_id
+          AttributeType: S
+        - AttributeName: user_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: list_id
+          KeyType: HASH
+        - AttributeName: user_id
           KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: 5
