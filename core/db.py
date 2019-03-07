@@ -9,7 +9,7 @@ subscriptionsTable = "Subscriptions-1"
 dynamodb = boto3.client('dynamodb')
 
 
-def get_email_list_id(prefix, domain):
+def get_email_list(prefix, domain):
     s = domain
     queryValues = {
         ":domain" : {"S": domain},
@@ -20,4 +20,4 @@ def get_email_list_id(prefix, domain):
                               KeyConditionExpression="#d = :domain AND prefix = :prefix",
                               ExpressionAttributeNames={"#d" : "domain"},
                               ExpressionAttributeValues=queryValues)
-    return db_json.loads(response)
+    return db_json.loads(response)["Items"]

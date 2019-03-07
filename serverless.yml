@@ -22,14 +22,17 @@ provider:
       Action:
         - "s3:GetBucketNotification"
         - "s3:PutBucketNotification"
+        - s3:PutObject
+        - s3:GetObject
       Resource:
         Fn::Join:
           - ""
-          - - "arn:aws:s3:::nozuus-emails or *"
+          - - "arn:aws:s3:::nozuus-emails/*"
     - Effect: "Allow"
       Resource: "*"
       Action:
         - "sns:*"
+        - SES:*
     - Effect: Allow
       Action:
         - dynamodb:DescribeTable
