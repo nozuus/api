@@ -23,12 +23,22 @@ def email_received(event, context):
             split = to_email.split("@")
             prefix = split[0]
             domain = split[1]
-            print("Prefix: %s, Domain: %s" %(prefix,domain))
-            entries = db.get_email_list(prefix, domain)
-            if len(entries) > 0:
-                list_ids.append(entries[0]["list_id"])
+            lists = db.get_email_list(prefix, domain)
+            if len(lists) > 0:
+                list_ids.append(lists[0]["list_id"])
 
-        print("Trying to read file now")
+        print("List IDs: ", list_ids)
+
+        user_emails = []
+        for list_id in list_ids:
+            users_on_list = db.get_users_on_list(list_id)
+            print("Subscriptions: ", users_on_list)
+            for user_on_list in users_on_list:
+                user = db.get_user_by_id(user_on_list["user_id"])
+                print("User: ", user)
+                user_emails.append(user[0]["primary_email_address"])
+
+        print("User emails: ", user_emails)
 
         s3 = boto3.resource("s3")
         key = "received/" + message_id
@@ -45,9 +55,12 @@ def email_received(event, context):
         del msg['Return-Path']
         del msg['From']
         del msg['Reply-To']
-        msg["From"] = "%s <mailer@email.theotterpond.com>" % (msg_from_name)
-        from_configured = "%s <%s>" % (msg_from_name, msg_from_email)
-        msg["Reply-To"] = from_configured
+        safe_from = '%s <mailer@email.theotterpond.com>' % (msg_from_name)
+        user_from = "%s <%s>" % (msg_from_name, msg_from_email)
+        msg["Reply-To"] = user_from
+        msg["From"] = safe_from
+        msg["Return-Path"] = "mailer@email.theotterpond.com"
+        msg["Source"] = "mailer@email.theotterpond.com"
 
         print("From: ", msg["From"])
         print("Return-Path: ", msg["Return-Path"])
@@ -58,9 +71,7 @@ def email_received(event, context):
         try:
             # Provide the contents of the email.
             response = email_client.send_raw_email(
-                Destinations=[
-                    '',
-                ],
+                Destinations=user_emails,
                 RawMessage={
                     'Data': msg.as_string()
                 },
