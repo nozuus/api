@@ -67,7 +67,7 @@ functions:
       - http: ANY /
       - http: 'ANY {proxy+}'
   email_received:
-    handler: email.emailmanager.email_received
+    handler: emailer.emailmanager.email_received
     events:
       - sns: email_received
       - existingS3:
