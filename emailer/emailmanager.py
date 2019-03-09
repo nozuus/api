@@ -1,6 +1,7 @@
 import boto3
 import json
-import core.db as db
+import core.database.users_db as users_db
+import core.database.email_list_db as email_list_db
 from botocore.exceptions import ClientError
 import email
 
@@ -23,7 +24,7 @@ def email_received(event, context):
             split = to_email.split("@")
             prefix = split[0]
             domain = split[1]
-            lists = db.get_email_list(prefix, domain)
+            lists = email_list_db.get_email_list(prefix, domain)
             if len(lists) > 0:
                 list_ids.append(lists[0]["list_id"])
 
@@ -31,10 +32,10 @@ def email_received(event, context):
 
         user_emails = []
         for list_id in list_ids:
-            users_on_list = db.get_users_on_list(list_id)
+            users_on_list = email_list_db.get_users_on_list(list_id)
             print("Subscriptions: ", users_on_list)
             for user_on_list in users_on_list:
-                user = db.get_user_by_id(user_on_list["user_id"])
+                user = users_db.get_user_by_id(user_on_list["user_id"])
                 print("User: ", user)
                 user_emails.append(user[0]["primary_email_address"])
 
