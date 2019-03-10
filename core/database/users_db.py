@@ -36,3 +36,12 @@ def create_user(user):
                                  ConditionExpression="attribute_not_exists(user_id)")
 
     return response["ResponseMetadata"]["HTTPStatusCode"] == 200
+
+
+def update_user(user):
+    item = json.loads(db_json.dumps(user))
+
+    response = dynamodb.put_item(TableName=usersTable,
+                                 Item=item)
+
+    return response["ResponseMetadata"]["HTTPStatusCode"] == 200

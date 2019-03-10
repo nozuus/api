@@ -9,3 +9,10 @@ def create_user(user):
         return str(user_id)
     else:
         raise Exception("Failed to create user")
+
+
+def update_user(user):
+    if users_db.update_user(user):
+        return user["user_id"]
+    else:
+        raise Exception("Failed to create user")
