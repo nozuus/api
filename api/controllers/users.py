@@ -72,7 +72,7 @@ class UserUpdate(Resource):
 @api.route("/create")
 class UserCreate(Resource):
     @api.doc("create_user")
-    @api.doc(user_model)
+    @api.expect(user_model)
     def post(self):
         '''Create a new user and retrieve the new user_id'''
         body = request.json
