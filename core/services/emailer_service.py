@@ -7,6 +7,7 @@ import email
 def process_received_email(mail):
     message_id = mail["messageId"]
     to_emails = mail["destination"]
+    metadata_from = mail["from"]
     destinations = []
     total_emails = []
     for to_email in to_emails:
@@ -17,7 +18,8 @@ def process_received_email(mail):
                 if user_email in total_emails:
                     user_emails.remove(user_email)
                 else:
-                    total_emails.append(user_email)
+                    if user_email not in to_emails and user_email not in metadata_from:
+                        total_emails.append(user_email)
             destinations.append((email_list["subject_prefix"], user_emails))
 
     print("Destinations: ", destinations)
@@ -39,9 +41,10 @@ def process_received_email(mail):
 
     original_subject = msg["Subject"]
     for subject_prefix, user_emails in destinations:
-        new_subject = "[" + subject_prefix + "] " + original_subject
-        del msg["Subject"]
-        msg["Subject"] = new_subject
+        if subject_prefix not in original_subject:
+            new_subject = "[" + subject_prefix + "] " + original_subject
+            del msg["Subject"]
+            msg["Subject"] = new_subject
         send_email(msg, user_emails)
 
 
