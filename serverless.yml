@@ -27,7 +27,7 @@ provider:
       Resource:
         Fn::Join:
           - ""
-          - - "arn:aws:s3:::nozuus-emails/*"
+          - - "arn:aws:s3:::otter-pond-emails/*"
     - Effect: "Allow"
       Resource: "*"
       Action:
@@ -71,6 +71,6 @@ functions:
     events:
       - sns: email_received
       - existingS3:
-          bucket: nozuus-emails
+          bucket: otter-pond-emails
           events:
             - s3:ObjectCreated:*

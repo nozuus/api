@@ -63,13 +63,10 @@ def get_list_by_address(to_email):
 
 def get_emails_for_list(list_id):
     # Get Subscriptions
-    print("List Id", list_id)
     users_on_list = email_list_db.get_users_on_list(list_id)
-    print("Users on list: ", users_on_list)
     user_emails = []
     for user_on_list in users_on_list:
         user = users_db.get_user_by_id(user_on_list["user_id"])
-        print("User: ", user)
         user_emails.append(user["primary_email_address"])
 
     return user_emails
