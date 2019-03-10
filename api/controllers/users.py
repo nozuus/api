@@ -51,7 +51,7 @@ user_model = api.schema_model('User', {
 class User(Resource):
     @api.doc('get_user_by_id')
     def get(self, id):
-        '''Fetch a user given its id'''
+        '''Fetch a user given it's id'''
         user = users_db.get_user_by_id(id)
         return user
 
