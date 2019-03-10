@@ -6,7 +6,6 @@ import core.services.users_service as users_service
 api = Namespace('users', description='User related operations')
 
 user_model = api.schema_model('User', {
-    'required': ['last_name', 'first_name', 'primary_email_address'],
     'properties': {
         'last_name': {
             'type': 'string'
