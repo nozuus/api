@@ -1,4 +1,5 @@
-from core.database.db import dynamodb, subscriptionsTable, emailTable, emailIndex, usersTable
+from core.database.db import dynamodb, subscriptionsTable, emailTable
+from core.database.db import emailIndex, usersTable, subscriptionsIndex
 from dynamodb_json import json_util as db_json
 import json
 
@@ -34,13 +35,57 @@ def get_users_on_list(list_id):
 """Edit subscriptions list"""
 
 
-def add_to_list(user_id, list_id):
-    preItem = {
-        "user_id": user_id,
-        "list_id": list_id
-    }
-    item = json.loads(db_json.dumps(preItem))
+def add_to_list(subscription):
+    item = json.loads(db_json.dumps(subscription))
     response = dynamodb.put_item(TableName=subscriptionsTable,
                                  Item=item)
 
     return response["ResponseMetadata"]["HTTPStatusCode"] == 200
+
+
+def update_user_email(user_id, new_email):
+    subscriptions = get_subscriptions_by_user(user_id)
+
+    # Batch write can handle chunks of 25 requests, so lets do 20 to play it
+    # safe
+    subscription_chunks = divide_chunks(subscriptions, 20)
+
+    for chunk in subscription_chunks:
+        items = []
+        for subscription in chunk:
+            subscription["user_primary_email_address"] = new_email
+            item = {
+                "PutRequest": {
+                    "Item": json.loads(db_json.dumps(subscription))
+                }
+            }
+            items.append(item)
+
+        request_item = {
+            subscriptionsTable: items
+        }
+        response = dynamodb.batch_write_item(RequestItems=request_item)
+
+        if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
+            return 0
+    return 1
+
+
+def get_subscriptions_by_user(user_id):
+    query_values = {
+        ":user_id": {"S": user_id}
+    }
+
+    response = dynamodb.query(TableName=subscriptionsTable,
+                              IndexName=subscriptionsIndex,
+                              KeyConditionExpression="user_id = :user_id",
+                              ExpressionAttributeValues=query_values)
+
+    return db_json.loads(response)["Items"]
+
+
+# TODO: Move to utils file
+def divide_chunks(l, n):
+    # looping till length l
+    for i in range(0, len(l), n):
+        yield l[i:i + n]

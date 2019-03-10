@@ -66,8 +66,7 @@ def get_emails_for_list(list_id):
     users_on_list = email_list_db.get_users_on_list(list_id)
     user_emails = []
     for user_on_list in users_on_list:
-        user = users_db.get_user_by_id(user_on_list["user_id"])
-        user_emails.append(user["primary_email_address"])
+        user_emails.append(user_on_list["user_primary_email_address"])
 
     return user_emails
 

@@ -2,6 +2,7 @@ from flask import request
 from flask_restplus import Namespace, Resource, fields
 import core.database.users_db as users_db
 import core.services.users_service as users_service
+import core.services.email_list_service as email_list_service
 
 api = Namespace('users', description='User related operations')
 
@@ -62,13 +63,11 @@ class UserUpdate(Resource):
         '''Updates the user and returns the user_id'''
         body = request.json
         user_id = body["user_id"]
-        user = users_db.get_user_by_id(user_id)
-        for key in body:
-            user[key] = body[key]
-        user_id = users_service.update_user(user)
+        user_id = users_service.update_user(user_id, body)
         return {
             'user_id': user_id
         }
+
 
 @api.route("/create")
 class UserCreate(Resource):

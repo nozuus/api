@@ -58,7 +58,8 @@
   "Subscriptions": [
     {
       "list_id": "1234",
-      "user_id": "1234"
+      "user_id": "1234",
+      "user_primary_email_address": "dbecker.fl@gmail.com"
     }
   ],
   "Positions": [

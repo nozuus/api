@@ -61,3 +61,16 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
+      GlobalSecondaryIndexes:
+        - IndexName: SubscriptionByUser-1
+          KeySchema:
+            - AttributeName: user_id
+              KeyType: HASH
+          Projection:
+            NonKeyAttributes:
+              - list_id
+              - user_primary_email_address
+            ProjectionType: INCLUDE
+          ProvisionedThroughput:
+            ReadCapacityUnits: 2
+            WriteCapacityUnits: 2
