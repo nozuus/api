@@ -1,5 +1,4 @@
 import core.database.email_list_db as email_list_db
-import core.database.users_db as users_db
 import boto3
 import email
 
@@ -7,20 +6,27 @@ import email
 def process_received_email(mail):
     message_id = mail["messageId"]
     to_emails = mail["destination"]
-    metadata_from = mail["from"]
+    print("To emails: ", to_emails)
+    metadata_from = mail["source"]
+    print("Metadata from: ", metadata_from)
     destinations = []
     total_emails = []
     for to_email in to_emails:
         email_list = get_list_by_address(to_email)
         if email_list is not None:
             user_emails = get_emails_for_list(email_list["list_id"])
+            users_to_send_to = []
             for user_email in user_emails:
-                if user_email in total_emails:
-                    user_emails.remove(user_email)
-                else:
-                    if user_email not in to_emails and user_email not in metadata_from:
-                        total_emails.append(user_email)
-            destinations.append((email_list["subject_prefix"], user_emails))
+                # Don't add the user if they're already being sent it, or if
+                # they were the sender or are already a recipient
+                if (user_email not in total_emails
+                        and user_email != metadata_from
+                        and user_email not in to_emails):
+                    total_emails.append(user_email)
+                    users_to_send_to.append(user_email)
+            if len(users_to_send_to) > 0:
+                destinations.append((email_list["subject_prefix"],
+                                     users_to_send_to))
 
     print("Destinations: ", destinations)
 

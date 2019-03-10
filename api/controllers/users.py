@@ -55,15 +55,10 @@ class User(Resource):
         user = users_db.get_user_by_id(id)
         return user
 
-
-@api.route("/update")
-class UserUpdate(Resource):
-    @api.doc("update_user")
-    def post(self):
+    def put(self, id):
         '''Updates the user and returns the user_id'''
         body = request.json
-        user_id = body["user_id"]
-        user_id = users_service.update_user(user_id, body)
+        user_id = users_service.update_user(id, body)
         return {
             'user_id': user_id
         }
@@ -78,7 +73,7 @@ class UserCreate(Resource):
         body = request.json
         user_id = users_service.create_user(body)
         return {
-            'user_id': user_id
+            'user_id': str(user_id)
         }
 
 
