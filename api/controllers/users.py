@@ -6,7 +6,6 @@ import core.services.users_service as users_service
 api = Namespace('users', description='User related operations')
 
 user_model = api.schema_model('User', {
-    'required': ['last_name', 'first_name', 'primary_email_address'],
     'properties': {
         'last_name': {
             'type': 'string'
@@ -51,10 +50,25 @@ user_model = api.schema_model('User', {
 class User(Resource):
     @api.doc('get_user_by_id')
     def get(self, id):
-        '''Fetch a user given its id'''
+        '''Fetch a user given it's id'''
         user = users_db.get_user_by_id(id)
         return user
 
+
+@api.route("/update")
+class UserUpdate(Resource):
+    @api.doc("update_user")
+    def post(self):
+        '''Updates the user and returns the user_id'''
+        body = request.json
+        user_id = body["user_id"]
+        user = users_db.get_user_by_id(user_id)
+        for key in body:
+            user[key] = body[key]
+        user_id = users_service.update_user(user)
+        return {
+            'user_id': user_id
+        }
 
 @api.route("/create")
 class UserCreate(Resource):

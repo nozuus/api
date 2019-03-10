@@ -1,5 +1,6 @@
-from core.database.db import dynamodb, subscriptionsTable, emailTable, emailIndex
+from core.database.db import dynamodb, subscriptionsTable, emailTable, emailIndex, usersTable
 from dynamodb_json import json_util as db_json
+import json
 
 
 def get_email_list(prefix, domain):
@@ -28,3 +29,18 @@ def get_users_on_list(list_id):
                               KeyConditionExpression="list_id = :list_id",
                               ExpressionAttributeValues=query_values)
     return db_json.loads(response)["Items"]
+
+
+"""Edit subscriptions list"""
+
+
+def add_to_list(user_id, list_id):
+    preItem = {
+        "user_id": user_id,
+        "list_id": list_id
+    }
+    item = json.loads(db_json.dumps(preItem))
+    response = dynamodb.put_item(TableName=subscriptionsTable,
+                                 Item=item)
+
+    return response["ResponseMetadata"]["HTTPStatusCode"] == 200
