@@ -1,4 +1,4 @@
-from db import dynamodb,usersTable
+from core.database.db import dynamodb,usersTable
 from dynamodb_json import json_util as db_json
 import json
 

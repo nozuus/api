@@ -1,4 +1,4 @@
-from db import dynamodb, subscriptionsTable, emailTable
+from core.database.db import dynamodb, subscriptionsTable, emailTable, emailIndex
 from dynamodb_json import json_util as db_json
 
 
@@ -8,11 +8,15 @@ def get_email_list(prefix, domain):
         ":prefix": {"S": prefix}
     }
     response = dynamodb.query(TableName=emailTable,
-                              IndexName="EmailListCombined",
+                              IndexName=emailIndex,
                               KeyConditionExpression="#d = :domain AND prefix = :prefix",
                               ExpressionAttributeNames={"#d" : "domain"},
                               ExpressionAttributeValues=query_values)
-    return db_json.loads(response)["Items"]
+
+    result = db_json.loads(response)["Items"]
+    if len(result) > 0:
+        return result[0]
+    return
 
 
 def get_users_on_list(list_id):

@@ -27,7 +27,7 @@ Resources:
         - AttributeName: list_id
           KeyType: HASH
       GlobalSecondaryIndexes:
-        - IndexName: EmailListCombined
+        - IndexName: EmailListCombined-1
           KeySchema:
             - AttributeName: domain
               KeyType: HASH
@@ -36,6 +36,7 @@ Resources:
           Projection:
             NonKeyAttributes :
               - list_id
+              - subject_prefix
             ProjectionType: INCLUDE
           ProvisionedThroughput:
             ReadCapacityUnits: 5

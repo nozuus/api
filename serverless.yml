@@ -1,4 +1,4 @@
-service: nozuus-backend
+service: otter-pond-backend
 
 plugins:
   - serverless-python-requirements

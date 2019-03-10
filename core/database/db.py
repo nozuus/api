@@ -3,6 +3,7 @@ import os
 
 usersTable = "Users-1"
 emailTable = "EmailLists-1"
+emailIndex = "EmailListCombined-1"
 subscriptionsTable = "Subscriptions-1"
 
 dynamodb = None
