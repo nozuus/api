@@ -1,5 +1,6 @@
 from flask_restplus import Api
 from .users import api as users_api
+from .email_list import api as email_list_api
 
 api = Api(
     title='Otter Pond Web API',
@@ -8,3 +9,4 @@ api = Api(
 )
 
 api.add_namespace(users_api, path="/users")
+api.add_namespace(email_list_api, path="/email_list")
