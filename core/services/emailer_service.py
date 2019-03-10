@@ -85,6 +85,6 @@ def send_email(msg, email_addresses):
 def read_email_from_s3(message_id):
     s3 = boto3.resource("s3")
     key = "received/" + message_id
-    obj = s3.Object("nozuus-emails", key)
+    obj = s3.Object("otter-pond-emails", key)
     file_contents = obj.get()['Body'].read()
     return file_contents
