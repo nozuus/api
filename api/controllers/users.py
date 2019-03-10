@@ -59,6 +59,7 @@ class User(Resource):
 class UserUpdate(Resource):
     @api.doc("update_user")
     def post(self):
+        '''Updates the user and returns the user_id'''
         body = request.json
         user_id = body["user_id"]
         user = users_db.get_user_by_id(user_id)
