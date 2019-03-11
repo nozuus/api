@@ -2,6 +2,7 @@ import boto3
 import os
 
 usersTable = "Users-1"
+usersIndex = "UserByEmail-1"
 emailTable = "EmailLists-1"
 emailIndex = "EmailListCombined-1"
 subscriptionsTable = "Subscriptions-1"

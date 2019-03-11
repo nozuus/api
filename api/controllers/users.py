@@ -2,7 +2,7 @@ from flask import request
 from flask_restplus import Namespace, Resource, fields
 import core.database.users_db as users_db
 import core.services.users_service as users_service
-import core.services.email_list_service as email_list_service
+from flask_jwt_extended import jwt_required
 
 api = Namespace('users', description='User related operations')
 
@@ -50,11 +50,14 @@ user_model = api.schema_model('User', {
 @api.route('/<id>')
 class User(Resource):
     @api.doc('get_user_by_id')
+    #@jwt_required
     def get(self, id):
         '''Fetch a user given it's id'''
         user = users_db.get_user_by_id(id)
         return user
 
+    @api.doc('update_user')
+    #@jwt_required
     def put(self, id):
         '''Updates the user and returns the user_id'''
         body = request.json
@@ -68,6 +71,7 @@ class User(Resource):
 class UserCreate(Resource):
     @api.doc("create_user")
     @api.expect(user_model)
+    #@jwt_required
     def post(self):
         '''Create a new user and retrieve the new user_id'''
         body = request.json
@@ -80,6 +84,7 @@ class UserCreate(Resource):
 @api.route("/")
 class UserList(Resource):
     @api.doc('get_all_users')
+    #@jwt_required
     def get(self):
         '''Fetch all users'''
         users = users_db.get_all_users()

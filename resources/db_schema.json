@@ -7,6 +7,7 @@
       "last_name" : "Becker",
       "primary_email_address" : "dbecker.fl@gmail.com",
       "secondary_email_address" : "dbecker@gatech.edu",
+      "hashed_password": "alsjkfhg9q43ghvlskdjfla4t",
       "phone_number" : "850-567-1020",
       "major" : "Computer Science",
       "class_id" : "1234",

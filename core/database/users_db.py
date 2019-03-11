@@ -1,4 +1,4 @@
-from core.database.db import dynamodb,usersTable
+from core.database.db import dynamodb,usersTable,usersIndex
 from dynamodb_json import json_util as db_json
 import json
 
@@ -10,6 +10,23 @@ def get_user_by_id(user_id):
 
     response = dynamodb.query(TableName=usersTable,
                               KeyConditionExpression="user_id = :user_id",
+                              ExpressionAttributeValues=query_values)
+
+    result = db_json.loads(response)["Items"]
+
+    if len(result) > 0:
+        return result[0]
+    return None
+
+
+def get_user_by_email(user_email):
+    query_values = {
+        ":primary_email_address": {"S": user_email}
+    }
+
+    response = dynamodb.query(TableName=usersTable,
+                              IndexName=usersIndex,
+                              KeyConditionExpression="primary_email_address = :primary_email_address",
                               ExpressionAttributeValues=query_values)
 
     result = db_json.loads(response)["Items"]
