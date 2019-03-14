@@ -1,55 +1,20 @@
 from flask import request
-from flask_restplus import Namespace, Resource, fields
+from flask_restplus import Namespace, Resource
 import core.database.users_db as users_db
 import core.services.users_service as users_service
+from api.models.users_model import user_create_model, user_update_model, get_users_model
 from flask_jwt_extended import jwt_required
 
 api = Namespace('users', description='User related operations')
 
-user_model = api.schema_model('User', {
-    'properties': {
-        'last_name': {
-            'type': 'string'
-        },
-        'first_name': {
-            'type': 'string'
-        },
-        'middle_name': {
-            'type': 'string'
-        },
-        'birthday': {
-            'type': 'string',
-            'format': 'date-time'
-        },
-        'primary_email_address': {
-            'type': 'string',
-            'format': 'email'
-        },
-        'secondary_email_address': {
-            'type': 'string',
-            'format': 'email'
-        },
-        'phone_number': {
-            'type': 'string',
-            "pattern": "^(\\([0-9]{3}\\))?[0-9]{3}-[0-9]{4}$"
-        },
-        'major': {
-            'type': 'string'
-        },
-        'student_id_number': {
-            'type': 'string'
-        },
-        'active_status': {
-            'type': 'string'
-        },
-    },
-    'type': 'object'
-})
-
+api.models[user_create_model.name] = user_create_model
+api.models[user_update_model.name] = user_update_model
+api.models[get_users_model.name] = get_users_model
 
 @api.route('/<id>')
 class User(Resource):
     @api.doc('get_user_by_id')
+    @api.marshal_with(get_users_model)
     #@jwt_required
     def get(self, id):
         '''Fetch a user given it's id'''
@@ -57,6 +22,7 @@ class User(Resource):
         return user
 
     @api.doc('update_user')
+    @api.expect(user_update_model)
     #@jwt_required
     def put(self, id):
         '''Updates the user and returns the user_id'''
@@ -70,7 +36,7 @@ class User(Resource):
 @api.route("/create")
 class UserCreate(Resource):
     @api.doc("create_user")
-    @api.expect(user_model)
+    @api.expect(user_create_model)
     #@jwt_required
     def post(self):
         '''Create a new user and retrieve the new user_id'''
@@ -84,6 +50,7 @@ class UserCreate(Resource):
 @api.route("/")
 class UserList(Resource):
     @api.doc('get_all_users')
+    @api.marshal_list_with(get_users_model)
     #@jwt_required
     def get(self):
         '''Fetch all users'''

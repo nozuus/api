@@ -21,6 +21,22 @@ def get_email_list(prefix, domain):
     return
 
 
+def get_email_list_by_id(list_id):
+    query_values = {
+        ":list_id": {"S": list_id}
+    }
+
+    response = dynamodb.query(TableName=emailTable,
+                              KeyConditionExpression="list_id = :list_id",
+                              ExpressionAttributeValues=query_values)
+
+    result = db_json.loads(response)["Items"]
+
+    if len(result) > 0:
+        return result[0]
+    return None
+
+
 def get_users_on_list(list_id):
     query_values = {
         ":list_id": {"S": list_id}
@@ -82,6 +98,16 @@ def get_subscriptions_by_user(user_id):
                               ExpressionAttributeValues=query_values)
 
     return db_json.loads(response)["Items"]
+
+
+def get_all_email_lists():
+    response = dynamodb.scan(TableName=emailTable,
+                             Select="ALL_ATTRIBUTES")
+
+    result = db_json.loads(response)["Items"]
+
+    return result
+
 
 
 # TODO: Move to utils file

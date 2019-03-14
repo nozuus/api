@@ -1,5 +1,6 @@
 import core.database.users_db as users_db
 from passlib.hash import pbkdf2_sha256 as sha256
+from flask_jwt_extended import create_access_token
 
 
 def check_login(user_email, password):
@@ -8,7 +9,8 @@ def check_login(user_email, password):
         return False
     else:
         if sha256.verify(password, user["hashed_password"]):
-            return True
+            token = create_access_token(identity=user["user_id"])
+            return token
         return False
 
 
