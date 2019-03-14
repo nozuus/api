@@ -7,6 +7,7 @@ emailTable = "EmailLists-1"
 emailIndex = "EmailListCombined-1"
 subscriptionsTable = "Subscriptions-1"
 subscriptionsIndex = "SubscriptionByUser-1"
+rolesTable = "Roles-1"
 
 dynamodb = None
 if os.environ.get("stage") == "dev":

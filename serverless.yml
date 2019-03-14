@@ -47,11 +47,15 @@ provider:
         - "Fn::GetAtt": [ UsersTable, Arn ]
         - "Fn::GetAtt": [ EmailListsTable, Arn ]
         - "Fn::GetAtt": [ SubscriptionsTable, Arn ]
+        - "Fn::GetAtt": [ RolesTable, Arn ]
         - { "Fn::Join": [ "/", [
           { "Fn::GetAtt": [EmailListsTable, Arn] }, "index", "*"
           ]]}
         - { "Fn::Join": [ "/", [
           { "Fn::GetAtt": [UsersTable, Arn] }, "index", "*"
+          ]]}
+        - { "Fn::Join": [ "/", [
+          { "Fn::GetAtt": [RolesTable, Arn] }, "index", "*"
           ]]}
 
 package: # Optional deployment packaging configuration

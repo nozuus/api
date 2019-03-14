@@ -89,3 +89,32 @@ Resources:
           ProvisionedThroughput:
             ReadCapacityUnits: 2
             WriteCapacityUnits: 2
+  RolesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Roles-1
+      AttributeDefinitions:
+        - AttributeName: role_id
+          AttributeType: S
+        - AttributeName: role_description
+          AttributeType: S
+      KeySchema:
+        - AttributeName: role_id
+          KeyType: HASH
+        - AttributeName: role_description
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      GlobalSecondaryIndexes:
+        - IndexName: RoleByDescription-1
+          KeySchema:
+            - AttributeName: role_description
+              KeyType: HASH
+          Projection:
+            NonKeyAttributes:
+              - role_id
+            ProjectionType: INCLUDE
+          ProvisionedThroughput:
+            ReadCapacityUnits: 2
+            WriteCapacityUnits: 2

@@ -32,6 +32,19 @@ class EmailList(Resource):
         return list
 
 
+@api.route("/create")
+class EmailList(Resource):
+    @api.doc("create_email_list")
+    @api.expect(list_model)
+    def post(self):
+        '''Create an email list'''
+        body = request.json
+        list_id = email_list_service.create_email_list(body)
+        return {
+            'list_id': str(list_id)
+        }
+
+
 @api.route('/<id>/subscribe')
 class Subscription(Resource):
     @api.doc('get_user_by_id')

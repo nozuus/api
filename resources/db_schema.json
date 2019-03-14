@@ -35,7 +35,7 @@
   "Roles": [
     {
       "role_id": "1234",
-      "roleDescription": "Brother"
+      "role_description": "Brother"
     },
   ],
   "EmailLists" : [
