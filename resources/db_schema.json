@@ -44,6 +44,7 @@
       "prefix": "all",
       "domain": "gtdeltachi.com",
       "subject_prefix": "DX/ALL",
+      "only_recipients_can_send": true
       "role_permissions": [
         {
           "role_id": "roleId1",

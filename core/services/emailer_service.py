@@ -33,6 +33,11 @@ def process_received_email(mail):
     email_contents = read_email_from_s3(message_id)
     msg = email.message_from_bytes(email_contents)
 
+    if len(destinations) == 0:
+        print("Invalid destinations. Sending bounce")
+        send_invalid_destination_email(metadata_from, to_emails, msg["Subject"])
+        return;
+
     msg_from = msg["From"]
     from_name, from_email = split_from(msg_from)
     del msg['Return-Path']
@@ -96,3 +101,27 @@ def read_email_from_s3(message_id):
     obj = s3.Object("otter-pond-emails", key)
     file_contents = obj.get()['Body'].read()
     return file_contents
+
+
+def send_invalid_destination_email(from_email, to_emails, subject):
+    message = {
+        'Subject': {
+            "Data": "Invalid Destination: %s" % subject,
+        },
+        "Body": {
+            "Text": {
+                "Data": "Dear %s, \n\n\nYour email sent to %s did not contain "
+                        "a valid destination for this domain. Please "
+                        "check your recipients and try again. If you believe "
+                        "this is an error, please send an email to "
+                        "dbecker.fl@gmail.com.\n\nThank you,\n\nDaniel Becker"
+                        % (from_email, ",".join(to_emails))
+            }
+        }
+    }
+
+    print(message)
+    email_client = boto3.client('ses')
+    email_client.send_email(Source= "Otter Pond Emailer <noreply@email.theotterpond.com>",
+                            Destination={"ToAddresses": [from_email]},
+                            Message=message)

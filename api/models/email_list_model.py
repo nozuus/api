@@ -10,6 +10,7 @@ list_model = Model("EmailList", {
     "domain": fields.String,
     "subject_prefix": fields.String,
     "description": fields.String,
+    "only_recipients_can_send": fields.Boolean
 })
 
 
