@@ -119,6 +119,15 @@ def create_email_list(email_list):
     return response["ResponseMetadata"]["HTTPStatusCode"] == 200
 
 
+def update_email_list(email_list):
+    item = json.loads(db_json.dumps(email_list))
+
+    response = dynamodb.put_item(TableName=emailTable,
+                                 Item=item)
+
+    return response["ResponseMetadata"]["HTTPStatusCode"] == 200
+
+
 # TODO: Move to utils file
 def divide_chunks(l, n):
     # looping till length l

@@ -2,7 +2,7 @@ from flask import request
 from flask_restplus import Namespace, Resource, fields
 import core.services.email_list_service as email_list_service
 import core.database.email_list_db as email_list_db
-from api.models.email_list_model import get_list_model, subscribe_model, list_model
+from api.models.email_list_model import get_list_model, subscribe_model, list_model, role_permissions_model, get_role_permission_model
 
 
 api = Namespace('email_list', description='Email related operations')
@@ -10,6 +10,8 @@ api = Namespace('email_list', description='Email related operations')
 api.models[subscribe_model.name] = subscribe_model
 api.models[get_list_model.name] = get_list_model
 api.models[list_model.name] = list_model
+api.models[role_permissions_model.name] = role_permissions_model
+api.models[get_role_permission_model.name] = get_role_permission_model
 
 
 @api.route("/")
@@ -43,6 +45,31 @@ class EmailList(Resource):
         return {
             'list_id': str(list_id)
         }
+
+
+@api.route("<list_id>/rolePermissions/<role_id>")
+class RolePermissions(Resource):
+    @api.doc("get_role_permissions")
+    @api.marshal_with(get_role_permission_model)
+    def get(self, list_id, role_id):
+        '''Get permissions to an email list for a role'''
+        return email_list_service.get_role_permissions_by_role(list_id, role_id)
+
+    @api.doc("update_role_permissions")
+    @api.expect(role_permissions_model)
+    def post(self, list_id, role_id):
+        '''Create or update permissions to an email list for a role'''
+        body = request.json
+        return email_list_service.update_role_permissions(list_id, role_id, body)
+
+
+@api.route("<list_id>/rolePermissions/")
+class RolePermissionsList(Resource):
+    @api.doc("get_all_role_permissions")
+    @api.marshal_list_with(get_role_permission_model)
+    def get(self, list_id):
+        '''Get all role permissions for an email list'''
+        return email_list_service.get_role_permissions(list_id)
 
 
 @api.route('/<id>/subscribe')
