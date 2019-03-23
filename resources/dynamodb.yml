@@ -8,14 +8,28 @@ Resources:
           AttributeType: S
         - AttributeName: primary_email_address
           AttributeType: S
+        - AttributeName: secondary_email_address
+          AttributeType: S
       KeySchema:
         - AttributeName: user_id
           KeyType: HASH
       GlobalSecondaryIndexes:
-        - IndexName: UserByEmail-1
+        - IndexName: UserByPrimaryEmail-1
           KeySchema:
             - AttributeName: primary_email_address
               KeyType: HASH
+          Projection:
+            NonKeyAttributes:
+              - hashed_password
+              - user_id
+            ProjectionType: INCLUDE
+          ProvisionedThroughput:
+            ReadCapacityUnits: 2
+            WriteCapacityUnits: 2
+        - IndexName: UserBySecondaryEmail-1
+          KeySchema:
+              - AttributeName: secondary_email_address
+                KeyType: HASH
           Projection:
             NonKeyAttributes:
               - hashed_password

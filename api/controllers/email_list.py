@@ -47,7 +47,7 @@ class EmailList(Resource):
         }
 
 
-@api.route("<list_id>/rolePermissions/<role_id>")
+@api.route("/<list_id>/rolePermissions/<role_id>")
 class RolePermissions(Resource):
     @api.doc("get_role_permissions")
     @api.marshal_with(get_role_permission_model)
@@ -63,7 +63,7 @@ class RolePermissions(Resource):
         return email_list_service.update_role_permissions(list_id, role_id, body)
 
 
-@api.route("<list_id>/rolePermissions/")
+@api.route("/<list_id>/rolePermissions/")
 class RolePermissionsList(Resource):
     @api.doc("get_all_role_permissions")
     @api.marshal_list_with(get_role_permission_model)
