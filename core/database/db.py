@@ -1,14 +1,8 @@
 import boto3
 import os
 
-usersTable = "Users-1"
-usersIndex = "UserByPrimaryEmail-1"
-usersSecondaryIndex = "UserBySecondaryEmail-1"
-emailTable = "EmailLists-1"
-emailIndex = "EmailListCombined-1"
-subscriptionsTable = "Subscriptions-1"
-subscriptionsIndex = "SubscriptionByUser-1"
-rolesTable = "Roles-1"
+table = "OtterPondTable"
+reverseIndex = "OtterPondTable-Reverse"
 
 dynamodb = None
 if os.environ.get("stage") == "dev":
