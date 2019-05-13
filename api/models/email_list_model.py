@@ -18,6 +18,14 @@ role_permissions_model = Model("RolePermissions", {
     "joined_by_default": fields.Boolean,
 })
 
+
+class RolePermissionParser(fields.String):
+    def format(self, value):
+        if "permission" in value:
+            return value[11:]
+        return value
+
+
 get_role_permission_model = Model.inherit("GetRolePermissions", role_permissions_model, {
-    "role_id": fields.String
+    "role_id": RolePermissionParser(attribute="sk")
 })

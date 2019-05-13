@@ -45,31 +45,32 @@ class EmailList(Resource):
             'address': address
         }
 
-#
-# @api.route("/<list_id>/rolePermissions/<role_id>")
-# class RolePermissions(Resource):
-#     @api.doc("get_role_permissions")
-#     @api.marshal_with(get_role_permission_model)
-#     def get(self, list_id, role_id):
-#         '''Get permissions to an email list for a role'''
-#         return email_list_service.get_role_permissions_by_role(list_id, role_id)
-#
-#     @api.doc("update_role_permissions")
-#     @api.expect(role_permissions_model)
-#     def post(self, list_id, role_id):
-#         '''Create or update permissions to an email list for a role'''
-#         body = request.json
-#         return email_list_service.update_role_permissions(list_id, role_id, body)
-#
-#
-# @api.route("/<list_id>/rolePermissions/")
-# class RolePermissionsList(Resource):
-#     @api.doc("get_all_role_permissions")
-#     @api.marshal_list_with(get_role_permission_model)
-#     def get(self, list_id):
-#         '''Get all role permissions for an email list'''
-#         return email_list_service.get_role_permissions(list_id)
-#
+
+@api.route("/<address>/rolePermissions/<role_id>")
+class RolePermissions(Resource):
+    @api.doc("get_role_permissions")
+    @api.marshal_with(get_role_permission_model)
+    def get(self, address, role_id):
+        '''Get permissions to an email list for a role'''
+        permissions = email_list_db.get_role_permissions_by_role(address, role_id)
+        return permissions
+
+    @api.doc("set_role_permissions")
+    @api.expect(role_permissions_model)
+    def post(self, address, role_id):
+        '''Create or update permissions to an email list for a role'''
+        body = request.json
+        return email_list_service.update_role_permissions(address, role_id, body)
+
+
+@api.route("/<address>/rolePermissions/")
+class RolePermissionsList(Resource):
+    @api.doc("get_all_role_permissions")
+    @api.marshal_list_with(get_role_permission_model)
+    def get(self, address):
+        '''Get all role permissions for an email list'''
+        permissions = email_list_db.get_role_permissions(address)
+        return permissions
 
 
 @api.route('/<address>/subscribe')
