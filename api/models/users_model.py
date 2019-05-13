@@ -10,6 +10,7 @@ user_create_model = Model("UserCreate", {
     'major': fields.String,
     'student_id_number': fields.String,
     'active_status': fields.String,
+    'other_emails': fields.List(fields.String)
 })
 
 get_users_model = Model.inherit("GetUsers", user_create_model, {
@@ -25,4 +26,5 @@ user_update_model = Model("UsersUpdate", {
     'major': fields.String(default=None),
     'student_id_number': fields.String(default=None),
     'active_status': fields.String(default=None),
+    'other_emails': fields.List(fields.String, default=None)
 })

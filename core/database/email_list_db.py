@@ -1,5 +1,3 @@
-#from core.database.db import dynamodb, subscriptionsTable, emailTable
-#from core.database.db import emailIndex, usersTable, subscriptionsIndex
 from core.database.db import dynamodb, table, reverseIndex
 from dynamodb_json import json_util as db_json
 import json

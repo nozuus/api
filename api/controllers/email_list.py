@@ -88,4 +88,5 @@ class Subscribers(Resource):
     @api.doc("get_users_on_list")
     def get(self, address):
         users = email_list_db.get_users_on_list(address)
-        return users
+        emails = [user["pk"] for user in users]
+        return emails

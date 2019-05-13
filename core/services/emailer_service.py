@@ -13,9 +13,9 @@ def process_received_email(mail):
     destinations = []
     total_emails = []
     for to_email in to_emails:
-        email_list = get_list_by_address(to_email)
+        email_list = email_list_db.get_email_list_by_address(to_email)
         if email_list is not None:
-            user_emails = get_emails_for_list(email_list["list_id"])
+            user_emails = get_emails_for_list(to_email)
             users_to_send_to = []
             for user_email in user_emails:
                 # Don't add the user if they're already being sent it, or if
@@ -39,7 +39,7 @@ def process_received_email(mail):
         send_invalid_destination_email(metadata_from, to_emails, msg["Subject"])
         return
 
-    if not users_db.check_valid_email(metadata_from):
+    if not check_valid_from_email(metadata_from):
         print("Invalid from email. Sending bounce")
         send_invalid_from_email(metadata_from, to_emails, msg["Subject"])
         return
@@ -73,21 +73,12 @@ def split_from(msg_from):
     return msg_from_name, msg_from_email
 
 
-def get_list_by_address(to_email):
-    split = to_email.split("@")
-    prefix = split[0]
-    domain = split[1]
-    # Get Email List
-    email_list = email_list_db.get_email_list(prefix, domain)
-    return email_list
-
-
-def get_emails_for_list(list_id):
+def get_emails_for_list(address):
     # Get Subscriptions
-    users_on_list = email_list_db.get_users_on_list(list_id)
+    users_on_list = email_list_db.get_users_on_list(address)
     user_emails = []
     for user_on_list in users_on_list:
-        user_emails.append(user_on_list["user_primary_email_address"])
+        user_emails.append(user_on_list["pk"])
 
     return user_emails
 
@@ -157,3 +148,15 @@ def send_invalid_from_email(from_email, to_emails, subject):
     email_client.send_email(Source= "Otter Pond Emailer <noreply@email.theotterpond.com>",
                             Destination={"ToAddresses": [from_email]},
                             Message=message)
+
+
+def check_valid_from_email(from_email):
+    check_user = users_db.get_user_by_email(from_email)
+    if check_user:
+        return True
+    # now the rough one. Grab all users, check their other emails
+    all_users = users_db.get_all_users()
+    for user in all_users:
+        if from_email in user["other_emails"]:
+            return True
+    return False
