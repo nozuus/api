@@ -1,21 +1,14 @@
 from flask_restplus import fields, Model
 
 subscribe_model = Model("SubscribeToList", {
-    'user_id': fields.String,
+    'user_email': fields.String,
 })
 
 
 list_model = Model("EmailList", {
-    "prefix": fields.String,
-    "domain": fields.String,
+    "address": fields.String(attribute="pk"),
     "subject_prefix": fields.String,
     "description": fields.String,
-    "only_recipients_can_send": fields.Boolean
-})
-
-
-get_list_model = Model.inherit("GetEmailList", list_model, {
-    "list_id": fields.String
 })
 
 

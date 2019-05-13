@@ -44,18 +44,9 @@ provider:
         - dynamodb:DeleteItem
         - dynamodb:UpdateTable
       Resource:
-        - "Fn::GetAtt": [ UsersTable, Arn ]
-        - "Fn::GetAtt": [ EmailListsTable, Arn ]
-        - "Fn::GetAtt": [ SubscriptionsTable, Arn ]
-        - "Fn::GetAtt": [ RolesTable, Arn ]
+        - "Fn::GetAtt": [ OtterPondTable, Arn ]
         - { "Fn::Join": [ "/", [
-          { "Fn::GetAtt": [EmailListsTable, Arn] }, "index", "*"
-          ]]}
-        - { "Fn::Join": [ "/", [
-          { "Fn::GetAtt": [UsersTable, Arn] }, "index", "*"
-          ]]}
-        - { "Fn::Join": [ "/", [
-          { "Fn::GetAtt": [RolesTable, Arn] }, "index", "*"
+          { "Fn::GetAtt": [OtterPondTable, Arn] }, "index", "*"
           ]]}
 
 package: # Optional deployment packaging configuration

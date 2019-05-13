@@ -1,15 +1,16 @@
-from core.database.db import dynamodb,rolesTable
+from core.database.db import dynamodb, table, reverseIndex
 from dynamodb_json import json_util as db_json
 import json
 
 
 def get_role_by_id(role_id):
     query_values = {
-        ":role_id": {"S": role_id}
+        ":role_id": {"S": role_id},
+        ":type": {"S": "role"}
     }
 
-    response = dynamodb.query(TableName=rolesTable,
-                              KeyConditionExpression="role_id = :role_id",
+    response = dynamodb.query(TableName=table,
+                              KeyConditionExpression="pk = :role_id AND sk = :type",
                               ExpressionAttributeValues=query_values)
 
     result = db_json.loads(response)["Items"]
@@ -20,8 +21,14 @@ def get_role_by_id(role_id):
 
 
 def get_all_roles():
-    response = dynamodb.scan(TableName=rolesTable,
-                             Select="ALL_ATTRIBUTES")
+    query_values = {
+        ":type": {"S": "role"}
+    }
+
+    response = dynamodb.query(TableName=table,
+                              IndexName=reverseIndex,
+                              KeyConditionExpression="sk = :type",
+                              ExpressionAttributeValues=query_values)
 
     result = db_json.loads(response)["Items"]
 
@@ -31,17 +38,26 @@ def get_all_roles():
 def create_role(role):
     item = json.loads(db_json.dumps(role))
 
-    response = dynamodb.put_item(TableName=rolesTable,
+    response = dynamodb.put_item(TableName=table,
                                  Item=item,
-                                 ConditionExpression="attribute_not_exists(role_id)")
+                                 ConditionExpression="attribute_not_exists(pk)")
 
     return response["ResponseMetadata"]["HTTPStatusCode"] == 200
 
 
-def delete_role(role):
-    item = json.loads(db_json.dumps(role))
+def update_role(user):
+    item = json.loads(db_json.dumps(user))
 
-    response = dynamodb.delete_item(TableName=rolesTable,
-                                    Key=item)
+    response = dynamodb.put_item(TableName=table,
+                                 Item=item)
 
     return response["ResponseMetadata"]["HTTPStatusCode"] == 200
+
+#
+# def delete_role(role):
+#     item = json.loads(db_json.dumps(role))
+#
+#     response = dynamodb.delete_item(TableName=rolesTable,
+#                                     Key=item)
+#
+#     return response["ResponseMetadata"]["HTTPStatusCode"] == 200

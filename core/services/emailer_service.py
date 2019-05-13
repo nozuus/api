@@ -1,4 +1,5 @@
 import core.database.email_list_db as email_list_db
+import core.database.users_db as users_db
 import boto3
 import email
 
@@ -36,7 +37,13 @@ def process_received_email(mail):
     if len(destinations) == 0:
         print("Invalid destinations. Sending bounce")
         send_invalid_destination_email(metadata_from, to_emails, msg["Subject"])
-        return;
+        return
+
+    if not users_db.check_valid_email(metadata_from):
+        print("Invalid from email. Sending bounce")
+        send_invalid_from_email(metadata_from, to_emails, msg["Subject"])
+        return
+
 
     msg_from = msg["From"]
     from_name, from_email = split_from(msg_from)
@@ -106,7 +113,7 @@ def read_email_from_s3(message_id):
 def send_invalid_destination_email(from_email, to_emails, subject):
     message = {
         'Subject': {
-            "Data": "Invalid Destination: %s" % subject,
+            "Data": "Unable to send: %s" % subject,
         },
         "Body": {
             "Text": {
@@ -115,6 +122,31 @@ def send_invalid_destination_email(from_email, to_emails, subject):
                         "check your recipients and try again. If you believe "
                         "this is an error, please send an email to "
                         "dbecker.fl@gmail.com.\n\nThank you,\n\nDaniel Becker"
+                        % (from_email, ",".join(to_emails))
+            }
+        }
+    }
+
+    print(message)
+    email_client = boto3.client('ses')
+    email_client.send_email(Source= "Otter Pond Emailer <noreply@email.theotterpond.com>",
+                            Destination={"ToAddresses": [from_email]},
+                            Message=message)
+
+
+def send_invalid_from_email(from_email, to_emails, subject):
+    message = {
+        'Subject': {
+            "Data": "Unable to send: %s" % subject,
+        },
+        "Body": {
+            "Text": {
+                "Data": "Dear %s, \n\n\nYou do not have permissions to send an "
+                        "email to %s. If you have an account for Otter Pond, "
+                        "this error could be because this email is not listed "
+                        "under your account. If you believe this is an error, "
+                        "please send an email to dbecker.fl@gmail.com.\n\n"
+                        "Thank you,\n\nDaniel Becker"
                         % (from_email, ",".join(to_emails))
             }
         }

@@ -11,25 +11,25 @@ api.models[user_create_model.name] = user_create_model
 api.models[user_update_model.name] = user_update_model
 api.models[get_users_model.name] = get_users_model
 
-@api.route('/<id>')
+@api.route('/<user_email>')
 class User(Resource):
-    @api.doc('get_user_by_id')
+    @api.doc('get_user_by_username')
     @api.marshal_with(get_users_model)
     #@jwt_required
-    def get(self, id):
-        '''Fetch a user given it's id'''
-        user = users_db.get_user_by_id(id)
+    def get(self, user_email):
+        '''Fetch a user given it's email'''
+        user = users_db.get_user_by_email(user_email)
         return user
 
     @api.doc('update_user')
     @api.expect(user_update_model)
     #@jwt_required
-    def put(self, id):
-        '''Updates the user and returns the user_id'''
+    def put(self, user_email):
+        '''Updates the user and returns the user's email'''
         body = request.json
-        user_id = users_service.update_user(id, body)
+        user_id = users_service.update_user(user_email, body)
         return {
-            'user_id': user_id
+            'user_email': user_id
         }
 
 
@@ -39,11 +39,11 @@ class UserCreate(Resource):
     @api.expect(user_create_model)
     #@jwt_required
     def post(self):
-        '''Create a new user and retrieve the new user_id'''
+        '''Create a new user'''
         body = request.json
-        user_id = users_service.create_user(body)
+        users_service.create_user(body)
         return {
-            'user_id': str(user_id)
+            'error': "success"
         }
 
 

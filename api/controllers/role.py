@@ -27,7 +27,7 @@ class Role(Resource):
     def put(self, id):
         '''Updates the role and returns the role_id'''
         body = request.json
-        role_id = roles_service.update_role(id, body["role_description"])
+        role_id = roles_service.update_role(id, body)
         return {
             'role_id': role_id
         }
@@ -35,7 +35,7 @@ class Role(Resource):
 
 @api.route("/create")
 class RoleCreate(Resource):
-    @api.doc("create_user")
+    @api.doc("create_role")
     @api.expect(role_model)
     #@jwt_required
     def post(self):

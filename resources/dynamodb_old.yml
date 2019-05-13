@@ -1,0 +1,134 @@
+Resources:
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Users-1
+      AttributeDefinitions:
+        - AttributeName: user_id
+          AttributeType: S
+        - AttributeName: primary_email_address
+          AttributeType: S
+        - AttributeName: secondary_email_address
+          AttributeType: S
+      KeySchema:
+        - AttributeName: user_id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: UserByPrimaryEmail-1
+          KeySchema:
+            - AttributeName: primary_email_address
+              KeyType: HASH
+          Projection:
+            NonKeyAttributes:
+              - hashed_password
+              - user_id
+            ProjectionType: INCLUDE
+          ProvisionedThroughput:
+            ReadCapacityUnits: 2
+            WriteCapacityUnits: 2
+        - IndexName: UserBySecondaryEmail-1
+          KeySchema:
+              - AttributeName: secondary_email_address
+                KeyType: HASH
+          Projection:
+            NonKeyAttributes:
+              - hashed_password
+              - user_id
+            ProjectionType: INCLUDE
+          ProvisionedThroughput:
+            ReadCapacityUnits: 2
+            WriteCapacityUnits: 2
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+  EmailListsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: EmailLists-1
+      AttributeDefinitions:
+        - AttributeName: list_id
+          AttributeType: S
+        - AttributeName: prefix
+          AttributeType: S
+        - AttributeName: domain
+          AttributeType: S
+      KeySchema:
+        - AttributeName: list_id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: EmailListCombined-1
+          KeySchema:
+            - AttributeName: domain
+              KeyType: HASH
+            - AttributeName: prefix
+              KeyType: RANGE
+          Projection:
+            NonKeyAttributes :
+              - list_id
+              - subject_prefix
+            ProjectionType: INCLUDE
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+  SubscriptionsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Subscriptions-1
+      AttributeDefinitions:
+        - AttributeName: list_id
+          AttributeType: S
+        - AttributeName: user_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: list_id
+          KeyType: HASH
+        - AttributeName: user_id
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      GlobalSecondaryIndexes:
+        - IndexName: SubscriptionByUser-1
+          KeySchema:
+            - AttributeName: user_id
+              KeyType: HASH
+          Projection:
+            NonKeyAttributes:
+              - list_id
+              - user_primary_email_address
+            ProjectionType: INCLUDE
+          ProvisionedThroughput:
+            ReadCapacityUnits: 2
+            WriteCapacityUnits: 2
+  RolesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Roles-1
+      AttributeDefinitions:
+        - AttributeName: role_id
+          AttributeType: S
+        - AttributeName: role_description
+          AttributeType: S
+      KeySchema:
+        - AttributeName: role_id
+          KeyType: HASH
+        - AttributeName: role_description
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      GlobalSecondaryIndexes:
+        - IndexName: RoleByDescription-1
+          KeySchema:
+            - AttributeName: role_description
+              KeyType: HASH
+          Projection:
+            NonKeyAttributes:
+              - role_id
+            ProjectionType: INCLUDE
+          ProvisionedThroughput:
+            ReadCapacityUnits: 2
+            WriteCapacityUnits: 2
