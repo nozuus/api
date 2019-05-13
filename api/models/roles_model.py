@@ -6,5 +6,5 @@ role_model = Model("Role", {
 
 
 get_role_model = Model.inherit("GetRole", role_model, {
-    "role_id": fields.String
+    "role_id": fields.String(attribute="pk")
 })

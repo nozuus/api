@@ -21,21 +21,22 @@ import json
 #        return result[0]
 #    return
 
-#
-# def get_email_list_by_id(list_id):
-#     query_values = {
-#         ":list_id": {"S": list_id}
-#     }
-#
-#     response = dynamodb.query(TableName=table,
-#                               KeyConditionExpression="list_id = :list_id",
-#                               ExpressionAttributeValues=query_values)
-#
-#     result = db_json.loads(response)["Items"]
-#
-#     if len(result) > 0:
-#         return result[0]
-#     return None
+
+def get_email_list_by_address(address):
+    query_values = {
+        ":address": {"S": address},
+        ":type": {"S": "list"}
+    }
+
+    response = dynamodb.query(TableName=table,
+                              KeyConditionExpression="pk = :address AND sk = :type",
+                              ExpressionAttributeValues=query_values)
+
+    result = db_json.loads(response)["Items"]
+
+    if len(result) > 0:
+        return result[0]
+    return None
 
 
 def get_users_on_list(list_address):
@@ -50,17 +51,21 @@ def get_users_on_list(list_address):
     return db_json.loads(response)["Items"]
 
 
-#"""Edit subscriptions list"""
+"""Edit subscriptions list"""
 
-#
-# def add_to_list(subscription):
-#     item = json.loads(db_json.dumps(subscription))
-#     response = dynamodb.put_item(TableName=subscriptionsTable,
-#                                  Item=item)
-#
-#     return response["ResponseMetadata"]["HTTPStatusCode"] == 200
-#
-#
+
+def add_to_list(address, user_email):
+    subscription = {
+        "pk": user_email,
+        "sk": "list_%s" % address
+    }
+    item = json.loads(db_json.dumps(subscription))
+    response = dynamodb.put_item(TableName=table,
+                                 Item=item)
+
+    return response["ResponseMetadata"]["HTTPStatusCode"] == 200
+
+
 # def update_user_email(user_id, new_email):
 #     subscriptions = get_subscriptions_by_user(user_id)
 #
@@ -101,25 +106,31 @@ def get_users_on_list(list_address):
 #
 #     return db_json.loads(response)["Items"]
 #
-#
-# def get_all_email_lists():
-#     response = dynamodb.scan(TableName=emailTable,
-#                              Select="ALL_ATTRIBUTES")
-#
-#     result = db_json.loads(response)["Items"]
-#
-#     return result
-#
-#
-# def create_email_list(email_list):
-#     item = json.loads(db_json.dumps(email_list))
-#
-#     response = dynamodb.put_item(TableName=emailTable,
-#                                  Item=item,
-#                                  ConditionExpression="attribute_not_exists(list_id)")
-#
-#     return response["ResponseMetadata"]["HTTPStatusCode"] == 200
-#
+
+def get_all_email_lists():
+    query_values = {
+        ":type": {"S": "list"}
+    }
+
+    response = dynamodb.query(TableName=table,
+                              IndexName=reverseIndex,
+                              KeyConditionExpression="sk = :type",
+                              ExpressionAttributeValues=query_values)
+
+    result = db_json.loads(response)["Items"]
+
+    return result
+
+
+def create_email_list(email_list):
+    item = json.loads(db_json.dumps(email_list))
+
+    response = dynamodb.put_item(TableName=table,
+                                 Item=item,
+                                 ConditionExpression="attribute_not_exists(pk)")
+
+    return response["ResponseMetadata"]["HTTPStatusCode"] == 200
+
 #
 # def update_email_list(email_list):
 #     item = json.loads(db_json.dumps(email_list))

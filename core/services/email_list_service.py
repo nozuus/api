@@ -4,26 +4,22 @@ import core.database.email_list_db as email_db
 import uuid
 
 
-# def add_to_list(list_id, user_id):
-#     user = users_db.get_user_by_id(user_id)
-#     primary_email = user["primary_email_address"]
-#     list_id = email_db.get_email_list_by_id(list_id)["list_id"]
-#     subscription = {
-#         "user_id": user_id,
-#         "list_id": list_id,
-#         "user_primary_email_address": primary_email
-#     }
-#     email_list_db.add_to_list(subscription)
-#
-#
-# def create_email_list(email_list):
-#     list_id = str(uuid.uuid4())
-#     email_list["list_id"] = list_id
-#     if email_db.create_email_list(email_list):
-#         return str(list_id)
-#     else:
-#         raise Exception("Failed to create email list")
-#
+def add_to_list(address, user_email):
+    # make sure that user and email list are both valid before adding
+    user = users_db.get_user_by_email(user_email)
+    email_list = email_list_db.get_email_list_by_address(address)
+    if user and email_list:
+        email_list_db.add_to_list(address, user_email)
+
+
+def create_email_list(email_list):
+    email_list["sk"] = "list"
+    email_list["pk"] = email_list.pop("address")
+    if email_db.create_email_list(email_list):
+        return True
+    else:
+        raise Exception("Failed to create email list")
+
 #
 # def get_role_permissions(list_id):
 #     email_list = email_list_db.get_email_list_by_id(list_id)
