@@ -9,6 +9,7 @@ list_model = Model("EmailList", {
     "address": fields.String(attribute="pk"),
     "subject_prefix": fields.String,
     "description": fields.String,
+    "allow_external": fields.Boolean
 })
 
 

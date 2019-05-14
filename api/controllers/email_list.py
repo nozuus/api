@@ -40,7 +40,8 @@ class EmailList(Resource):
     def post(self):
         '''Create an email list'''
         body = request.json
-        address = email_list_service.create_email_list(body)
+        address = body["address"]
+        email_list_service.create_email_list(body)
         return {
             'address': address
         }

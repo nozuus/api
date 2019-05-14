@@ -12,9 +12,12 @@ def process_received_email(mail):
     print("Metadata from: ", metadata_from)
     destinations = []
     total_emails = []
+    allow_external = True
     for to_email in to_emails:
         email_list = email_list_db.get_email_list_by_address(to_email)
         if email_list is not None:
+            if not email_list["allow_external"]:
+                allow_external = False
             user_emails = get_emails_for_list(to_email)
             users_to_send_to = []
             for user_email in user_emails:
@@ -39,11 +42,11 @@ def process_received_email(mail):
         send_invalid_destination_email(metadata_from, to_emails, msg["Subject"])
         return
 
-    if not check_valid_from_email(metadata_from):
-        print("Invalid from email. Sending bounce")
-        send_invalid_from_email(metadata_from, to_emails, msg["Subject"])
-        return
-
+    if not allow_external:
+        if not check_valid_from_email(metadata_from):
+            print("Invalid from email. Sending bounce")
+            send_invalid_from_email(metadata_from, to_emails, msg["Subject"])
+            return
 
     msg_from = msg["From"]
     from_name, from_email = split_from(msg_from)
