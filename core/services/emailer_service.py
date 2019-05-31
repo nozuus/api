@@ -2,6 +2,7 @@ import core.database.email_list_db as email_list_db
 import core.database.users_db as users_db
 import boto3
 import email
+import json
 
 
 def process_received_email(mail):
@@ -62,11 +63,18 @@ def process_received_email(mail):
 
     original_subject = msg["Subject"]
     for subject_prefix, user_emails in destinations:
-        if subject_prefix not in original_subject:
+        print("Original Subject: " + original_subject)
+        if subject_prefix is not None and subject_prefix not in original_subject:
             new_subject = "[" + subject_prefix + "] " + original_subject
             del msg["Subject"]
             msg["Subject"] = new_subject
-        send_email(msg, user_emails)
+            print("Adding subject: %s" % new_subject)
+        if len(user_emails) >= 50:
+            chunked_emails = chunks(user_emails, 50)
+            for user_chunks in chunked_emails:
+                send_email(msg, user_chunks)
+        else:
+            send_email(msg, user_emails)
 
 
 def split_from(msg_from):
@@ -87,13 +95,15 @@ def get_emails_for_list(address):
 
 
 def send_email(msg, email_addresses):
+    print("Sending email to users: " + ", ".join(email_addresses))
     email_client = boto3.client('ses')
-    email_client.send_raw_email(
+    response = email_client.send_raw_email(
         Destinations=email_addresses,
         RawMessage={
             'Data': msg.as_string()
         },
     )
+    print("Send Email Response: " + json.dumps(response))
 
 
 def read_email_from_s3(message_id):
@@ -163,3 +173,9 @@ def check_valid_from_email(from_email):
         if from_email in user["other_emails"]:
             return True
     return False
+
+
+def chunks(l, n):
+    """Yield successive n-sized chunks from l."""
+    for i in range(0, len(l), n):
+        yield l[i:i + n]
