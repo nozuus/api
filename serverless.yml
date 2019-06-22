@@ -68,13 +68,21 @@ functions:
     events:
       - http: ANY /
       - http: 'ANY {proxy+}'
+    memorySize: 256
   email_received:
     handler: emailer.emailmanager.email_received
     environment:
       stage: ${opt:stage, 'dev'}
+      admin_email: ${opt:admin_email, ''}
     events:
       - sns: email_received-${opt:stage, 'dev'}
       - existingS3:
           bucket: otter-pond-emails
           events:
             - s3:ObjectCreated:*
+    memorySize: 256
+  spam_filter:
+    handler: emailer.spam_filter.spam_filter_handler
+    environment:
+      emailDomain: theotterpond.com
+    memorySize: 128
