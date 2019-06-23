@@ -4,6 +4,7 @@ plugins:
   - serverless-python-requirements
   - serverless-wsgi
   - serverless-plugin-existing-s3
+  - serverless-domain-manager
 
 custom:
   wsgi:
@@ -11,6 +12,11 @@ custom:
     packRequirements: false
   pythonRequirements:
     dockerizePip: non-linux
+  customDomain:
+    domainName: ${opt:stage, 'dev'}.theotterpond.com
+    basePath: ''
+    stage: ${opt:stage, 'dev'}
+    createRoute53Record: true
 
 provider:
   name: aws
