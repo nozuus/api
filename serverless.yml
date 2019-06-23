@@ -14,7 +14,7 @@ custom:
     dockerizePip: non-linux
   customDomain:
     domainName: ${opt:stage, 'dev'}.theotterpond.com
-    basePath: ''
+    basePath: 'api'
     stage: ${opt:stage, 'dev'}
     createRoute53Record: true
 
@@ -23,6 +23,8 @@ provider:
   runtime: python3.6
   stage: ${opt:stage, 'dev'}
   region: us-east-1
+  environment:
+    API_GATEWAY_BASE_PATH: ${self:custom.customDomain.basePath}
   iamRoleStatements:
     - Effect: "Allow"
       Action:
