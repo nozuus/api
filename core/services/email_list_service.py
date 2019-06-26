@@ -10,6 +10,8 @@ def add_to_list(address, user_email):
     email_list = email_list_db.get_email_list_by_address(address)
     if user and email_list:
         email_list_db.add_to_list(address, user_email)
+    else:
+        raise Exception("User or email is null")
 
 
 def create_email_list(email_list):

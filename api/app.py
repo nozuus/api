@@ -2,8 +2,10 @@ from flask import Flask
 from .controllers import api
 from flask_jwt_extended import JWTManager
 import os
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 api.init_app(app)
 
 app.config['JWT_SECRET_KEY'] = os.environ.get("JWT_SECRET")

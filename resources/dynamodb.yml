@@ -2,7 +2,7 @@ Resources:
   OtterPondTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: OtterPondTable
+      TableName: OtterPondTable-${opt:stage, 'dev'}
       AttributeDefinitions:
         - AttributeName: pk
           AttributeType: S
@@ -14,7 +14,7 @@ Resources:
         - AttributeName: sk
           KeyType: RANGE
       GlobalSecondaryIndexes:
-        - IndexName: OtterPondTable-Reverse
+        - IndexName: OtterPondTable-Reverse-${opt:stage, 'dev'}
           KeySchema:
             - AttributeName: sk
               KeyType: HASH

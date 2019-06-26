@@ -4,6 +4,7 @@ plugins:
   - serverless-python-requirements
   - serverless-wsgi
   - serverless-plugin-existing-s3
+  - serverless-domain-manager
 
 custom:
   wsgi:
@@ -11,12 +12,20 @@ custom:
     packRequirements: false
   pythonRequirements:
     dockerizePip: non-linux
+  customDomain:
+    domainName: ${opt:stage, 'dev'}-api.theotterpond.com
+    basePath: ''
+    stage: ${opt:stage, 'dev'}
+    createRoute53Record: true
+    certificateName: '*.theotterpond.com'
 
 provider:
   name: aws
   runtime: python3.6
-  stage: dev
+  stage: ${opt:stage, 'dev'}
   region: us-east-1
+  #environment:
+  #  API_GATEWAY_BASE_PATH: ${self:custom.customDomain.basePath}
   iamRoleStatements:
     - Effect: "Allow"
       Action:
@@ -64,14 +73,26 @@ functions:
     handler: wsgi_handler.handler
     environment:
       JWT_SECRET: ${file(resources/keys.yml):JWT-Key}
+      stage: ${opt:stage, 'dev'}
     events:
       - http: ANY /
       - http: 'ANY {proxy+}'
+    memorySize: 256
   email_received:
     handler: emailer.emailmanager.email_received
+    environment:
+      stage: ${opt:stage, 'dev'}
+      admin_email: ${opt:admin_email, ''}
     events:
-      - sns: email_received
+      - sns: email_received-${opt:stage, 'dev'}
       - existingS3:
           bucket: otter-pond-emails
           events:
             - s3:ObjectCreated:*
+    memorySize: 256
+    timeout: 15
+  spam_filter:
+    handler: emailer.spam_filter.spam_filter_handler
+    environment:
+      emailDomain: theotterpond.com
+    memorySize: 128
