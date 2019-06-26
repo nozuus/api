@@ -1,6 +1,11 @@
 dist: trusty
 language: ruby
 
+branches:
+  only:
+  - master
+  - development
+
 script: |
   .travis.d/build.sh
 
@@ -9,4 +14,3 @@ addons:
     packages:
       - "python3"
       - "python3-pip"
-      - "pyenv-virtualenv"
