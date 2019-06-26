@@ -95,6 +95,7 @@ def get_role_permissions(address):
 
     return result
 
+
 def get_role_permissions_by_role(address, role_id):
     query_values = {
         ":address": {"S": address},
@@ -108,3 +109,33 @@ def get_role_permissions_by_role(address, role_id):
     result = db_json.loads(response)["Items"][0]
 
     return result
+
+
+def store_message_id(message_id, timestamp):
+    to_store = {
+        "pk": "message_id_cache",
+        "sk": message_id,
+        "timestamp": timestamp
+    }
+
+    item = json.loads(db_json.dumps(to_store))
+
+    response = dynamodb.put_item(TableName=table,
+                                 Item=item)
+
+    return response["ResponseMetadata"]["HTTPStatusCode"] == 200
+
+
+def check_message_id(message_id):
+    query_values = {
+        ":pkey" : {"S": "message_id_cache"},
+        ":message_id": {"S": message_id}
+    }
+
+    response = dynamodb.query(TableName=table,
+                              KeyConditionExpression="pk = :pkey AND sk = :message_id",
+                              ExpressionAttributeValues=query_values)
+
+    if len(db_json.loads(response)["Items"]) > 0:
+        return True
+    return False

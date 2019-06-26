@@ -13,18 +13,19 @@ custom:
   pythonRequirements:
     dockerizePip: non-linux
   customDomain:
-    domainName: ${opt:stage, 'dev'}.theotterpond.com
-    basePath: 'api'
+    domainName: ${opt:stage, 'dev'}-api.theotterpond.com
+    basePath: ''
     stage: ${opt:stage, 'dev'}
     createRoute53Record: true
+    certificateName: '*.theotterpond.com'
 
 provider:
   name: aws
   runtime: python3.6
   stage: ${opt:stage, 'dev'}
   region: us-east-1
-  environment:
-    API_GATEWAY_BASE_PATH: ${self:custom.customDomain.basePath}
+  #environment:
+  #  API_GATEWAY_BASE_PATH: ${self:custom.customDomain.basePath}
   iamRoleStatements:
     - Effect: "Allow"
       Action:
@@ -89,6 +90,7 @@ functions:
           events:
             - s3:ObjectCreated:*
     memorySize: 256
+    timeout: 15
   spam_filter:
     handler: emailer.spam_filter.spam_filter_handler
     environment:

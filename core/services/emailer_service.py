@@ -12,6 +12,14 @@ def process_received_email(mail):
         print("Printing mail object: ")
         print(mail)
         message_id = mail["messageId"]
+
+        if email_list_db.check_message_id(message_id):
+            print("Message ID exists in cache. Terminating.")
+            send_admin_email()
+            return
+        else:
+            email_list_db.store_message_id(message_id, str(datetime.datetime.now()))
+
         to_emails = mail["destination"]
         print("To emails: ", to_emails)
         metadata_from = mail["source"]
@@ -83,7 +91,9 @@ def process_received_email(mail):
                     send_email(msg, user_chunks)
             else:
                 send_email(msg, user_emails)
-    except:
+    except Exception as e:
+        print("Exception. Printing object and serialized object: ")
+        print(e)
         send_admin_email()
 
 
@@ -202,6 +212,7 @@ def find_embedded_to_address(headers, to_emails):
 def send_admin_email():
     admin_email = os.environ['admin_email']
     if admin_email is None or admin_email == "":
+        print("Admin email not found. Terminating")
         return
     message = {
         'Subject': {
@@ -221,6 +232,8 @@ def send_admin_email():
     email_client.send_email(Source= "Otter Pond Emailer <noreply@email.theotterpond.com>",
                             Destination={"ToAddresses": [admin_email]},
                             Message=message)
+
+    print("Send email to admin")
 
 def chunks(l, n):
     """Yield successive n-sized chunks from l."""
