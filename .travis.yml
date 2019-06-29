@@ -1,16 +1,15 @@
 dist: trusty
 language: ruby
-
 branches:
   only:
   - master
   - development
-
-script: |
-  .travis.d/build.sh
-
+script: ".travis.d/build.sh\n"
 addons:
   apt:
     packages:
-      - "python3"
-      - "python3-pip"
+    - python3
+    - python3-pip
+notifications:
+  slack:
+    secure: sMlpjWwhY5uugZBenCx0jatqoMC+abZLczADTnTQ3lCCpBbbVq6MXQIGb2eGQhe/xvrn1BMo8Zkg6Vof4DY+r+eA1zFPC54jedBgPBpuf5wysxTcjKk3W+yERbLYkRdycfL8rEA71riu9c+ctQ/MwCLPJxSsQmhAERTQ8L/8l6cVn6+MTKuVx3rwkhvXrAOMr6yNqexyEmIH2Q6gpWDlqohGyaYt8FSPUZf9wZjZ1hnSdxNy3sFlO0nMM92VUVOhAkSDs14dJV7e15AFoMRG1lCQFRF9ajfQGzR4j35sHZttmrVvcn94d/zOml4GgV7JUG53YtJzTNzRCYwZg3j5huJGCfek0Wf2sgyxH0C0mcX6bsQ+CyTvaGYsPalYsTvGwyrwC30hXjiT8JoKvFdG+GmB5tEob0eXy/F09UMb7qCn45fKxDUj93CwY2l89FtsaaQ11FLoOTfHbPm1rHVZHNYbHITCW1m5J2fUgYpvf3BkhZQ93VSmbghsVx4AbGzH/RY0ybA5iQsg2bbZs0e7LtCWLfHisqvo9Itmmk9DkuA0U4M2l/vj/nQaMRxC6H5P3EV3Xo3yO577Mfe7mBzROPAhmWx63OWYSsxiAnGol21+l7PkoZ+mbdyPuty2d9/qADTPFXSwm4iRcSy4t7H0f/9EBfm8hFqJYdrIet+TVIw=
