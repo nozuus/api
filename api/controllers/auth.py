@@ -1,7 +1,7 @@
 from flask import request
 from flask_restplus import Namespace, Resource, fields
 import core.services.auth_services as auth_services
-from api.models.auth_model import login_model, set_password_model
+from api.models.auth_model import login_model, set_password_model, request_reset_model, reset_password_model
 from flask_jwt_extended import jwt_required
 
 
@@ -9,6 +9,8 @@ api = Namespace('auth', description='Authentication related operations')
 
 api.models[login_model.name] = login_model
 api.models[set_password_model.name] = set_password_model
+api.models[request_reset_model.name] = request_reset_model
+api.models[reset_password_model.name] = reset_password_model
 
 
 @api.route("/login")
@@ -52,3 +54,31 @@ class CheckLoginResource(Resource):
             }
         except:
             return None
+
+
+@api.route("/requestResetPassword")
+class RequestResetPasswordResource(Resource):
+    @api.doc("request_password_reset")
+    @api.expect(request_reset_model)
+    def post(self):
+        '''Request a password reset email for a user'''
+        body = request.json
+        result = auth_services.request_password_reset(body["user_email"])
+        if result:
+            return {"error": "Success"}
+        else:
+            return {"error": "Unable to request password reset"}
+
+
+@api.route("/resetPassword")
+class ResetPasswordResource(Resource):
+    @api.doc("reset_password")
+    @api.expect(reset_password_model)
+    def post(self):
+        '''Reset a user's password given a reset token'''
+        body = request.json
+        result = auth_services.reset_password(body["user_email"], body["token"], body["password"])
+        if result:
+            return {"error": "Success"}
+        else:
+            return {"error": "Unable to reset user password"}

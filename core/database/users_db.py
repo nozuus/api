@@ -1,6 +1,7 @@
-from core.database.db import dynamodb,table,reverseIndex
+from core.database.db import dynamodb,table,reverseIndex, delete_item
 from dynamodb_json import json_util as db_json
 import json
+import datetime
 
 
 def create_user(user):
@@ -52,3 +53,36 @@ def update_user(user):
                                  Item=item)
 
     return response["ResponseMetadata"]["HTTPStatusCode"] == 200
+
+
+def set_password_reset_token(user_email, token, expiration):
+    item = json.loads(db_json.dumps({
+        "pk": user_email,
+        "sk": "resetToken",
+        "token": token,
+        "expiration": expiration
+    }))
+
+    response = dynamodb.put_item(TableName=table,
+                                 Item=item)
+
+    return response["ResponseMetadata"]["HTTPStatusCode"] == 200
+
+
+def get_user_token(user_email):
+    query_values = {
+        ":email": {"S": user_email},
+        ":type": {"S": "resetToken"}
+    }
+
+    response = dynamodb.query(TableName=table,
+                              KeyConditionExpression="pk = :email AND sk = :type",
+                              ExpressionAttributeValues=query_values)
+
+
+    result = db_json.loads(response)["Items"]
+
+    if len(result) > 0:
+        return result[0]
+
+    return None
