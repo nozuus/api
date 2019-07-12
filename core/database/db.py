@@ -15,3 +15,17 @@ if stage == "dev":
     dynamodb = boto3.client("dynamodb", aws_access_key_id=key, aws_secret_access_key=secret, region_name='us-east-1')
 else:
     dynamodb = boto3.client('dynamodb')
+
+
+# Shared Functions
+
+def delete_item(pk, sk):
+    query = {
+        "pk": {"S": pk},
+        "sk": {"S": sk}
+    }
+
+    response = dynamodb.delete_item(TableName=table,
+                                    Key=query)
+
+    return response["ResponseMetadata"]["HTTPStatusCode"] == 200

@@ -21,3 +21,17 @@ def update_role(role_id, new_values):
         return role["pk"]
     else:
         raise Exception("Failed to update user")
+
+
+def group_users_by_roles():
+    roles = roles_db.get_all_roles()
+
+    for role in roles:
+        role_id = role["pk"]
+
+
+def remove_existing_role(user_email):
+    user_role = roles_db.get_role_by_user(user_email)
+    if user_role is not None:
+        return roles_db.delete_item(user_email, user_role["sk"])
+    return True
