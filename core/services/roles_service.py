@@ -1,4 +1,5 @@
 import core.database.roles_db as roles_db
+import core.database.users_db as users_db
 import uuid
 
 
@@ -35,3 +36,13 @@ def remove_existing_role(user_email):
     if user_role is not None:
         return roles_db.delete_item(user_email, user_role["sk"])
     return True
+
+
+def get_users_without_role():
+    users = users_db.get_all_users()
+    users_without_role = []
+    for user in users:
+        if roles_db.get_role_by_user(user["pk"]) is None:
+            users_without_role.append(user["pk"])
+    return users_without_role
+

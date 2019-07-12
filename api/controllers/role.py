@@ -38,8 +38,13 @@ class Role(Resource):
 class RoleUsers(Resource):
     @api.doc("get_users_with_role")
     def get(self, id):
-        '''Get all users that have a given role'''
-        user_entries = roles_db.get_users_by_role(id)
+        '''Get all users that have a given role. To get all users without
+        a role, use the ID \'none\''''
+        if id == "none":
+            user_entries = roles_service.get_users_without_role()
+            return user_entries
+        else:
+            user_entries = roles_db.get_users_by_role(id)
         users = []
         for user in user_entries:
             users.append(user["pk"])
