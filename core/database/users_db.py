@@ -86,3 +86,18 @@ def get_user_token(user_email):
         return result[0]
 
     return None
+
+
+def get_user_permissions(user_email):
+    query_values = {
+        ":email": {"S": user_email},
+        ":type": {"S": "permission"}
+    }
+
+    response = dynamodb.query(TableName=table,
+                              KeyConditionExpression="pk = :email AND begins_with(sk, :type)",
+                              ExpressionAttributeValues=query_values)
+
+    result = db_json.loads(response)["Items"]
+
+    return result

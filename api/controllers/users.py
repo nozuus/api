@@ -33,6 +33,26 @@ class User(Resource):
         }
 
 
+@api.route("/<user_email>/role")
+class UserRoleResource(Resource):
+    @api.doc("get_user_role")
+    def get(self, user_email):
+        '''Get a user's role'''
+        role = users_service.get_user_role(user_email)
+        if role:
+            return role
+        return {"error": "Unable to load user role"}
+
+
+@api.route("/<user_email>/permissions")
+class UserRoleResource(Resource):
+    @api.doc("get_user_permissions")
+    def get(self, user_email):
+        '''Get a user's permissions'''
+        permissions = users_service.get_user_permissions(user_email)
+        return permissions
+
+
 @api.route("/create")
 class UserCreate(Resource):
     @api.doc("create_user")
