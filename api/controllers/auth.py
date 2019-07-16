@@ -2,7 +2,6 @@ from flask import request
 from flask_restplus import Namespace, Resource, fields
 import core.services.auth_services as auth_services
 from api.models.auth_model import login_model, set_password_model, request_reset_model, reset_password_model
-from flask_jwt_extended import jwt_required
 
 
 api = Namespace('auth', description='Authentication related operations')
