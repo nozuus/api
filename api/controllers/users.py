@@ -15,7 +15,7 @@ api.models[get_users_model.name] = get_users_model
 class User(Resource):
     @api.doc('get_user_by_username')
     @api.marshal_with(get_users_model)
-    #@jwt_required
+    @jwt_required
     def get(self, user_email):
         '''Fetch a user given it's email'''
         user = users_db.get_user_by_email(user_email)
@@ -23,7 +23,7 @@ class User(Resource):
 
     @api.doc('update_user')
     @api.expect(user_update_model)
-    #@jwt_required
+    @jwt_required
     def put(self, user_email):
         '''Updates the user and returns the user's email'''
         body = request.json
@@ -36,6 +36,7 @@ class User(Resource):
 @api.route("/<user_email>/role")
 class UserRoleResource(Resource):
     @api.doc("get_user_role")
+    @jwt_required
     def get(self, user_email):
         '''Get a user's role'''
         role = users_service.get_user_role(user_email)
@@ -47,6 +48,7 @@ class UserRoleResource(Resource):
 @api.route("/<user_email>/permissions")
 class UserRoleResource(Resource):
     @api.doc("get_user_permissions")
+    @jwt_required
     def get(self, user_email):
         '''Get a user's permissions'''
         permissions = users_service.get_user_permissions(user_email)
@@ -57,7 +59,7 @@ class UserRoleResource(Resource):
 class UserCreate(Resource):
     @api.doc("create_user")
     @api.expect(user_create_model)
-    #@jwt_required
+    @jwt_required
     def post(self):
         '''Create a new user'''
         body = request.json
@@ -71,7 +73,7 @@ class UserCreate(Resource):
 class UserList(Resource):
     @api.doc('get_all_users')
     @api.marshal_list_with(get_users_model)
-    #@jwt_required
+    @jwt_required
     def get(self):
         '''Fetch all users'''
         users = users_db.get_all_users()

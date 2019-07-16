@@ -16,7 +16,7 @@ api.models[add_user_model.name] = add_user_model
 class Role(Resource):
     @api.doc('get_role_by_id')
     @api.marshal_with(get_role_model)
-    #@jwt_required
+    @jwt_required
     def get(self, id):
         '''Fetch a role given it's id'''
         role = roles_db.get_role_by_id(id)
@@ -24,7 +24,7 @@ class Role(Resource):
 
     @api.doc('update_role')
     @api.expect(role_model)
-    #@jwt_required
+    @jwt_required
     def put(self, id):
         '''Updates the role and returns the role_id'''
         body = request.json
@@ -37,6 +37,7 @@ class Role(Resource):
 @api.route("/<id>/users")
 class RoleUsers(Resource):
     @api.doc("get_users_with_role")
+    @jwt_required
     def get(self, id):
         '''Get all users that have a given role. To get all users without
         a role, use the ID \'none\''''
@@ -52,6 +53,7 @@ class RoleUsers(Resource):
 
     @api.doc("add_user_to_role")
     @api.expect(add_user_model)
+    @jwt_required
     def post(self, id):
         '''Add a user to a role.
         Will update an existing role if the user has one.'''
@@ -68,7 +70,7 @@ class RoleUsers(Resource):
 class RoleCreate(Resource):
     @api.doc("create_role")
     @api.expect(role_model)
-    #@jwt_required
+    @jwt_required
     def post(self):
         '''Create a new role and retrieve the new role_id'''
         body = request.json
@@ -82,7 +84,7 @@ class RoleCreate(Resource):
 class RoleList(Resource):
     @api.doc('get_all_users')
     @api.marshal_list_with(get_role_model)
-    #@jwt_required
+    @jwt_required
     def get(self):
         '''Fetch all roles'''
         roles = roles_db.get_all_roles()

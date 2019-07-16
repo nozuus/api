@@ -3,6 +3,7 @@ from flask_restplus import Namespace, Resource, fields
 import core.services.email_list_service as email_list_service
 import core.database.email_list_db as email_list_db
 from api.models.email_list_model import subscribe_model, list_model, role_permissions_model, get_role_permission_model
+from flask_jwt_extended import jwt_required
 
 
 api = Namespace('email_list', description='Email related operations')

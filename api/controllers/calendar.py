@@ -2,6 +2,7 @@ from flask import request
 from flask_restplus import Namespace, Resource, fields
 from api.models.calendar_model import calendar_config_model
 import core.services.calendar_service as calendar_service
+from flask_jwt_extended import jwt_required
 
 api = Namespace('calendar', description='Calendar related operations')
 
@@ -12,6 +13,7 @@ api.models[calendar_config_model.name] = calendar_config_model
 class CalendarConfigResource(Resource):
     @api.doc("set_calendar_config")
     @api.expect(calendar_config_model)
+    @jwt_required
     def post(self):
         '''Set the active calendar configuration.'''
         body = request.json
@@ -25,6 +27,7 @@ class CalendarConfigResource(Resource):
 
     @api.doc("get_calendar_config")
     @api.marshal_with(calendar_config_model)
+    @jwt_required
     def get(self):
         '''Get the active calendar configuration'''
         config = calendar_service.get_configuraiton()
