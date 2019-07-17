@@ -12,6 +12,12 @@ list_model = Model("EmailList", {
     "allow_external": fields.Boolean
 })
 
+update_list_model = Model("UpdateEmailList", {
+    "subject_prefix": fields.String,
+    "description": fields.String,
+    "allow_external": fields.Boolean
+})
+
 
 role_permissions_model = Model("RolePermissions", {
     "can_self_join": fields.Boolean,

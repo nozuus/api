@@ -2,7 +2,7 @@ from flask import request
 from flask_restplus import Namespace, Resource, fields
 import core.services.email_list_service as email_list_service
 import core.database.email_list_db as email_list_db
-from api.models.email_list_model import subscribe_model, list_model, role_permissions_model, get_role_permission_model
+from api.models.email_list_model import subscribe_model, list_model, role_permissions_model, get_role_permission_model, update_list_model
 from flask_jwt_extended import jwt_required
 
 
@@ -12,6 +12,7 @@ api.models[subscribe_model.name] = subscribe_model
 api.models[list_model.name] = list_model
 api.models[role_permissions_model.name] = role_permissions_model
 api.models[get_role_permission_model.name] = get_role_permission_model
+api.models[update_list_model.name] = update_list_model
 
 
 @api.route("/")
@@ -32,6 +33,18 @@ class EmailList(Resource):
         '''Get email list by address'''
         email_list = email_list_db.get_email_list_by_address(address)
         return email_list
+
+    @api.doc("update_list_by_id")
+    @api.expect(update_list_model)
+    def put(self, address):
+        '''Update the details of an email list'''
+        email_list = request.json
+        email_list["pk"] = address
+        email_list["sk"] = "list"
+        result = email_list_db.put_item_no_check(email_list)
+        if result:
+            return {"error": "Success"}
+        return {"error": "Unable to save email list details"}
 
 
 @api.route("/create")
