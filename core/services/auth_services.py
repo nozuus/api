@@ -46,6 +46,8 @@ def request_password_reset(user_email):
         stage = os.environ.get("stage")
         if not stage:
             stage = "dev"
+        if stage == "prod":
+            stage = "www"
         link = "https://%s.theotterpond.com/#/auth/resetPassword?token=%s" % (stage, reset_token)
         body = body % link
         result = emailer_service.send_html_body("Password Reset", body, [user_email])
