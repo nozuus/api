@@ -22,13 +22,14 @@ def email_received(event, context):
 
 def process_received_email(mail):
     try:
-        print("Printing mail object: ")
+        print("Mail object: ")
         print(mail)
         message_id = mail["messageId"]
+        print("Message ID: " + message_id)
 
         if email_list_db.check_message_id(message_id):
             print("Message ID exists in cache. Terminating.")
-            send_admin_email()
+            send_admin_email("Message in cache")
             return
         else:
             email_list_db.store_message_id(message_id, str(datetime.datetime.now()))
@@ -46,6 +47,7 @@ def process_received_email(mail):
             to_email = to_email.lower()
             email_list = email_list_db.get_email_list_by_address(to_email)
             if email_list is not None:
+                print("Email list found for recipient: " + to_email)
                 if not email_list["allow_external"]:
                     allow_external = False
                 user_emails = get_emails_for_list(to_email)
@@ -58,23 +60,30 @@ def process_received_email(mail):
                             and user_email not in to_emails):
                         total_emails.append(user_email)
                         users_to_send_to.append(user_email)
+                print("Found %d users for list." % len(users_to_send_to))
                 if len(users_to_send_to) > 0:
                     destinations.append((email_list["subject_prefix"],
                                          users_to_send_to))
+            else:
+                print("Email list not found for recipient: " + to_email)
 
         print("Destinations: ", destinations)
 
+        print("Reading email contents from S3")
         email_contents = read_email_from_s3(message_id)
+        print("Finished reading email contents from S3")
         msg = email.message_from_bytes(email_contents)
 
         if len(destinations) == 0:
             print("Invalid destinations. Sending bounce")
+            send_admin_email("Invalid Destination")
             #send_invalid_destination_email(metadata_from, to_emails, msg["Subject"])
             return
 
         if not allow_external:
             if not check_valid_from_email(metadata_from):
                 print("Invalid from email. Sending bounce")
+                send_admin_email("Invalid from email")
                 #send_invalid_from_email(metadata_from, to_emails, msg["Subject"])
                 return
 
@@ -93,22 +102,27 @@ def process_received_email(mail):
 
         original_subject = msg["Subject"]
         for subject_prefix, user_emails in destinations:
-            print("Original Subject: " + original_subject)
             if subject_prefix is not None and subject_prefix not in original_subject:
                 new_subject = "[" + subject_prefix + "] " + original_subject
                 del msg["Subject"]
                 msg["Subject"] = new_subject
-                print("Adding subject: %s" % new_subject)
+            if subject_prefix is not None:
+                print("Sending to users on list with prefix: " + subject_prefix)
+            else:
+                print("Sending to user without prefix")
             if len(user_emails) >= 50:
                 chunked_emails = chunks(user_emails, 50)
+                print("Split recipients into %d chunks" % len(chunked_emails))
                 for user_chunks in chunked_emails:
                     send_email(msg, user_chunks)
             else:
                 send_email(msg, user_emails)
+        print("Succeeded processing email")
     except Exception as e:
         print("Exception. Printing object and serialized object: ")
         print(e)
-        send_admin_email()
+        send_admin_email("Exception")
+    print("Finished email processing execution")
 
 
 def split_from(msg_from):
@@ -219,18 +233,18 @@ def find_embedded_to_address(headers, to_emails):
                 address = header["value"][(value.index("for ") + 4):value.index(";")]
                 print("Address: " + address)
                 if address not in to_emails:
-                    send_admin_email()
+                    send_admin_email("Invalid embedded to address")
                 return
 
 
-def send_admin_email():
+def send_admin_email(reason=""):
     admin_email = os.environ['admin_email']
     if admin_email is None or admin_email == "":
         print("Admin email not found. Terminating")
         return
     message = {
         'Subject': {
-            "Data": "Admin Email",
+            "Data": "Admin Email" if reason == "" else  "Admin Email: " + reason,
         },
         "Body": {
             "Text": {
