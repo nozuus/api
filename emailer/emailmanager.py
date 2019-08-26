@@ -43,7 +43,8 @@ def process_received_email(mail):
         total_emails = []
         allow_external = True
         for to_email in to_emails:
-            email_list = email_list_db.get_email_list_by_address(to_email.lower())
+            to_email = to_email.lower()
+            email_list = email_list_db.get_email_list_by_address(to_email)
             if email_list is not None:
                 if not email_list["allow_external"]:
                     allow_external = False
