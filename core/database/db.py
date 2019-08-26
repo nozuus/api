@@ -42,6 +42,16 @@ def put_item_no_check(item_obj):
     return response["ResponseMetadata"]["HTTPStatusCode"] == 200
 
 
+def put_item_unique_pk(item_obj):
+    item = json.loads(db_json.dumps(item_obj))
+
+    response = dynamodb.put_item(TableName=table,
+                                 Item=item,
+                                 ConditionExpression="attribute_not_exists(pk)")
+
+    return response["ResponseMetadata"]["HTTPStatusCode"] == 200
+
+
 def get_item(pk, sk):
     query_values = {
         ":primary": {"S": pk},

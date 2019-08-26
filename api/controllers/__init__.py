@@ -4,6 +4,7 @@ from .email_list import api as email_list_api
 from .auth import api as auth_api
 from .role import api as role_api
 from .calendar import api as calendar_api
+from .reporting import api as reporting_api
 
 authorizations = {
     'apikey': {
@@ -26,3 +27,4 @@ api.add_namespace(email_list_api, path="/email_lists")
 api.add_namespace(auth_api, path="/auth")
 api.add_namespace(role_api, path="/roles")
 api.add_namespace(calendar_api, path="/calendar")
+api.add_namespace(reporting_api, path="/reporting")
