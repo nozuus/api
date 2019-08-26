@@ -43,7 +43,7 @@ def process_received_email(mail):
         total_emails = []
         allow_external = True
         for to_email in to_emails:
-            email_list = email_list_db.get_email_list_by_address(to_email)
+            email_list = email_list_db.get_email_list_by_address(to_email.lower())
             if email_list is not None:
                 if not email_list["allow_external"]:
                     allow_external = False
@@ -53,7 +53,7 @@ def process_received_email(mail):
                     # Don't add the user if they're already being sent it, or if
                     # they were the sender or are already a recipient
                     if (user_email not in total_emails
-                            and user_email != metadata_from
+                            #and user_email != metadata_from
                             and user_email not in to_emails):
                         total_emails.append(user_email)
                         users_to_send_to.append(user_email)
