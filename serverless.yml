@@ -90,7 +90,7 @@ functions:
           events:
             - s3:ObjectCreated:*
     memorySize: 256
-    timeout: 15
+    timeout: 60
   spam_filter:
     handler: emailer.spam_filter.spam_filter_handler
     environment:
