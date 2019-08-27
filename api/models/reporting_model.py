@@ -29,6 +29,14 @@ semester_create_model = Model("SemesterCreate", {
     'description': fields.String
 })
 
-get_semester_model = Model.inherit("GetSemesters", type_create_model, {
+get_semester_model = Model.inherit("GetSemesters", semester_create_model, {
     "semester_id": fields.String(attribute='pk')
+})
+
+entry_model = Model("Entry", {
+    'description': fields.String,
+    'value': fields.Raw,
+    'timestamp': fields.DateTime,
+    'user_email': fields.String,
+    'entered_by_email': fields.String
 })

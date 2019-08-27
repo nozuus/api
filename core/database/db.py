@@ -64,4 +64,21 @@ def get_item(pk, sk):
 
     result = db_json.loads(response)["Items"]
 
+    if len(result) > 0:
+        return result[0]
+    return None
+
+
+def get_items_by_type(type):
+    query_values = {
+        ":type": {"S": type}
+    }
+
+    response = dynamodb.query(TableName=table,
+                              IndexName=reverseIndex,
+                              KeyConditionExpression="sk = :type",
+                              ExpressionAttributeValues=query_values)
+
+    result = db_json.loads(response)["Items"]
+
     return result
