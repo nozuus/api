@@ -1,10 +1,12 @@
 from flask import request
 from flask_restplus import Namespace, Resource
 from flask_jwt_extended import jwt_required
-from api.models.reporting_model import report_create_model, get_report_model, type_create_model, get_type_model, semester_create_model, get_semester_model, entry_model
+from api.models.reporting_model import report_create_model, get_report_model, type_create_model, get_type_model, semester_create_model, get_semester_model, entry_model, full_report_details
 import core.services.reporting_service as reporting_service
+import core.services.auth_services as auth_services
 import core.database.reporting_db as reporting_db
 from api.permissions_decorator import check_permissions
+
 
 api = Namespace('reporting', description='Reporting related operations')
 
@@ -15,6 +17,7 @@ api.models[get_type_model.name] = get_type_model
 api.models[semester_create_model.name] = semester_create_model
 api.models[get_semester_model.name] = get_semester_model
 api.models[entry_model.name] = entry_model
+api.models[full_report_details.name] = full_report_details
 
 
 @api.route("/create")
@@ -48,6 +51,22 @@ class ReportList(Resource):
         except Exception as e:
             return {
                 'error': "Error getting all reports: " + str(e)
+            }
+
+
+@api.route("/<report_id>")
+class Report(Resource):
+    @api.doc('get_report_by_id')
+    @api.marshal_list_with(full_report_details)
+    @jwt_required
+    def get(self,report_id):
+        '''Fetch report by id'''
+        try:
+            report = reporting_service.get_report_with_details(report_id)
+            return report
+        except Exception as e:
+            return {
+                'error': "Error getting report by id: " + str(e)
             }
 
 
@@ -88,7 +107,8 @@ class ReportEntriesByUser(Resource):
     @jwt_required
     def get(self, report_id, user_email):
         try:
-            entries = reporting_db.get_report_entries_for_user(report_id, user_email)
+            username = auth_services.get_identity()
+            entries = reporting_service.get_report_entries_for_user(report_id, username != user_email)
             return entries
         except Exception as e:
             return {

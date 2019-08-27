@@ -1,4 +1,5 @@
 import core.database.reporting_db as reporting_db
+import core.services.config_service as config_service
 import uuid
 
 
@@ -67,6 +68,23 @@ def create_report_entry(report_id, entry):
     else:
         raise Exception("Failed to create report entry");
 
+
+def get_report_entries_for_user(report_id, check_permissions):
+    if check_permissions:
+        report = reporting_db.get_item(report_id, "report")
+        report_type = reporting_db.get_item(report["report_type_id"], "report_type")
+        if not config_service.check_permissions(report_type["management_permissions"]):
+            raise Exception("User does not have permissions to view these entries")
+
+    entries = reporting_db.get_report_entries(report_id)
+    return entries
+
+
+def get_report_with_details(report_id):
+    report = reporting_db.get_item(report_id, "report")
+    report["report_type"] = reporting_db.get_item(report["report_type_id"], "report_type")
+    report["semester"] = reporting_db.get_item(report["semester_id"], "semester")
+    return report;
 
 def is_number(s):
     try:

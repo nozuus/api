@@ -40,3 +40,8 @@ entry_model = Model("Entry", {
     'user_email': fields.String,
     'entered_by_email': fields.String
 })
+
+full_report_details = Model.inherit("GetFullReportDetails", get_report_model, {
+    "report_type": fields.Nested(get_type_model),
+    "semester": fields.Nested(get_semester_model)
+})

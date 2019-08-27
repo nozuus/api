@@ -1,16 +1,14 @@
 from functools import wraps
-from flask_jwt_extended import get_jwt_claims, verify_jwt_in_request
+
 from flask import jsonify
+import core.services.config_service as config_service
 
 
 def check_permissions(*permissions):
     def decorator(fn):
         @wraps(fn)
         def wrapper(*args, **kwargs):
-            verify_jwt_in_request()
-            claims = get_jwt_claims()
-            user_permissions = claims["permissions"]
-            if "full_admin" in user_permissions or len(list(set(user_permissions) & set(permissions))) > 0:
+            if config_service.check_permissions(permissions):
                 return fn(*args, **kwargs)
             else:
                 return jsonify(
