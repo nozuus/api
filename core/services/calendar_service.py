@@ -13,7 +13,4 @@ def set_configuration(calendar_type, api_key, url):
 
 
 def get_configuraiton():
-    config =  base_db.get_item("config", "calendar")
-    if config:
-        return config[0]
-    return None
+    return base_db.get_item("config", "calendar")

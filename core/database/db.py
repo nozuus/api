@@ -42,6 +42,16 @@ def put_item_no_check(item_obj):
     return response["ResponseMetadata"]["HTTPStatusCode"] == 200
 
 
+def put_item_unique_pk(item_obj):
+    item = json.loads(db_json.dumps(item_obj))
+
+    response = dynamodb.put_item(TableName=table,
+                                 Item=item,
+                                 ConditionExpression="attribute_not_exists(pk)")
+
+    return response["ResponseMetadata"]["HTTPStatusCode"] == 200
+
+
 def get_item(pk, sk):
     query_values = {
         ":primary": {"S": pk},
@@ -50,6 +60,23 @@ def get_item(pk, sk):
 
     response = dynamodb.query(TableName=table,
                               KeyConditionExpression="pk = :primary AND sk = :secondary",
+                              ExpressionAttributeValues=query_values)
+
+    result = db_json.loads(response)["Items"]
+
+    if len(result) > 0:
+        return result[0]
+    return None
+
+
+def get_items_by_type(type):
+    query_values = {
+        ":type": {"S": type}
+    }
+
+    response = dynamodb.query(TableName=table,
+                              IndexName=reverseIndex,
+                              KeyConditionExpression="sk = :type",
                               ExpressionAttributeValues=query_values)
 
     result = db_json.loads(response)["Items"]
