@@ -4,6 +4,7 @@ from flask_jwt_extended import jwt_required
 from api.models.reporting_model import report_create_model, get_report_model, type_create_model, get_type_model, semester_create_model, get_semester_model, entry_model
 import core.services.reporting_service as reporting_service
 import core.database.reporting_db as reporting_db
+from api.permissions_decorator import check_permissions
 
 api = Namespace('reporting', description='Reporting related operations')
 
@@ -21,6 +22,7 @@ class ReportCreate(Resource):
     @api.doc("create_report")
     @api.expect(report_create_model)
     @jwt_required
+    @check_permissions("can_manage_reporting", "can_create_reports")
     def post(self):
         '''Create a new report'''
         body = request.json
@@ -54,6 +56,7 @@ class ReportEntries(Resource):
     @api.doc("create_entry")
     @api.expect(entry_model)
     @jwt_required
+    @check_permissions("can_manage_reporting")
     def post(self, report_id):
         '''Add entry to a report'''
         body = request.json
@@ -98,6 +101,7 @@ class TypeCreate(Resource):
     @api.doc("create_report_type")
     @api.expect(type_create_model)
     @jwt_required
+    @check_permissions("can_manage_reporting")
     def post(self):
         '''Create a new report type'''
         body = request.json
@@ -133,6 +137,7 @@ class SemesterCreate(Resource):
     @api.doc("create_semester")
     @api.expect(semester_create_model)
     @jwt_required
+    @check_permissions("can_manage_reporting")
     def post(self):
         '''Create a new semester'''
         body = request.json

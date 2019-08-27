@@ -5,6 +5,7 @@ from .auth import api as auth_api
 from .role import api as role_api
 from .calendar import api as calendar_api
 from .reporting import api as reporting_api
+from .config import api as config_api
 
 authorizations = {
     'apikey': {
@@ -28,3 +29,4 @@ api.add_namespace(auth_api, path="/auth")
 api.add_namespace(role_api, path="/roles")
 api.add_namespace(calendar_api, path="/calendar")
 api.add_namespace(reporting_api, path="/reporting")
+api.add_namespace(config_api, path="/config")
