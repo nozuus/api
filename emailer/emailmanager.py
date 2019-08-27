@@ -112,7 +112,6 @@ def process_received_email(mail):
                 print("Sending to user without prefix")
             if len(user_emails) >= 50:
                 chunked_emails = chunks(user_emails, 50)
-                print("Split recipients into %d chunks" % len(chunked_emails))
                 for user_chunks in chunked_emails:
                     send_email(msg, user_chunks)
             else:
