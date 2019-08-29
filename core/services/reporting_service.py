@@ -63,20 +63,41 @@ def create_report_entry(report_id, entry):
     if report_type["value_type"] == "optionselect" and entry["value"] not in report_type["options"]:
         raise Exception("Invalid report value option")
 
+    permissions = report_type["management_permissions"]
+
+    if not config_service.check_permissions(permissions):
+        raise Exception("User does not have permissions to add report entry")
+
     if reporting_db.put_item_unique_pk(entry):
         return True
     else:
         raise Exception("Failed to create report entry");
 
 
-def get_report_entries_for_user(report_id, check_permissions):
+def get_report_entries(report_id):
+    report = reporting_db.get_item(report_id, "report")
+
+    if report is None:
+        raise Exception("Invalid Report ID")
+
+    report_type = reporting_db.get_item(report["report_type_id"], "report_type")
+
+    permissions = report_type["management_permissions"]
+
+    if not config_service.check_permissions(permissions):
+        raise Exception("User does not have permissions to view report entries")
+
+    return reporting_db.get_report_entries(report_id)
+
+
+def get_report_entries_for_user(report_id, user_email, check_permissions):
     if check_permissions:
         report = reporting_db.get_item(report_id, "report")
         report_type = reporting_db.get_item(report["report_type_id"], "report_type")
         if not config_service.check_permissions(report_type["management_permissions"]):
             raise Exception("User does not have permissions to view these entries")
 
-    entries = reporting_db.get_report_entries(report_id)
+    entries = reporting_db.get_report_entries_for_user(report_id, user_email)
     return entries
 
 

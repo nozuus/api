@@ -28,3 +28,7 @@ user_update_model = Model("UsersUpdate", {
     'active_status': fields.String(default=None),
     'other_emails': fields.List(fields.String, default=None)
 })
+
+enroll_buzzcard_model = Model("EnrollBuzzcard", {
+    "gtid": fields.String()
+})

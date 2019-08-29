@@ -75,7 +75,6 @@ class ReportEntries(Resource):
     @api.doc("create_entry")
     @api.expect(entry_model)
     @jwt_required
-    @check_permissions("can_manage_reporting")
     def post(self, report_id):
         '''Add entry to a report'''
         body = request.json
@@ -92,7 +91,7 @@ class ReportEntries(Resource):
     @jwt_required
     def get(self, report_id):
         try:
-            entries = reporting_db.get_report_entries(report_id)
+            entries = reporting_service.get_report_entries(report_id)
             return entries
         except Exception as e:
             return {
@@ -108,7 +107,7 @@ class ReportEntriesByUser(Resource):
     def get(self, report_id, user_email):
         try:
             username = auth_services.get_identity()
-            entries = reporting_service.get_report_entries_for_user(report_id, username != user_email)
+            entries = reporting_service.get_report_entries_for_user(report_id, username, username != user_email)
             return entries
         except Exception as e:
             return {

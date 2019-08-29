@@ -1,4 +1,4 @@
-from core.database.db import dynamodb,table,reverseIndex, delete_item
+from core.database.db import dynamodb,table,reverseIndex, delete_item, get_item, put_item_no_check
 from dynamodb_json import json_util as db_json
 import json
 import datetime
@@ -101,3 +101,38 @@ def get_user_permissions(user_email):
     result = db_json.loads(response)["Items"]
 
     return result
+
+
+def get_existing_gtid(user_email):
+    query_values = {
+        ":email": {"S": user_email},
+        ":type": {"S": "gtid"}
+    }
+
+    response = dynamodb.query(TableName=table,
+                              KeyConditionExpression="pk = :email AND begins_with(sk, :type)",
+                              ExpressionAttributeValues=query_values)
+
+    result = db_json.loads(response)["Items"]
+
+    if len(result) > 0:
+        return result[0]
+    return None
+
+
+def get_user_by_gtid(hashed_gtid):
+    query_values = {
+        ":gtid": {"gtid_" + hashed_gtid}
+    }
+
+    response = dynamodb.query(TableName=table,
+                              IndexName=reverseIndex,
+                              KeyConditionExpression="sk = :gtid",
+                              ExpressionAttributeValues=query_values)
+
+    result = db_json.loads(response)["Items"]
+
+    if len(result) > 0:
+        return result[0]["pk"]
+
+    return None
