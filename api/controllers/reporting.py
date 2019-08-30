@@ -6,6 +6,7 @@ import core.services.reporting_service as reporting_service
 import core.services.auth_services as auth_services
 import core.database.reporting_db as reporting_db
 from api.permissions_decorator import check_permissions
+import urllib
 
 
 api = Namespace('reporting', description='Reporting related operations')
@@ -106,6 +107,7 @@ class ReportEntriesByUser(Resource):
     @jwt_required
     def get(self, report_id, user_email):
         try:
+            user_email = urllib.unquote(user_email)
             username = auth_services.get_identity()
             entries = reporting_service.get_report_entries_for_user(report_id, user_email, username != user_email)
             return entries
