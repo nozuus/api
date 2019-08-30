@@ -107,7 +107,7 @@ class ReportEntriesByUser(Resource):
     def get(self, report_id, user_email):
         try:
             username = auth_services.get_identity()
-            entries = reporting_service.get_report_entries_for_user(report_id, username, username != user_email)
+            entries = reporting_service.get_report_entries_for_user(report_id, user_email, username != user_email)
             return entries
         except Exception as e:
             return {

@@ -91,11 +91,11 @@ def get_report_entries(report_id):
 
 
 def get_report_entries_for_user(report_id, user_email, check_permissions):
-    if check_permissions:
-        report = reporting_db.get_item(report_id, "report")
-        report_type = reporting_db.get_item(report["report_type_id"], "report_type")
-        if not config_service.check_permissions(report_type["management_permissions"]):
-            raise Exception("User does not have permissions to view these entries")
+    #if check_permissions:
+    #    report = reporting_db.get_item(report_id, "report")
+    #    report_type = reporting_db.get_item(report["report_type_id"], "report_type")
+    #    if not config_service.check_permissions(report_type["management_permissions"]):
+    #        raise Exception("User does not have permissions to view these entries")
 
     entries = reporting_db.get_report_entries_for_user(report_id, user_email)
     return entries
