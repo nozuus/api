@@ -106,7 +106,6 @@ class ReportEntriesByUser(Resource):
     @api.marshal_list_with(entry_model)
     @jwt_required
     def get(self, report_id, user_email):
-        user_email = urllib.unquote(user_email)
         username = auth_services.get_identity()
         entries = reporting_service.get_report_entries_for_user(report_id, user_email, username != user_email)
         return entries
