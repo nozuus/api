@@ -106,15 +106,10 @@ class ReportEntriesByUser(Resource):
     @api.marshal_list_with(entry_model)
     @jwt_required
     def get(self, report_id, user_email):
-        try:
-            user_email = urllib.unquote(user_email)
-            username = auth_services.get_identity()
-            entries = reporting_service.get_report_entries_for_user(report_id, user_email, username != user_email)
-            return entries
-        except Exception as e:
-            return {
-                'error': "Error fetching report entries: " + str(e)
-            }
+        user_email = urllib.unquote(user_email)
+        username = auth_services.get_identity()
+        entries = reporting_service.get_report_entries_for_user(report_id, user_email, username != user_email)
+        return entries
 
 
 @api.route("/types/create")

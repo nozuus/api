@@ -30,3 +30,9 @@ api.add_namespace(role_api, path="/roles")
 api.add_namespace(calendar_api, path="/calendar")
 api.add_namespace(reporting_api, path="/reporting")
 api.add_namespace(config_api, path="/config")
+
+
+@api.errorhandler(Exception)
+def handle_exception(error):
+    '''This is a custom error'''
+    return {'error': "Error processing request: " + error.message}, 400

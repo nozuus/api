@@ -21,7 +21,7 @@ def get_report_entries(report_id):
 def get_report_entries_for_user(report_id, user_id):
     query_values = {
         ":report_id": {"S": report_id},
-        ":type": {"S": "entry_%s" % user_id}
+        ":type": {"S": "entry_%s_" % user_id}
     }
 
     response = dynamodb.query(TableName=table,
