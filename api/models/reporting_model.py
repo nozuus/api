@@ -37,7 +37,8 @@ entry_model = Model("Entry", {
     'description': fields.String,
     'value': fields.Raw,
     'timestamp': fields.DateTime,
-    'user_email': fields.String,
+    'user_email': fields.String(skip_none=True),
+    'gtid': fields.String(skip_none=True),
     'entered_by_email': fields.String
 })
 
