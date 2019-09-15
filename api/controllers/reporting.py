@@ -1,7 +1,7 @@
 from flask import request
 from flask_restplus import Namespace, Resource
 from flask_jwt_extended import jwt_required
-from api.models.reporting_model import report_create_model, get_report_model, type_create_model, get_type_model, semester_create_model, get_semester_model, entry_model, full_report_details
+from api.models.reporting_model import report_create_model, get_report_model, type_create_model, get_type_model, semester_create_model, get_semester_model, entry_model, full_report_details, add_description
 import core.services.reporting_service as reporting_service
 import core.services.auth_services as auth_services
 import core.database.reporting_db as reporting_db
@@ -19,6 +19,7 @@ api.models[semester_create_model.name] = semester_create_model
 api.models[get_semester_model.name] = get_semester_model
 api.models[entry_model.name] = entry_model
 api.models[full_report_details.name] = full_report_details
+api.models[add_description.name] = add_description
 
 
 @api.route("/create")
@@ -69,6 +70,17 @@ class Report(Resource):
             return {
                 'error': "Error getting report by id: " + str(e)
             }
+
+@api.route("/<report_id>/presetDescription")
+class ReportDescription(Resource):
+    @api.doc("create_preset_description")
+    @api.expect(add_description)
+    @jwt_required
+    def post(self, report_id):
+        '''Adds a new description to the list of preset descriptions for the report. Used primarily by attendance'''
+        body = request.json
+        success = reporting_service.add_preset_description(report_id, body["description"])
+        return {"error":"Success" if success else "Error"}
 
 
 @api.route("/<report_id>/entries")
@@ -137,10 +149,28 @@ class ReportTypeList(Resource):
     @api.marshal_list_with(get_type_model)
     @jwt_required
     def get(self):
-        '''Fetch all reports'''
+        '''Fetch all report types'''
         try:
             report_types = reporting_db.get_items_by_type("report_type")
             return report_types
+        except Exception as e:
+            return {
+                'error': "Error getting all report types: " + str(e)
+            }
+
+
+@api.route("/types/<report_type_id>")
+class ReportTypeList(Resource):
+    @api.doc('get_report_type_by_id')
+    @api.marshal_with(get_type_model)
+    @jwt_required
+    def get(self, report_type_id):
+        '''Fetch report type by ID'''
+        try:
+            report_type = reporting_db.get_item(report_type_id, "report_type")
+            if report_type is None:
+                raise Exception("Invalid report type id")
+            return report_type
         except Exception as e:
             return {
                 'error': "Error getting all report types: " + str(e)

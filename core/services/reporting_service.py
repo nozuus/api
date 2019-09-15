@@ -116,6 +116,23 @@ def get_report_with_details(report_id):
     report["semester"] = reporting_db.get_item(report["semester_id"], "semester")
     return report;
 
+
+def add_preset_description(report_id, description):
+    report = reporting_db.get_item(report_id, "report")
+    if report is None:
+        raise Exception("Invalid report id")
+
+    descriptions = []
+    if "preset_descriptions" in report:
+        descriptions = report["preset_descriptions"]
+
+    descriptions.append(description)
+
+    report["preset_descriptions"] = descriptions
+
+    return reporting_db.put_item_no_check(report)
+
+
 def is_number(s):
     try:
         float(s)
