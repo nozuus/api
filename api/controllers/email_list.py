@@ -4,6 +4,7 @@ import core.services.email_list_service as email_list_service
 import core.database.email_list_db as email_list_db
 from api.models.email_list_model import subscribe_model, list_model, role_permissions_model, get_role_permission_model, update_list_model
 from flask_jwt_extended import jwt_required
+from api.permissions_decorator import check_permissions
 
 
 api = Namespace('email_list', description='Email related operations')
@@ -59,6 +60,16 @@ class EmailList(Resource):
         return {
             'address': address
         }
+
+
+@api.route("/requestVerification")
+class RequestVerification(Resource):
+    @api.doc("request_verification")
+    @api.expect(subscribe_model)
+    @check_permissions("can_manage_users")
+    def post(self):
+        '''Request an email verification'''
+        body =
 
 
 @api.route("/<address>/rolePermissions/<role_id>")

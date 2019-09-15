@@ -87,18 +87,29 @@ def process_received_email(mail):
                 #send_invalid_from_email(metadata_from, to_emails, msg["Subject"])
                 return
 
+        print("Checking verification status:")
+        check_verified_sender(metadata_from)
+
         msg_from = msg["From"]
         from_name, from_email = split_from(msg_from)
         del msg['Return-Path']
         del msg['From']
         del msg['Reply-To']
         del msg['Source']
-        safe_from = '%s <mailer@email.theotterpond.com>' % (from_name)
+
         user_from = "%s <%s>" % (from_name, from_email)
-        msg["Reply-To"] = user_from
-        msg["From"] = safe_from
-        msg["Return-Path"] = "mailer@email.theotterpond.com"
-        msg["Source"] = "mailer@email.theotterpond.com"
+        safe_from = '%s <mailer@email.theotterpond.com>' % (from_name)
+
+        if check_verified_sender(metadata_from):
+            msg["Reply-To"] = user_from
+            msg["From"] = user_from
+            msg["Return-Path"] = user_from
+            msg["Source"] = user_from
+        else:
+            msg["Reply-To"] = user_from
+            msg["From"] = safe_from
+            msg["Return-Path"] = "mailer@email.theotterpond.com"
+            msg["Source"] = "mailer@email.theotterpond.com"
 
         original_subject = msg["Subject"]
         for subject_prefix, user_emails in destinations:
@@ -220,6 +231,18 @@ def check_valid_from_email(from_email):
         if from_email in user["other_emails"]:
             return True
     return False
+
+
+def check_verified_sender(email_address):
+    try:
+        response = boto3.client('ses').get_identity_verification_attributes(Identities=[email_address])
+
+        verification_status = response["VerificationAttributes"][email_address]
+
+        return verification_status == "Success"
+    except Exception as e:
+        print("Unable to check verification status: " + str(e))
+        return False
 
 
 def find_embedded_to_address(headers, to_emails):

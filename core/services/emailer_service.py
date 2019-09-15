@@ -53,3 +53,12 @@ def send_html_body(subject, body, to_emails):
         },
     )
     return response["ResponseMetadata"]["HTTPStatusCode"] == 200
+
+
+def send_verification_email(email_address):
+    response = ses.send_custom_verification_email(
+        EmailAddress=email_address,
+        TemplateName='OtterPondTemplate_' + stage
+    )
+
+    return response["ResponseMetadata"]["HTTPStatusCode"] == 200
