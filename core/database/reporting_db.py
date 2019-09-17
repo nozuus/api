@@ -31,3 +31,19 @@ def get_report_entries_for_user(report_id, user_id):
     result = db_json.loads(response)["Items"]
 
     return result
+
+
+def checkReportEntryForUser(report_id, user_id, description = None):
+    entries = get_report_entries_for_user(report_id, user_id)
+
+    if description is None:
+        return entries
+
+    if len(entries) == 0:
+        return entries
+
+    for entry in entries:
+        if entry["description"] == description:
+            return entry
+
+    return []

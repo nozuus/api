@@ -44,7 +44,7 @@ def create_semester(semester_obj):
         raise Exception("Failed to create semester")
 
 
-def create_report_entry(report_id, entry):
+def create_report_entry(report_id, entry, existing = False):
     report = reporting_db.get_item(report_id, "report")
     if report is None:
         raise Exception("Invalid report ID")
@@ -76,6 +76,10 @@ def create_report_entry(report_id, entry):
 
     if not config_service.check_permissions(permissions):
         raise Exception("User does not have permissions to add report entry")
+
+    if existing == True:
+        if len(reporting_db.checkReportEntryForUser(report_id, entry["user_email"], entry["description"])) > 0:
+            raise Exception("Entry already exists for user")
 
     if reporting_db.put_item_unique_pk(entry):
         return True

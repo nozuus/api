@@ -92,7 +92,8 @@ class ReportEntries(Resource):
         '''Add entry to a report'''
         body = request.json
         try:
-            success = reporting_service.create_report_entry(report_id, body)
+            existing = request.args.get("checkExisting", default=False, type=bool)
+            success = reporting_service.create_report_entry(report_id, body, existing)
             return {"error":"Success" if success else "Error"}
         except Exception as e:
             return {
