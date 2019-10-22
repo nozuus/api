@@ -10,5 +10,5 @@ pyjwt==1.4.2
 flask_jwt_extended==3.18.0
 passlib==1.7.1
 flask_cors==3.0.7
-requests=2.22.0
-icalendar=4.0.3
+requests==2.22.0
+icalendar==4.0.3
