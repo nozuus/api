@@ -45,7 +45,7 @@ def get_ics(user_token):
     if len(token_record) == 0:
         raise Exception("Invalid user token")
     else:
-        print "User refreshing ICS: " + token_record[0]["pk"]
+        print("User refreshing ICS: " + token_record[0]["pk"])
     config = get_configuraiton()
     url = "https://www.googleapis.com/calendar/v3/calendars/%s/events?key=%s" % (config["calendar_url"], config["api_key"])
     events = requests.get(url).json()
