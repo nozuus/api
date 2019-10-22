@@ -5,6 +5,8 @@ from icalendar import Calendar, Event
 from datetime import datetime
 import hashlib
 import os
+import json
+from dateutil.parser import parse
 
 
 def set_configuration(calendar_type, api_key, url):
@@ -49,6 +51,7 @@ def get_ics(user_token):
     config = get_configuraiton()
     url = "https://www.googleapis.com/calendar/v3/calendars/%s/events?key=%s" % (config["calendar_url"], config["api_key"])
     events = requests.get(url).json()
+    print (json.dumps(events))
     cal = Calendar()
     cal["summary"] = "Georgia Tech Delta Chi Calendar"
     cal["name"] = "GT Delta Chi"
@@ -63,16 +66,13 @@ def get_ics(user_token):
             event.add("summary", event_json["summary"])
             event.add("uid", event_json["iCalUID"])
             if "date" in event_json["start"]:
-                start = datetime.strptime(event_json["start"]["date"],
-                                          "%Y-%m-%d")
-                end = datetime.strptime(event_json["end"]["date"], "%Y-%m-%d")
+                start = parse(event_json["start"]["date"])
+                end = parse(event_json["end"]["date"])
                 event.add("dtstart", start)
                 event.add("dtend", end)
             else:
-                start = datetime.strptime(event_json["start"]["dateTime"][0:19],
-                                          "%Y-%m-%dT%H:%M:%S")
-                end = datetime.strptime(event_json["end"]["dateTime"][0:19],
-                                        "%Y-%m-%dT%H:%M:%S")
+                start = parse(event_json["start"]["dateTime"])
+                end = parse(event_json["end"]["dateTime"])
                 event.add("dtstart", start)
                 event.add("dtend", end)
             cal.add_component(event)
