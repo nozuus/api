@@ -26,7 +26,7 @@ def generate_cal_link_for_user(user_email):
     user = users_db.get_user_by_email(user_email)
     if user is None:
         raise Exception("Invalid user email")
-    token = hashlib.sha512(user_email).hexdigest()
+    token = hashlib.sha512(user_email.encode("utf-8")).hexdigest()
 
     token = token[0:30]
 
