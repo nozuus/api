@@ -58,11 +58,8 @@ class RoleUsers(Resource):
         '''Add a user to a role.
         Will update an existing role if the user has one.'''
         body = request.json
-        roles_service.remove_existing_role(body["user_email"])
-        result = roles_db.set_user_role(body["user_email"], id)
-        if result:
-            return {"error": "Success"}
-        return {"error": "Unable to set user role"}
+        roles_service.update_user_role(body["user_email"], id)
+        return {"error": "Success"}
 
 
 
