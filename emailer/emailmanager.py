@@ -76,7 +76,7 @@ def process_received_email(mail):
 
         if len(destinations) == 0:
             print("Invalid destinations. Sending bounce")
-            send_admin_email("Invalid Destination")
+            #send_admin_email("Invalid Destination")
             #send_invalid_destination_email(metadata_from, to_emails, msg["Subject"])
             return
 
