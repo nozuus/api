@@ -88,7 +88,8 @@ def process_received_email(mail):
                 return
 
         print("Checking verification status:")
-        check_verified_sender(metadata_from)
+        verified = check_verified_sender(metadata_from)
+        print ("Email Verified? %r" % verified)
 
         msg_from = msg["From"]
         from_name, from_email = split_from(msg_from)
@@ -100,7 +101,7 @@ def process_received_email(mail):
         user_from = "%s <%s>" % (from_name, from_email)
         safe_from = '%s <mailer@email.theotterpond.com>' % (from_name)
 
-        if check_verified_sender(metadata_from):
+        if verified:
             msg["Reply-To"] = user_from
             msg["From"] = user_from
             msg["Return-Path"] = user_from

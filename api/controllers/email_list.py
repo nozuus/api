@@ -1,6 +1,7 @@
 from flask import request
 from flask_restplus import Namespace, Resource, fields
 import core.services.email_list_service as email_list_service
+import core.services.emailer_service as emailer_service
 import core.database.email_list_db as email_list_db
 from api.models.email_list_model import subscribe_model, list_model, role_permissions_model, get_role_permission_model, update_list_model
 from flask_jwt_extended import jwt_required
@@ -69,7 +70,12 @@ class RequestVerification(Resource):
     @check_permissions("can_manage_users")
     def post(self):
         '''Request an email verification'''
-        body =
+        body = request.json
+        address = body["user_email"]
+        emailer_service.verify_email_address(address)
+        return {
+            "error": "Success"
+        }
 
 
 @api.route("/<address>/rolePermissions/<role_id>")
