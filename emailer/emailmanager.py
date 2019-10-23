@@ -238,7 +238,7 @@ def check_verified_sender(email_address):
     try:
         response = boto3.client('ses').get_identity_verification_attributes(Identities=[email_address])
 
-        verification_status = response["VerificationAttributes"][email_address]
+        verification_status = response["VerificationAttributes"][email_address]["VerificationStatus"]
 
         return verification_status == "Success"
     except Exception as e:
