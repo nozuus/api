@@ -78,7 +78,7 @@ def verify_email_address(email_address):
     response = boto3.client('ses').get_identity_verification_attributes(
         Identities=[email_address])
     if len(response["VerificationAttributes"]) > 0:
-        verification_status = response["VerificationAttributes"][email_address]
+        verification_status = response["VerificationAttributes"][email_address]["VerificationStatus"]
         if verification_status == "Success":
             raise Exception("Email Address Already Verified")
 
