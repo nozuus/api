@@ -1,9 +1,11 @@
 from flask import request
 from flask_restplus import Namespace, Resource, fields
 import core.services.email_list_service as email_list_service
+import core.services.emailer_service as emailer_service
 import core.database.email_list_db as email_list_db
 from api.models.email_list_model import subscribe_model, list_model, role_permissions_model, get_role_permission_model, update_list_model
 from flask_jwt_extended import jwt_required
+from api.permissions_decorator import check_permissions
 
 
 api = Namespace('email_list', description='Email related operations')
@@ -58,6 +60,21 @@ class EmailList(Resource):
         email_list_service.create_email_list(body)
         return {
             'address': address
+        }
+
+
+@api.route("/requestVerification")
+class RequestVerification(Resource):
+    @api.doc("request_verification")
+    @api.expect(subscribe_model)
+    @check_permissions("can_manage_users")
+    def post(self):
+        '''Request an email verification'''
+        body = request.json
+        address = body["user_email"]
+        emailer_service.verify_email_address(address)
+        return {
+            "error": "Success"
         }
 
 
