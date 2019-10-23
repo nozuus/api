@@ -72,3 +72,5 @@ keys.yml
 
 
 *.pyc
+
+.DS_Store
