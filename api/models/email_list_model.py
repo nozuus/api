@@ -22,7 +22,8 @@ update_list_model = Model("UpdateEmailList", {
 role_permissions_model = Model("RolePermissions", {
     "can_self_join": fields.Boolean,
     "can_be_invited": fields.Boolean,
-    "joined_by_default": fields.Boolean,
+    "joined_on_creation": fields.Boolean,
+    "default": fields.Boolean,
 })
 
 

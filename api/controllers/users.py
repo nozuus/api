@@ -48,7 +48,7 @@ class UserRoleResource(Resource):
 
 
 @api.route("/<user_email>/permissions")
-class UserRoleResource(Resource):
+class UserPermissionsResource(Resource):
     @api.doc("get_user_permissions")
     @jwt_required
     def get(self, user_email):

@@ -26,7 +26,7 @@ def create_email_list(email_list):
 def update_role_permissions(address, role_id, permissions):
     role_permission = permissions
     role_permission["pk"] = address
-    role_permission["sk"] = "permission_%s" % role_id
+    role_permission["sk"] = "list_permission_%s" % role_id
     if email_db.save_role_permissions(role_permission):
         return True
     else:

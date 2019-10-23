@@ -1,5 +1,7 @@
 import core.database.roles_db as roles_db
 import core.database.users_db as users_db
+import core.database.email_list_db as email_list_db
+import core.services.email_list_service as email_list_service
 import uuid
 
 
@@ -54,8 +56,22 @@ def update_user_role(user_email, role_id):
     role = roles_db.get_role_by_id(role_id)
     if role is None:
         raise Exception("Invalid role id")
+    prev_user_role = user["role_id"]
+    prev_role_list_permissions = email_list_db.get_items_by_type("list_permission_%s" % prev_user_role)
+    new_role_list_permissionsn = email_list_db.get_items_by_type("list_permission_%s" % role_id)
+
+    for list_permission in prev_role_list_permissions:
+        if list_permission["default"]:
+            print("Removing %s from list %s by default" % (user_email, list_permission["pk"]))
+            email_list_service.delete_subscription(list_permission["pk"], user_email)
+
     remove_existing_role(user_email)
     roles_db.set_user_role(user_email, role_id)
+
+    for list_permission in new_role_list_permissionsn:
+        if list_permission["default"]:
+            print("Adding %s to list %s by default" % (user_email, list_permission["pk"]))
+            email_list_service.add_to_list(list_permission["pk"], user_email)
 
     user["role_id"] = role_id
 

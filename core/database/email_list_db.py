@@ -1,4 +1,4 @@
-from core.database.db import dynamodb, table, reverseIndex, put_item_no_check, delete_item
+from core.database.db import dynamodb, table, reverseIndex, put_item_no_check, delete_item, get_items_by_type, get_item
 from dynamodb_json import json_util as db_json
 import json
 
