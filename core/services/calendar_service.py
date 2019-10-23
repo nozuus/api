@@ -1,8 +1,7 @@
 import core.database.db as base_db
 import core.database.users_db as users_db
 import requests
-from icalendar import Calendar, Event
-from datetime import datetime
+from icalendar import Calendar, Event, Timezone
 import hashlib
 import os
 import json
@@ -39,7 +38,7 @@ def generate_cal_link_for_user(user_email):
 
     base_db.put_item_no_check({"pk": user_email, "sk": "calendar_%s" % token})
 
-    return base_url + "calendar/" + token + "/calendar"
+    return base_url + "calendar/" + token + "/calendar.ics"
 
 
 def get_ics(user_token):
@@ -55,8 +54,13 @@ def get_ics(user_token):
     cal = Calendar()
     cal["summary"] = "Georgia Tech Delta Chi Calendar"
     cal["name"] = "GT Delta Chi"
-    cal.add('prodid', '-//GT Delta Chi//mxm.dk//')
-    cal.add('version', '1.0')
+    cal.add('prodid', '-//The Otter Pond//GT Delta Chi//EN')
+    cal.add('version', '2.0')
+
+    tz = Timezone()
+    tz.add("tzid", "America/New_York")
+
+    cal.add_component(tz)
 
     for event_json in events["items"]:
         try:
@@ -65,16 +69,28 @@ def get_ics(user_token):
             event = Event()
             event.add("summary", event_json["summary"])
             event.add("uid", event_json["iCalUID"])
+            start = None
             if "date" in event_json["start"]:
                 start = parse(event_json["start"]["date"])
                 end = parse(event_json["end"]["date"])
-                event.add("dtstart", start)
-                event.add("dtend", end)
+                event.add("dtstart", start.date())
+                event.add("dtend", end.date())
             else:
                 start = parse(event_json["start"]["dateTime"])
                 end = parse(event_json["end"]["dateTime"])
                 event.add("dtstart", start)
                 event.add("dtend", end)
+            if "recurrence" in event_json:
+                rule_str = event_json["recurrence"][0][6:]
+                rules = rule_str.split(";")
+                rule_obj = {}
+                for rule in rules:
+                    split = rule.split("=")
+                    if split[0] == "UNTIL":
+                        rule_obj["UNTIL"] = parse(split[1])
+                    else:
+                        rule_obj[split[0]] = split[1]
+                event.add("rrule", rule_obj)
             cal.add_component(event)
         except Exception as e:
             print (e)

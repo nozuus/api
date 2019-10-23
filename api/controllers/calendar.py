@@ -49,7 +49,7 @@ class CalendarConfigResource(Resource):
         return {"link" : link}
 
 
-@api.route("/<token>/calendar")
+@api.route("/<token>/calendar.ics")
 class UserCalendarExport(Resource):
     @api.doc("download_user_calendar")
     def get(self, token):
