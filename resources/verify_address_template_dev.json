@@ -3,6 +3,6 @@
   "FromEmailAddress": "Otter Pond <mailer@theotterpond.com>",
   "TemplateSubject": "Otter Pond Email Verification (Dev)",
   "TemplateContent": "<html><head></head><body><p>Hello,</p><p>Please click on the link below to complete your registration for the Otter Pond. Once you verify your email address you will be able to send emails to lists hosted by the Otter Pond.<p><p>Thank you,</p><p>The Otter Pond Team</p></body></html>",
-  "SuccessRedirectionURL": "https://dev-api.theotterpond.com/verifySuccess",
-  "FailureRedirectionURL": "https://dev-api.theotterpond.com/verifyFailure"
+  "SuccessRedirectionURL": "https://dev.theotterpond.com/#/auth/verifySuccess",
+  "FailureRedirectionURL": "https://dev.theotterpond.com/#/auth/verifyFailure"
 }
