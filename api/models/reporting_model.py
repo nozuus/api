@@ -6,6 +6,7 @@ report_create_model = Model("ReportCreate", {
     'report_type_id': fields.String,
     'semester_id': fields.String,
     'applicable_roles': fields.List(fields.String),
+    'preset_descriptions': fields.List(fields.String, default=None, skip_none=True)
 })
 
 get_report_model = Model.inherit("GetReports", report_create_model, {
@@ -37,11 +38,16 @@ entry_model = Model("Entry", {
     'description': fields.String,
     'value': fields.Raw,
     'timestamp': fields.DateTime,
-    'user_email': fields.String,
+    'user_email': fields.String(skip_none=True),
+    'gtid': fields.String(skip_none=True),
     'entered_by_email': fields.String
 })
 
 full_report_details = Model.inherit("GetFullReportDetails", get_report_model, {
     "report_type": fields.Nested(get_type_model),
     "semester": fields.Nested(get_semester_model)
+})
+
+add_description = Model("AddDescription", {
+    'description': fields.String
 })

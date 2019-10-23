@@ -122,7 +122,7 @@ def get_existing_gtid(user_email):
 
 def get_user_by_gtid(hashed_gtid):
     query_values = {
-        ":gtid": {"gtid_" + hashed_gtid}
+        ":gtid": {"S": "gtid_" + hashed_gtid}
     }
 
     response = dynamodb.query(TableName=table,

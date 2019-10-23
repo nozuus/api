@@ -21,7 +21,7 @@ def update_role(role_id, new_values):
     if roles_db.update_role(role):
         return role["pk"]
     else:
-        raise Exception("Failed to update user")
+        raise Exception("Failed to update role")
 
 
 def group_users_by_roles():
@@ -46,3 +46,17 @@ def get_users_without_role():
             users_without_role.append(user["pk"])
     return users_without_role
 
+
+def update_user_role(user_email, role_id):
+    user = users_db.get_item(user_email, "user")
+    if user is None:
+        raise Exception("Invalid user email")
+    role = roles_db.get_role_by_id(role_id)
+    if role is None:
+        raise Exception("Invalid role id")
+    remove_existing_role(user_email)
+    roles_db.set_user_role(user_email, role_id)
+
+    user["role_id"] = role_id
+
+    users_db.put_item_no_check(user)

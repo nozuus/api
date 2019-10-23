@@ -77,4 +77,4 @@ def get_user_by_gtid(gtid):
     return user_email
 
 def hash_gtid(gtid):
-    return hashlib.sha512(gtid).hexdigest()
+    return hashlib.sha512(str(gtid).encode('utf-8')).hexdigest()

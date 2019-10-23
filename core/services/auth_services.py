@@ -13,7 +13,8 @@ def check_login(user_email, password):
         return False
     else:
         if sha256.verify(password, user["hashed_password"]):
-            token = create_access_token(identity=user["pk"])
+            expires = datetime.timedelta(hours=4)
+            token = create_access_token(identity=user["pk"], expires_delta=expires)
             return token
         return False
 

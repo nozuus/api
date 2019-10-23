@@ -1,5 +1,6 @@
 import core.database.reporting_db as reporting_db
 import core.services.config_service as config_service
+import core.services.users_service as users_service
 import uuid
 
 
@@ -43,19 +44,27 @@ def create_semester(semester_obj):
         raise Exception("Failed to create semester")
 
 
-def create_report_entry(report_id, entry):
+def create_report_entry(report_id, entry, existing = False):
+    report = reporting_db.get_item(report_id, "report")
+    if report is None:
+        raise Exception("Invalid report ID")
+
+    if "user_email" not in entry or entry["user_email"] is None:
+        if "gtid" not in entry or entry["gtid"] is None:
+            raise Exception("Either user_email or gtid is required")
+        user_email = users_service.get_user_by_gtid(entry["gtid"])
+        if user_email is None:
+            raise Exception("Invalid gtid")
+        entry["user_email"] = user_email
+        del entry["gtid"]
+    else:
+        user = reporting_db.get_item(entry["user_email"], "user")
+        if user is None:
+            raise Exception("Invalid user email")
+
     entry_id = "entry_%s_%s" % (entry["user_email"], str(uuid.uuid4())[:4])
     entry["pk"] = report_id
     entry["sk"] = entry_id
-
-    report = reporting_db.get_item(report_id, "report")
-    user = reporting_db.get_item(entry["user_email"], "user")
-
-    if report is None:
-        raise Exception("Invalid report ID")
-    if user is None:
-        raise Exception("Invalid user email")
-
     report_type = reporting_db.get_item(report["report_type_id"], "report_type")
 
     if (report_type["value_type"] == "numeric" or report_type["value_type"] == "financial") and not is_number(entry["value"]):
@@ -67,6 +76,10 @@ def create_report_entry(report_id, entry):
 
     if not config_service.check_permissions(permissions):
         raise Exception("User does not have permissions to add report entry")
+
+    if existing == True:
+        if len(reporting_db.checkReportEntryForUser(report_id, entry["user_email"], entry["description"])) > 0:
+            raise Exception("Entry already exists for user")
 
     if reporting_db.put_item_unique_pk(entry):
         return True
@@ -106,6 +119,23 @@ def get_report_with_details(report_id):
     report["report_type"] = reporting_db.get_item(report["report_type_id"], "report_type")
     report["semester"] = reporting_db.get_item(report["semester_id"], "semester")
     return report;
+
+
+def add_preset_description(report_id, description):
+    report = reporting_db.get_item(report_id, "report")
+    if report is None:
+        raise Exception("Invalid report id")
+
+    descriptions = []
+    if "preset_descriptions" in report:
+        descriptions = report["preset_descriptions"]
+
+    descriptions.append(description)
+
+    report["preset_descriptions"] = descriptions
+
+    return reporting_db.put_item_no_check(report)
+
 
 def is_number(s):
     try:

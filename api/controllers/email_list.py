@@ -107,7 +107,7 @@ class Subscription(Resource):
         '''Add someone to an email list'''
         body = request.json
         email_list_service.add_to_list(address, body["user_email"])
-        return "Success"
+        return {"error": "Success"}
 
 
 @api.route("/<address>/subscribers")
@@ -117,3 +117,10 @@ class Subscribers(Resource):
         users = email_list_db.get_users_on_list(address)
         emails = [user["pk"] for user in users]
         return emails
+
+@api.route("/<address>/subscribers/<user_email>")
+class RemoveSubscribers(Resource):
+    @api.doc("remove_user_from_list")
+    def delete(self, address, user_email):
+        email_list_service.delete_subscription(address, user_email)
+        return {"error": "Success"}
