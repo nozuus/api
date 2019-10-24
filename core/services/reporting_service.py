@@ -90,6 +90,8 @@ def create_report_entry(report_id, entry, existing = False):
 
 
 def get_report_entries(report_id):
+    if not check_report_permissions(report_id):
+        raise Exception("User does not have permissions to access this report")
     report = reporting_db.get_item(report_id, "report")
 
     if report is None:
@@ -106,11 +108,8 @@ def get_report_entries(report_id):
 
 
 def get_report_entries_for_user(report_id, user_email, check_permissions):
-    #if check_permissions:
-    #    report = reporting_db.get_item(report_id, "report")
-    #    report_type = reporting_db.get_item(report["report_type_id"], "report_type")
-    #    if not config_service.check_permissions(report_type["management_permissions"]):
-    #        raise Exception("User does not have permissions to view these entries")
+    if check_permissions and not check_report_permissions(report_id):
+        raise Exception("User does not have permissions to access this report")
 
     entries = reporting_db.get_report_entries_for_user(report_id, user_email)
     return entries
