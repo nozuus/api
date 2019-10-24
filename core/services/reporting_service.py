@@ -1,4 +1,6 @@
 import core.database.reporting_db as reporting_db
+import core.database.users_db as users_db
+import core.database.roles_db as roles_db
 import core.services.config_service as config_service
 import core.services.users_service as users_service
 import uuid
@@ -112,6 +114,32 @@ def get_report_entries_for_user(report_id, user_email, check_permissions):
 
     entries = reporting_db.get_report_entries_for_user(report_id, user_email)
     return entries
+
+
+def check_report_permissions(report_id):
+    report = reporting_db.get_item(report_id, "report")
+    if report is None:
+        raise Exception("Invalid report id")
+    report_type = reporting_db.get_item(report["report_type_id"], "report_type")
+    report_permissions = report_type["management_permissions"]
+    report_permissions.append("can_manage_reporting")
+    return config_service.check_permissions(report_permissions)
+
+
+def get_applicable_users(report_id):
+    report = reporting_db.get_item(report_id, "report")
+    if report is None:
+        raise Exception("Invalid report id")
+    all_users = users_db.get_all_users()
+    if len(all_users) == 0:
+        raise Exception("Unable to fetch all users")
+
+    applicable_users = []
+    for role in report["applicable_roles"]:
+        user_roles = roles_db.get_users_by_role(role)
+        applicable_users = applicable_users + [user_role["pk"] for user_role in user_roles]
+
+    return [user for user in all_users if user["pk"] in applicable_users]
 
 
 def get_report_with_details(report_id):
