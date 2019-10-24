@@ -2,12 +2,11 @@ from flask import request
 from flask_restplus import Namespace, Resource
 from flask_jwt_extended import jwt_required
 from api.models.reporting_model import report_create_model, get_report_model, type_create_model, get_type_model, semester_create_model, get_semester_model, entry_model, full_report_details, add_description
+from api.models.users_model import get_users_model
 import core.services.reporting_service as reporting_service
 import core.services.auth_services as auth_services
 import core.database.reporting_db as reporting_db
 from api.permissions_decorator import check_permissions
-import urllib
-
 
 api = Namespace('reporting', description='Reporting related operations')
 
@@ -20,6 +19,7 @@ api.models[get_semester_model.name] = get_semester_model
 api.models[entry_model.name] = entry_model
 api.models[full_report_details.name] = full_report_details
 api.models[add_description.name] = add_description
+api.models[get_users_model.name] = get_users_model
 
 
 @api.route("/create")
@@ -70,6 +70,29 @@ class Report(Resource):
             return {
                 'error': "Error getting report by id: " + str(e)
             }
+
+
+@api.route("/<report_id>/checkPermissions")
+class Report(Resource):
+    @api.doc('check_permissions_for_report')
+    @jwt_required
+    def get(self,report_id):
+        '''Determines whether or not the current user can access the given report'''
+        return {
+            "can_manage": reporting_service.check_report_permissions(report_id)
+        }
+
+
+@api.route("/<report_id>/applicableUsers")
+class Report(Resource):
+    @api.doc('get_users_for_report')
+    @api.marshal_list_with(get_users_model)
+    @jwt_required
+    def get(self,report_id):
+        '''Get all users that the given report applies to'''
+        users = reporting_service.get_applicable_users(report_id)
+        return users
+
 
 @api.route("/<report_id>/presetDescription")
 class ReportDescription(Resource):
