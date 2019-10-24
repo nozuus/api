@@ -67,6 +67,7 @@ typings/
 __pycache__
 
 venv
+venv3.7
 
 keys.yml
 
