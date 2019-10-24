@@ -12,3 +12,4 @@ passlib==1.7.1
 flask_cors==3.0.7
 requests==2.22.0
 icalendar==4.0.3
+stripe==2.37.2
