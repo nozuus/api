@@ -97,6 +97,7 @@ def process_received_email(mail):
         del msg['From']
         del msg['Reply-To']
         del msg['Source']
+        del msg['DKIM-Signature']
 
         user_from = "%s <%s>" % (from_name, from_email)
         safe_from = '%s <mailer@email.theotterpond.com>' % (from_name)
