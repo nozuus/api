@@ -13,15 +13,29 @@ def enroll_stripe_token(token):
     user_email = get_jwt_identity()
     user = users_db.get_user_by_email(user_email)
     description = user["last_name"] + ", " + user["first_name"]
+    payment_record = base_db.get_item(user_email, "payment")
+
+    if payment_record is not None:
+        customer = stripe.Customer.retrieve(payment_record["customer_id"])
+
+        if "deleted" not in customer or not customer["deleted"]:
+
+            for source in customer.sources:
+                stripe.Customer.delete_source(payment_record["customer_id"], source["id"])
+
+            stripe.Customer.create_source(payment_record["customer_id"], source=token)
+
+            payment_record["status"] = "Pending Verification"
+            base_db.put_item_no_check(payment_record)
+            return True
+
     customer = stripe.Customer.create(source=token, description=description,
                                       email=user_email)
 
-    bank_account_id = customer["sources"]["data"][0]["id"]
     payment_record = {
         "pk": user_email,
         "sk": "payment",
         "customer_id": customer["id"],
-        "bank_account_id": bank_account_id,
         "status": "Pending Verification"
     }
     return base_db.put_item_no_check(payment_record)
@@ -37,7 +51,10 @@ def verify_account(amounts):
     if payment_record["status"] == "Verified":
         raise Exception("Account Already Verified")
 
-    bank_account = stripe.Customer.retrieve_source(payment_record["customer_id"], payment_record["bank_account_id"])
+    customer = stripe.Customer.retrieve(payment_record["customer_id"])
+    bank_account_id = customer["sources"]["data"][0]["id"]
+
+    bank_account = stripe.Customer.retrieve_source(payment_record["customer_id"], bank_account_id)
 
     try:
         bank_account.verify(amounts=amounts)
@@ -89,6 +106,23 @@ def get_account_status():
         "accountName": account_name,
         "accountStatus": account_status
     }
+
+
+def delete_account():
+    user_email = get_jwt_identity()
+    payment_record = base_db.get_item(user_email, "payment")
+    if not payment_record:
+        raise Exception("Error fetching payment record")
+
+    customer = stripe.Customer.retrieve(payment_record["customer_id"])
+
+    if "deleted" not in customer or not customer["deleted"]:
+
+        for source in customer.sources:
+            stripe.Customer.delete_source(payment_record["customer_id"],
+                                          source["id"])
+        return True
+    raise Exception("Invalid customer")
 
 
 def process_webhook(payload):

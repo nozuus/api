@@ -43,7 +43,7 @@ class PaymentVerify(Resource):
 
 
 @api.route("/charge")
-class PaymentVerify(Resource):
+class PaymentCharge(Resource):
     @api.doc("charge_user")
     @api.expect(charge_model)
     @jwt_required
@@ -55,17 +55,16 @@ class PaymentVerify(Resource):
 
 
 @api.route("/webhook")
-class PaymentVerify(Resource):
+class PaymentWebhook(Resource):
     @api.doc("webhook")
     def post(self):
         '''Webhook for stripe integration'''
         body = request.json
-        #body_json = json.loads(json.dumps(body))
         payment_service.process_webhook(body)
         return {"error": "Success"}
 
 
-@api.route("/accountStatus")
+@api.route("/account")
 class CheckAccountStatus(Resource):
     @api.doc("check_account_status")
     @jwt_required
@@ -73,3 +72,10 @@ class CheckAccountStatus(Resource):
         '''Check if the current user has a setup and verified account'''
         result = payment_service.get_account_status()
         return result
+
+    @api.doc("delete_bank_account")
+    @jwt_required
+    def delete(self):
+        '''Removes a users bank accouunt'''
+        result = payment_service.delete_account()
+        return {"error": "Success"}
