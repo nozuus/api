@@ -3,6 +3,7 @@ import os
 from flask_jwt_extended import get_jwt_identity, jwt_required
 import core.database.users_db as users_db
 import core.database.db as base_db
+import json
 
 stripe.api_key = os.environ.get("STRIPE_KEY")
 
@@ -70,3 +71,40 @@ def create_charge(amount):
     if charge["status"] == "pending":
         return "Success"
     return charge
+
+
+def get_account_status():
+    user_email = get_jwt_identity()
+    payment_record = base_db.get_item(user_email, "payment")
+    if not payment_record:
+        return {"accountStatus": "None"}
+
+    customer = stripe.Customer.retrieve(payment_record["customer_id"])
+    if "sources" not in customer or len(customer.sources) == 0:
+        return {"accountStatus": "None"}
+    account = customer.sources.data[0]
+    account_name = account.bank_name + " " + account.last4
+    account_status = account.status
+    return {
+        "accountName": account_name,
+        "accountStatus": account_status
+    }
+
+
+def process_webhook(payload):
+    try:
+        event = stripe.Event.construct_from(
+            payload, stripe.api_key
+        )
+    except ValueError as e:
+        raise Exception("Invalid payload")
+
+    if event.type == "charge.succeeded":
+        print("Succeeded")
+    elif event.type == "charge.failed":
+        failure_reason = event.data.object.failure_message
+        print("Failed: " + failure_reason)
+    elif event.type == "customer.source.updated":
+        print("Updated Bank Info")
+    else:
+        raise Exception("Unknown event type")
