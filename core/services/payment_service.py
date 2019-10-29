@@ -12,7 +12,7 @@ stripe.api_key = os.environ.get("STRIPE_KEY")
 def enroll_stripe_token(token):
     user_email = get_jwt_identity()
     user = users_db.get_user_by_email(user_email)
-    description = user["last_name"] + ", " + user["first_name"]
+    name = user["last_name"] + ", " + user["first_name"]
     payment_record = base_db.get_item(user_email, "payment")
 
     if payment_record is not None:
@@ -29,7 +29,7 @@ def enroll_stripe_token(token):
             base_db.put_item_no_check(payment_record)
             return True
 
-    customer = stripe.Customer.create(source=token, description=description,
+    customer = stripe.Customer.create(source=token, name=name,
                                       email=user_email)
 
     payment_record = {
@@ -69,7 +69,7 @@ def verify_account(amounts):
 def create_charge(amount):
     user_email = get_jwt_identity()
     payment_record = base_db.get_item(user_email, "payment")
-    amount = int(amount * 100)
+    amount = int(float(amount) * 100)
     if not payment_record:
         raise Exception("Error fetching payment record")
 
