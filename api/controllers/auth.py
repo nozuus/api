@@ -51,7 +51,7 @@ class ChangePasswordResource(Resource):
         user_email = body["user_email"]
         new_password = body["new_password"]
         old_password = body["old_password"]
-        result = auth_services.change_password(user_email, new_password, old_password)
+        result = auth_services.change_password(user_email, old_password, new_password)
         if result:
             return {"error": "Success"}
         return {"error": "Invalid old password"}
