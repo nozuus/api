@@ -15,3 +15,30 @@ def check_permissions(required_permissions):
         return True
     return False
 
+
+def get_settings():
+    settings = config_db.get_settings()
+    to_return = []
+    for setting in settings:
+        if check_permissions(setting["permissions"]):
+            to_return.append(setting)
+
+    return to_return
+
+
+def get_setting_by_identifer(identifier):
+    if "setting" not in identifier:
+        identifier = "setting_" + identifier
+    setting = config_db.get_item("config", identifier)
+
+    if setting is None:
+        raise Exception("Invalid identifier")
+
+    return setting
+
+
+def create_setting(setting):
+    setting["pk"] = "config"
+    setting["sk"] = "setting_" + setting["identifier"]
+
+    return config_db.put_item_no_check(setting)

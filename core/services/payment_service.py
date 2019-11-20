@@ -1,9 +1,14 @@
 import stripe
 import os
+import datetime
 from flask_jwt_extended import get_jwt_identity, jwt_required
 import core.database.users_db as users_db
 import core.database.db as base_db
+import core.services.config_service as config_service
+import core.services.reporting_service as reporting_service
 import json
+
+import core.services.emailer_service as emailer
 
 stripe.api_key = os.environ.get("STRIPE_KEY")
 
@@ -86,6 +91,25 @@ def create_charge(amount):
         return "Invalid Amount"
 
     if charge["status"] == "pending":
+        amount_post_fees = int(.992 * amount) / 100
+        amount_post_fees = -amount_post_fees if (amount / 100) - amount_post_fees < 5 else amount - 5
+
+        print("--- CHARGE CREATED ---")
+        print(json.dumps(charge))
+
+        report_entry = {
+            "description": "Payment " + charge["id"],
+            "value": amount_post_fees,
+            "status": "PENDING",
+            "report_id": get_active_finances_report(),
+            "entered_by_email": user_email,
+            "user_email": user_email,
+            "timestamp": datetime.datetime.now()
+        }
+
+        reporting_service.create_report_entry(report_entry["report_id"], report_entry)
+
+        notify_financial_manager(charge["id"], "PENDING")
         return "Success"
     return charge
 
@@ -133,12 +157,111 @@ def process_webhook(payload):
     except ValueError as e:
         raise Exception("Invalid payload")
 
+
+    print("--- PAYMENT WEBHOOK ---")
+    print(json.dumps(event))
     if event.type == "charge.succeeded":
-        print("Succeeded")
+        print("Payment Succeeded")
+        payment_id = event.data.object.id
+        print("Payment ID: " + payment_id)
+        update_payment_status(payment_id, "CLEARED")
+        print("Payment status updated to CLEARED")
+        notify_financial_manager(payment_id, "CLEARED")
+        print("Notified financial manager")
     elif event.type == "charge.failed":
         failure_reason = event.data.object.failure_message
         print("Failed: " + failure_reason)
+
+        failure_reason += " A $4 fee has been applied to this customers account"
+        payment_id = event.data.object.id
+        print("Payment ID: " + payment_id)
+        update_payment_status(payment_id, "FAILED")
+        print("Payment status updated to FAILED")
+        failed_ach(payment_id)
+        print("Created entries for failed ACH transaction")
+        notify_financial_manager(payment_id, "FAILED", failure_reason)
+        print("Notified financial manager")
     elif event.type == "customer.source.updated":
         print("Updated Bank Info")
     else:
-        raise Exception("Unknown event type")
+        print("Received other webhook: ")
+        print(json.dumps(event))
+
+
+def update_payment_status(payment_id, new_status):
+    found_entry = get_payment(payment_id)
+
+    found_entry["status"] = new_status
+    base_db.put_item_no_check(found_entry)
+
+
+def get_payment(payment_id):
+    report_id = get_active_finances_report()
+    entries = reporting_service.get_report_entries(report_id, True)
+    entry_description = "Payment " + payment_id
+    for entry in entries:
+        if entry["description"] == entry_description:
+            return entry
+    return None
+
+
+def failed_ach(payment_id):
+    failed_payment = get_payment(payment_id)
+    report_entry = {
+        "description": "Failed Payment " + payment_id,
+        "value": -float(failed_payment["value"]),
+        "report_id": get_active_finances_report(),
+        "entered_by_email": failed_payment["user_email"],
+        "user_email": failed_payment["user_email"],
+        "timestamp": datetime.datetime.now()
+    }
+
+    reporting_service.create_report_entry(report_entry["report_id"],
+                                          report_entry, bypass_permissions=True)
+
+    fees_entry = {
+        "description": "Fee for Failed Payment " + payment_id,
+        "value": 4.00,
+        "report_id": get_active_finances_report(),
+        "entered_by_email": failed_payment["user_email"],
+        "user_email": failed_payment["user_email"],
+        "timestamp": datetime.datetime.now()
+    }
+
+    reporting_service.create_report_entry(report_entry["report_id"],
+                                          fees_entry, bypass_permissions=True)
+
+
+def notify_financial_manager(payment_id, status, reason = None):
+    email = "Dear Financial Manager,\n\nA payment for the following user has been updated.\n\n"
+
+    payment = get_payment(payment_id)
+    user = users_db.get_user_by_email(payment["user_email"])
+    email += "User: " + user["last_name"] + ", " +  user["first_name"]
+    email += "\nAmount: " + str(abs(payment["value"]))
+    email += "\nStatus: " + status
+
+    if reason is not None:
+        email += "\nStatus Reason: " + reason
+
+    email += "\n\nit'get dat money'b\n\nOtter Pond"
+    subject = "Otter Pond Payment: " + status
+    to_emails = [get_active_finance_email()]
+
+    emailer.send_plain_email(subject, email, to_emails)
+
+
+def get_active_finances_report():
+    setting = config_service.get_setting_by_identifer("finance_report")
+    if setting is None:
+        raise Exception("No Active Finance Report")
+
+    return setting["value"]
+
+
+def get_active_finance_email():
+    setting = config_service.get_setting_by_identifer("finance_email")
+    if setting is None:
+        raise Exception("No Active Finance Email")
+
+    return setting["value"]
