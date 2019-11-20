@@ -8,8 +8,8 @@ user_create_model = Model("UserCreate", {
     'user_email': fields.String(attribute='pk'),
     'phone_number': fields.String,
     'major': fields.String,
-    'student_id_number': fields.String,
-    'active_status': fields.String,
+    #'student_id_number': fields.String, No longer tracking this
+    #'active_status': fields.String, No longer tracking this
     'other_emails': fields.List(fields.String)
 })
 
@@ -24,8 +24,8 @@ user_update_model = Model("UsersUpdate", {
     'birthday': fields.String(default=None),
     'phone_number': fields.String(default=None),
     'major': fields.String(default=None),
-    'student_id_number': fields.String(default=None),
-    'active_status': fields.String(default=None),
+    #'student_id_number': fields.String(default=None), No longer tracking this
+    #'active_status': fields.String(default=None), No longer tracking this
     'other_emails': fields.List(fields.String, default=None)
 })
 

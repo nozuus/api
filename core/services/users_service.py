@@ -19,7 +19,10 @@ def update_user(user_email, new_values):
     for key in new_values:
         ##TODO: figure out how to handle changing email address
         if key != "primary_email_address":
-            user[key] = new_values[key]
+            if new_values[key] == "":
+                user[key] = None
+            else:
+                user[key] = new_values[key]
     if users_db.update_user(user):
         return user["pk"]
     else:
