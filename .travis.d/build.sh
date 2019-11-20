@@ -14,10 +14,12 @@ echo "Deploying Serverless Application..."
 
 if [ "$TRAVIS_BRANCH" = "$DEV_BRANCH_NAME" ]; then
   TARGET_BRANCH="$DEV_BRANCH_TARGET"
+  STRIPE_KEY="$DEV_STRIPE_KEY"
 elif [ "$TRAVIS_BRANCH" = "$PROD_BRANCH_NAME" ]; then
   TARGET_BRANCH="$PROD_BRANCH_TARGET"
+  STRIPE_KEY="$PROD_STRIPE_KEY"
 else
   exit 1
 fi
 
-serverless deploy --stage $TARGET_BRANCH --admin_email=$ADMIN_EMAIL
+serverless deploy --stage $TARGET_BRANCH --admin_email=$ADMIN_EMAIL --stripeKey=$STRIPE_KEY

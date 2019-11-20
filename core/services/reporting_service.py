@@ -46,7 +46,7 @@ def create_semester(semester_obj):
         raise Exception("Failed to create semester")
 
 
-def create_report_entry(report_id, entry, existing = False):
+def create_report_entry(report_id, entry, existing = False, bypass_permissions = False):
     report = reporting_db.get_item(report_id, "report")
     if report is None:
         raise Exception("Invalid report ID")
@@ -64,10 +64,18 @@ def create_report_entry(report_id, entry, existing = False):
         if user is None:
             raise Exception("Invalid user email")
 
+    report_type = reporting_db.get_item(report["report_type_id"],
+                                            "report_type")
+
+    if "status" in entry and entry["status"] is not None:
+        if "status_options" not in report_type or \
+                report_type["status_options"] is None \
+                or entry["status"] not in report_type["status_options"]:
+            raise Exception("Invalid status")
+
     entry_id = "entry_%s_%s" % (entry["user_email"], str(uuid.uuid4())[:4])
     entry["pk"] = report_id
     entry["sk"] = entry_id
-    report_type = reporting_db.get_item(report["report_type_id"], "report_type")
 
     if (report_type["value_type"] == "numeric" or report_type["value_type"] == "financial") and not is_number(entry["value"]):
         raise Exception("Invalid report value type")
@@ -76,7 +84,7 @@ def create_report_entry(report_id, entry, existing = False):
 
     permissions = report_type["management_permissions"]
 
-    if not config_service.check_permissions(permissions):
+    if not bypass_permissions and not config_service.check_permissions(permissions):
         raise Exception("User does not have permissions to add report entry")
 
     if existing == True:
@@ -89,8 +97,8 @@ def create_report_entry(report_id, entry, existing = False):
         raise Exception("Failed to create report entry");
 
 
-def get_report_entries(report_id):
-    if not check_report_permissions(report_id):
+def get_report_entries(report_id, bypass_permission_check = False):
+    if not bypass_permission_check and not check_report_permissions(report_id):
         raise Exception("User does not have permissions to access this report")
     report = reporting_db.get_item(report_id, "report")
 
@@ -101,7 +109,7 @@ def get_report_entries(report_id):
 
     permissions = report_type["management_permissions"]
 
-    if not config_service.check_permissions(permissions):
+    if not bypass_permission_check and not config_service.check_permissions(permissions):
         raise Exception("User does not have permissions to view report entries")
 
     return reporting_db.get_report_entries(report_id)
