@@ -66,6 +66,13 @@ def send_verification_email(email_address):
 
 
 def verify_email_address(email_address):
+    if check_verification(email_address):
+        raise Exception("Email address already verified")
+
+    return send_verification_email(email_address)
+
+
+def check_verification(email_address):
     user = users_db.get_user_by_email(email_address)
     if user is None:
         all_users = users_db.get_all_users()
@@ -78,8 +85,7 @@ def verify_email_address(email_address):
     response = boto3.client('ses').get_identity_verification_attributes(
         Identities=[email_address])
     if len(response["VerificationAttributes"]) > 0:
-        verification_status = response["VerificationAttributes"][email_address]["VerificationStatus"]
-        if verification_status == "Success":
-            raise Exception("Email Address Already Verified")
-
-    return send_verification_email(email_address)
+        verification_status = response["VerificationAttributes"][email_address][
+            "VerificationStatus"]
+        return verification_status == "Success"
+    return False

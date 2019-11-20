@@ -28,6 +28,14 @@ def set_password(user_email, password):
         raise Exception("Failed to create user")
 
 
+def change_password(user_email, old_password, new_password):
+    if not check_login(user_email, old_password):
+        return False
+
+    set_password(user_email, new_password)
+    return True
+
+
 @jwt_required
 def get_identity():
     return get_jwt_identity()

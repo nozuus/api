@@ -11,6 +11,12 @@ set_password_model = Model("SetPassword", {
     "set_password_token": fields.String
 })
 
+change_password_model = Model("ChangePassword", {
+    "user_email": fields.String,
+    "new_password": fields.String,
+    "old_password": fields.String,
+})
+
 request_reset_model = Model("RequestReset", {
     'user_email': fields.String,
 })

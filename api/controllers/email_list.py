@@ -21,6 +21,7 @@ api.models[update_list_model.name] = update_list_model
 class EmailLists(Resource):
     @api.doc("get_all_email_lists")
     @api.marshal_list_with(list_model)
+    @jwt_required
     def get(self):
         '''Get all email lists'''
         lists = email_list_db.get_all_email_lists()
@@ -31,6 +32,7 @@ class EmailLists(Resource):
 class EmailList(Resource):
     @api.doc("get_email_list_by_id")
     @api.marshal_with(list_model)
+    @jwt_required
     def get(self, address):
         '''Get email list by address'''
         email_list = email_list_db.get_email_list_by_address(address)
@@ -38,6 +40,8 @@ class EmailList(Resource):
 
     @api.doc("update_list_by_id")
     @api.expect(update_list_model)
+    @jwt_required
+    @check_permissions("can_manage_email_lists")
     def put(self, address):
         '''Update the details of an email list'''
         email_list = request.json
@@ -53,6 +57,8 @@ class EmailList(Resource):
 class EmailList(Resource):
     @api.doc("create_email_list")
     @api.expect(list_model)
+    @jwt_required
+    @check_permissions("can_manage_email_lists")
     def post(self):
         '''Create an email list'''
         body = request.json
@@ -67,7 +73,7 @@ class EmailList(Resource):
 class RequestVerification(Resource):
     @api.doc("request_verification")
     @api.expect(subscribe_model)
-    @check_permissions("can_manage_users")
+    @jwt_required
     def post(self):
         '''Request an email verification'''
         body = request.json
@@ -75,6 +81,18 @@ class RequestVerification(Resource):
         emailer_service.verify_email_address(address)
         return {
             "error": "Success"
+        }
+
+
+@api.route("/checkVerification")
+class CheckVerification(Resource):
+    @api.expect(subscribe_model)
+    @jwt_required
+    def post(self):
+        body = request.json
+        address = body["user_email"]
+        return {
+            "verified": emailer_service.check_verification(address)
         }
 
 
