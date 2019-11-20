@@ -92,7 +92,7 @@ def create_charge(amount):
 
     if charge["status"] == "pending":
         amount_post_fees = int(.992 * amount) / 100
-        amount_post_fees = -amount_post_fees if (amount / 100) - amount_post_fees < 5 else amount - 5
+        amount_post_fees = -(amount_post_fees if (amount / 100) - amount_post_fees < 5 else (amount / 100) - 5)
 
         print("--- CHARGE CREATED ---")
         print(json.dumps(charge))
