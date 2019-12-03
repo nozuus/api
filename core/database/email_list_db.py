@@ -99,16 +99,19 @@ def get_role_permissions(address):
 def get_role_permissions_by_role(address, role_id):
     query_values = {
         ":address": {"S": address},
-        ":type": {"S": "permission_%s" % role_id}
+        ":type": {"S": "list_permission_%s" % role_id}
     }
 
     response = dynamodb.query(TableName=table,
                               KeyConditionExpression="pk = :address AND sk = :type",
                               ExpressionAttributeValues=query_values)
 
-    result = db_json.loads(response)["Items"][0]
+    result = db_json.loads(response)["Items"]
 
-    return result
+    if len(result) > 0:
+        return result[0]
+
+    return None
 
 
 def store_message_id(message_id, timestamp):

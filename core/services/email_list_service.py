@@ -1,6 +1,8 @@
 import core.database.email_list_db as email_list_db
 import core.database.users_db as users_db
 import core.database.email_list_db as email_db
+import core.services.auth_services as auth_service
+import core.services.config_service as config_service
 import uuid
 
 
@@ -8,8 +10,23 @@ def add_to_list(address, user_email):
     # make sure that user and email list are both valid before adding
     user = users_db.get_user_by_email(user_email)
     email_list = email_list_db.get_email_list_by_address(address)
+    requesting_user = auth_service.get_identity()
+
     if user and email_list:
-        email_list_db.add_to_list(address, user_email)
+        permission = email_list_db.get_role_permissions_by_role(address,
+                                                                user["role_id"])
+        if not permission:
+            permission = {
+                "can_self_join": False,
+                "can_be_invited": False
+            }
+        if requesting_user == user["pk"]:
+            if not permission["can_self_join"]: # user adding themself to the list
+                if not (config_service.check_permissions("manage_subscriptions") and permission["can_be_invited"]): #admin adding themself to the list
+                    return False, "can_self_add"
+        elif not permission["can_be_invited"]:
+            return False, "can_be_invited"
+        return email_list_db.add_to_list(address, user_email), ""
     else:
         raise Exception("User or email is null")
 

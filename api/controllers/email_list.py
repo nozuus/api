@@ -130,7 +130,12 @@ class Subscription(Resource):
     def post(self, address):
         '''Add someone to an email list'''
         body = request.json
-        email_list_service.add_to_list(address, body["user_email"])
+        result, permission = email_list_service.add_to_list(address, body["user_email"])
+        if not result:
+            return {
+                "error": "Missing Permission",
+                "permission": permission
+            }
         return {"error": "Success"}
 
 
