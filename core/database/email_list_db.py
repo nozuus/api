@@ -84,7 +84,7 @@ def save_role_permissions(permission):
 def get_role_permissions(address):
     query_values = {
         ":address": {"S": address},
-        ":type": {"S": "permission"}
+        ":type": {"S": "list_permission"}
     }
 
     response = dynamodb.query(TableName=table,

@@ -29,8 +29,8 @@ role_permissions_model = Model("RolePermissions", {
 
 class RolePermissionParser(fields.String):
     def format(self, value):
-        if "permission" in value:
-            return value[11:]
+        if "list_permission" in value:
+            return value[16:]
         return value
 
 
