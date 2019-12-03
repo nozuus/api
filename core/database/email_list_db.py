@@ -32,6 +32,18 @@ def get_users_on_list(list_address):
     return db_json.loads(response)["Items"]
 
 
+def get_user_subscriptions(user_email):
+    query_values = {
+        ":key": {"S": user_email},
+        ":type": {"S": "list_"}
+    }
+
+    response = dynamodb.query(TableName=table,
+                              KeyConditionExpression="pk = :key AND begins_with(sk,:type)",
+                              ExpressionAttributeValues=query_values)
+    return db_json.loads(response)["Items"]
+
+
 """Edit subscriptions list"""
 
 
@@ -112,6 +124,19 @@ def get_role_permissions_by_role(address, role_id):
         return result[0]
 
     return None
+
+
+def get_all_role_permissions_by_role(role_id):
+    query_values = {
+        ":key": {"S": "list_permission_%s" % role_id}
+    }
+
+    response = dynamodb.query(TableName=table,
+                              IndexName=reverseIndex,
+                              KeyConditionExpression = "sk = :key",
+                              ExpressionAttributeValues = query_values)
+
+    return db_json.loads(response)["Items"]
 
 
 def store_message_id(message_id, timestamp):

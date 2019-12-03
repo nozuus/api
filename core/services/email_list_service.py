@@ -61,3 +61,37 @@ def delete_subscription(address, user_email):
         raise Exception("Invalid user email")
 
     return email_db.delete_item(user_email, "list_%s" % address)
+
+
+def get_joinable_lists():
+    user_email = auth_service.get_identity()
+
+    user = users_db.get_user_by_email(user_email)
+
+    role_id = user["role_id"]
+
+    permissions = email_list_db.get_all_role_permissions_by_role(role_id)
+
+    lists = email_list_db.get_all_email_lists()
+
+    to_return = []
+
+    for permission in permissions:
+        if permission["can_self_join"]:
+            email_list = [email_list for email_list in lists if email_list["pk"] == permission["pk"]][0]
+            to_return.append(email_list)
+    return to_return
+
+
+def get_subscriptions(user_id):
+    subscriptions = email_list_db.get_user_subscriptions(user_id)
+    subscriptions = [email_list["sk"][5:] for email_list in subscriptions]
+    lists = email_list_db.get_all_email_lists()
+
+    to_return = []
+
+    for email_list in lists:
+        if email_list["pk"] in subscriptions:
+            to_return.append(email_list)
+
+    return to_return

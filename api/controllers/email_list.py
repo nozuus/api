@@ -24,7 +24,11 @@ class EmailLists(Resource):
     @jwt_required
     def get(self):
         '''Get all email lists'''
-        lists = email_list_db.get_all_email_lists()
+        args = request.args
+        if "onlyJoinable" in args and args["onlyJoinable"] in ["True", "true"]:
+            lists = email_list_service.get_joinable_lists()
+        else:
+            lists = email_list_db.get_all_email_lists()
         return lists
 
 
@@ -147,9 +151,21 @@ class Subscribers(Resource):
         emails = [user["pk"] for user in users]
         return emails
 
+
 @api.route("/<address>/subscribers/<user_email>")
 class RemoveSubscribers(Resource):
     @api.doc("remove_user_from_list")
     def delete(self, address, user_email):
         email_list_service.delete_subscription(address, user_email)
         return {"error": "Success"}
+
+
+@api.route("/subscriptions/<user_email>")
+class Subscriptions(Resource):
+    @api.doc("get_user_subscriptions")
+    @api.marshal_list_with(list_model)
+    @jwt_required
+    def get(self, user_email):
+        '''Get the lists a user is subscribed to'''
+        subscriptions = email_list_service.get_subscriptions(user_email)
+        return subscriptions
