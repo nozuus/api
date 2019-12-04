@@ -10,7 +10,8 @@ user_create_model = Model("UserCreate", {
     'major': fields.String,
     #'student_id_number': fields.String, No longer tracking this
     #'active_status': fields.String, No longer tracking this
-    'other_emails': fields.List(fields.String)
+    'other_emails': fields.List(fields.String),
+    'role_id': fields.String
 })
 
 get_users_model = Model.inherit("GetUsers", user_create_model, {
