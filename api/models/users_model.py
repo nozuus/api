@@ -8,6 +8,7 @@ user_create_model = Model("UserCreate", {
     'user_email': fields.String(attribute='pk'),
     'phone_number': fields.String,
     'major': fields.String,
+    'role_id': fields.String,
     #'student_id_number': fields.String, No longer tracking this
     #'active_status': fields.String, No longer tracking this
     'other_emails': fields.List(fields.String),
