@@ -77,7 +77,7 @@ def check_verification(email_address):
     if user is None:
         all_users = users_db.get_all_users()
         for cur_user in all_users:
-            if email_address in cur_user["other_emails"]:
+            if "other_emails" in cur_user and email_address in cur_user["other_emails"]:
                 user = cur_user
                 break
         if user is None:
