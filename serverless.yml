@@ -100,3 +100,4 @@ functions:
     environment:
       emailDomain: theotterpond.com
     memorySize: 128
+
