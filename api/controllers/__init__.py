@@ -37,4 +37,5 @@ api.add_namespace(payment_api, path="/payment")
 @api.errorhandler(Exception)
 def handle_exception(error):
     '''This is a custom error'''
+    print("ERROR HANDLER CALLED: ", error)
     return {'error': "Error processing request: " + error.message}, 400

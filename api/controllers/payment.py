@@ -50,7 +50,9 @@ class PaymentCharge(Resource):
     def post(self):
         '''Charge a user'''
         body = request.json
+        print("Received Charge Request: ", body)
         result = payment_service.create_charge(body["amount"])
+        print("Result of Charge: ", result)
         return {"error": result}
 
 
