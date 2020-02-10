@@ -81,6 +81,7 @@ def process_received_email(mail):
             return
 
         if not allow_external:
+            print("Checking if email is valid: ", metadata_from)
             if not check_valid_from_email(metadata_from):
                 print("Invalid from email. Sending bounce")
                 send_admin_email("Invalid from email")
@@ -230,7 +231,7 @@ def check_valid_from_email(from_email):
     # now the rough one. Grab all users, check their other emails
     all_users = users_db.get_all_users()
     for user in all_users:
-        if from_email in user["other_emails"]:
+        if "other_emails" in user and from_email in user["other_emails"]:
             return True
     return False
 
