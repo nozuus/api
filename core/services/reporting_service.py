@@ -1,5 +1,3 @@
-from io import StringIO
-
 import core.database.reporting_db as reporting_db
 import core.database.users_db as users_db
 import core.database.roles_db as roles_db
@@ -7,7 +5,9 @@ import core.services.config_service as config_service
 import core.services.users_service as users_service
 import uuid
 import csv
+
 from werkzeug.wrappers import Response
+from io import StringIO
 
 
 def create_report(report_obj):
@@ -160,9 +160,10 @@ def get_report_with_details(report_id):
     return report;
 
 
-def export_report_by_id(report_id):
-    report_name, columns, rows = generate_report_data_by_id(report_id)
+def export_attendance_report_by_id(report_id):
+    report_name, columns, rows = generate_attendance_report_data_by_id(report_id)
 
+    # Inspired by: https://stackoverflow.com/questions/28011341/create-and-download-a-csv-file-from-a-flask-view
     def generate():
         csv_data = StringIO()
         w = csv.DictWriter(csv_data, fieldnames=columns)
@@ -190,9 +191,15 @@ def export_report_by_id(report_id):
 
 
 # returns report name along with tuple of (column_data, rows_data)
-def generate_report_data_by_id(report_id):
+def generate_attendance_report_data_by_id(report_id):
     report = get_report_with_details(report_id)
     entries = get_report_entries(report_id)
+    report_type = report["report_type"]
+
+    # Attendance reports are of the type "optionselect". Currently only supports this type of report for exporting
+    if report_type["value_type"] != "optionselect":
+        raise Exception("Report with id " + report_id + " does not have the `optionselect` report_type, "
+                                                        "and therefore cannot be exported")
 
     report_name = report["name"]
     # columns are all the possible descriptions for this report id

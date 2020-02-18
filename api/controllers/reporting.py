@@ -77,9 +77,9 @@ class Report(Resource):
     # @api.marshal_list_with(full_report_details)
     @jwt_required
     def get(self,report_id):
-        '''Export report entries into CSV by report id'''
+        '''Export attendance report (report_type='optionselect') entries into CSV by report id'''
         try:
-            report_csv = reporting_service.export_report_by_id(report_id)
+            report_csv = reporting_service.export_attendance_report_by_id(report_id)
             return report_csv
         except Exception as e:
             return {
