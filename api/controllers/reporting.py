@@ -112,7 +112,7 @@ class Report(Resource):
 
         except Exception as e:
             return {
-                'error': "Error getting report by id: " + str(e)
+                'error': "Error exporting to CSV for report with id: " + str(e)
             }
 
 
