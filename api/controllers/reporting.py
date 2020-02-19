@@ -7,6 +7,9 @@ import core.services.reporting_service as reporting_service
 import core.services.auth_services as auth_services
 import core.database.reporting_db as reporting_db
 from api.permissions_decorator import check_permissions
+import csv
+from werkzeug.wrappers import Response
+from io import StringIO
 
 api = Namespace('reporting', description='Reporting related operations')
 
@@ -79,8 +82,34 @@ class Report(Resource):
     def get(self,report_id):
         '''Export attendance report (report_type='optionselect') entries into CSV by report id'''
         try:
-            report_csv = reporting_service.export_attendance_report_by_id(report_id)
-            return report_csv
+            report_name, columns, rows = reporting_service.generate_attendance_report_data_by_id(report_id)
+
+            # Inspired by: https://stackoverflow.com/questions/28011341/create-and-download-a-csv-file-from-a-flask-view
+            def generate():
+                csv_data = StringIO()
+                w = csv.DictWriter(csv_data, fieldnames=columns)
+
+                # write header
+                w.writeheader()
+                yield csv_data.getvalue()
+                csv_data.seek(0)
+                csv_data.truncate(0)
+
+                # write each line item
+                for row in rows.values():
+                    w.writerow(row)
+                    yield csv_data.getvalue()
+                    csv_data.seek(0)
+                    csv_data.truncate(0)
+
+            # stream the response as the data is generated
+            response = Response(generate(), mimetype='text/csv')
+            # add a filename
+
+            filename = report_name.replace(" ", "_").replace("/", "_") + "_Export.csv"
+            response.headers.set("Content-Disposition", "attachment", filename=filename)
+            return response
+
         except Exception as e:
             return {
                 'error': "Error getting report by id: " + str(e)

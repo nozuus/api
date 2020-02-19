@@ -4,10 +4,6 @@ import core.database.roles_db as roles_db
 import core.services.config_service as config_service
 import core.services.users_service as users_service
 import uuid
-import csv
-
-from werkzeug.wrappers import Response
-from io import StringIO
 
 
 def create_report(report_obj):
@@ -160,36 +156,6 @@ def get_report_with_details(report_id):
     return report;
 
 
-def export_attendance_report_by_id(report_id):
-    report_name, columns, rows = generate_attendance_report_data_by_id(report_id)
-
-    # Inspired by: https://stackoverflow.com/questions/28011341/create-and-download-a-csv-file-from-a-flask-view
-    def generate():
-        csv_data = StringIO()
-        w = csv.DictWriter(csv_data, fieldnames=columns)
-
-        # write header
-        w.writeheader()
-        yield csv_data.getvalue()
-        csv_data.seek(0)
-        csv_data.truncate(0)
-
-        # write each line item
-        for row in rows.values():
-            w.writerow(row)
-            yield csv_data.getvalue()
-            csv_data.seek(0)
-            csv_data.truncate(0)
-
-    # stream the response as the data is generated
-    response = Response(generate(), mimetype='text/csv')
-    # add a filename
-
-    filename = report_name.replace(" ", "_").replace("/", "_") + "_Export.csv"
-    response.headers.set("Content-Disposition", "attachment", filename=filename)
-    return response
-
-
 # returns report name along with tuple of (column_data, rows_data)
 def generate_attendance_report_data_by_id(report_id):
     report = get_report_with_details(report_id)
@@ -223,26 +189,20 @@ def generate_attendance_report_data_by_id(report_id):
         # adds entry to user's attendance row data
         all_users_entries[user_email][event_description] = value
 
+    all_users = users_db.get_all_users()
     # Adding in user names into the user entries dict
-    # TODO: Don't think this way is particularly clever or fast, but I'm not sure if
-    # Quering the users/{user_email} route for every user email is any better
     for user_email in all_users_entries.keys():
-        user_name = get_user_name_for_user_email(user_email)
-        all_users_entries[user_email]["First Name"] = user_name["first_name"]
-        all_users_entries[user_email]["Last Name"] = user_name["last_name"]
+        user_found = False
+        for user in all_users:
+            if user["pk"] == user_email:
+                user_found = True
+                all_users_entries[user_email]["First Name"] = user["first_name"]
+                all_users_entries[user_email]["Last Name"] = user["last_name"]
+
+        if not user_found:
+            raise Exception("user with email: " + user_email + " does not exist")
 
     return report_name, columns, all_users_entries
-
-
-# returns tuple (First Name, Last Name) given user_email
-def get_user_name_for_user_email(user_email):
-    all_users = users_db.get_all_users()
-
-    for user in all_users:
-        if user["pk"] == user_email:
-            return {"first_name": user["first_name"], "last_name": user["last_name"]}
-
-    raise Exception("user with email: " + user_email + " does not exist")
 
 
 def add_preset_description(report_id, description):
