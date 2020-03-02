@@ -156,6 +156,55 @@ def get_report_with_details(report_id):
     return report;
 
 
+# returns report name along with tuple of (column_data, rows_data)
+def generate_attendance_report_data_by_id(report_id):
+    report = get_report_with_details(report_id)
+    entries = get_report_entries(report_id)
+    report_type = report["report_type"]
+
+    # Attendance reports are of the type "optionselect". Currently only supports this type of report for exporting
+    if report_type["value_type"] != "optionselect":
+        raise Exception("Report with id " + report_id + " does not have the `optionselect` report_type, "
+                                                        "and therefore cannot be exported")
+
+    report_name = report["name"]
+    # columns are all the possible descriptions for this report id
+    columns = ["First Name", "Last Name"] + report["preset_descriptions"]
+    # all_users_entries is a dictionary as follows (key, value) => (user_email, user_entries_dict)
+    # user_entries_dict is a dictionary as follows (key, value) => (event_description, value)
+    all_users_entries = {}
+
+    # parse report entries to build the rows
+    for entry in entries:
+        user_email = entry["user_email"]
+        event_description = entry["description"]
+        value = entry["value"]
+
+        if user_email not in all_users_entries:
+            all_users_entries[user_email] = {}
+
+        if event_description not in columns:
+            raise Exception(event_description + " is not a valid description for report_id " + report_id)
+
+        # adds entry to user's attendance row data
+        all_users_entries[user_email][event_description] = value
+
+    all_users = users_db.get_all_users()
+    # Adding in user names into the user entries dict
+    for user_email in all_users_entries.keys():
+        user_found = False
+        for user in all_users:
+            if user["pk"] == user_email:
+                user_found = True
+                all_users_entries[user_email]["First Name"] = user["first_name"]
+                all_users_entries[user_email]["Last Name"] = user["last_name"]
+
+        if not user_found:
+            raise Exception("user with email: " + user_email + " does not exist")
+
+    return report_name, columns, all_users_entries
+
+
 def add_preset_description(report_id, description):
     report = reporting_db.get_item(report_id, "report")
     if report is None:
