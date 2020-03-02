@@ -63,7 +63,7 @@ def process_received_email(mail):
                 print("Found %d users for list." % len(users_to_send_to))
                 if len(users_to_send_to) > 0:
                     destinations.append((email_list["subject_prefix"],
-                                         users_to_send_to))
+                                         users_to_send_to, to_email))
             else:
                 print("Email list not found for recipient: " + to_email)
 
@@ -103,23 +103,29 @@ def process_received_email(mail):
         user_from = "%s <%s>" % (from_name, from_email)
         safe_from = '%s <mailer@email.theotterpond.com>' % (from_name)
 
+        #trying this to see if it catches bounces
+        msg["Return-Path"] = "mailer@email.theotterpond.com"
+
         if verified:
             msg["Reply-To"] = user_from
             msg["From"] = user_from
-            msg["Return-Path"] = user_from
+            #msg["Return-Path"] = user_from
             msg["Source"] = user_from
         else:
             msg["Reply-To"] = user_from
             msg["From"] = safe_from
-            msg["Return-Path"] = "mailer@email.theotterpond.com"
+            #msg["Return-Path"] = "mailer@email.theotterpond.com"
             msg["Source"] = "mailer@email.theotterpond.com"
 
         original_subject = msg["Subject"]
-        for subject_prefix, user_emails in destinations:
+        for subject_prefix, user_emails, address in destinations:
             if subject_prefix is not None and subject_prefix not in original_subject:
                 new_subject = "[" + subject_prefix + "] " + original_subject
                 del msg["Subject"]
                 msg["Subject"] = new_subject
+
+                del msg["List-Id"]
+                msg["List-Id"] = "%s <%s>" % (new_subject, address)
             if subject_prefix is not None:
                 print("Sending to users on list with prefix: " + subject_prefix)
             else:
