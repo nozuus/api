@@ -166,6 +166,7 @@ def process_webhook(payload):
         print("Payment ID: " + payment_id)
         update_payment_status(payment_id, "CLEARED")
         print("Payment status updated to CLEARED")
+        print("Sending email to financial manager")
         notify_financial_manager(payment_id, "CLEARED")
         print("Notified financial manager")
     elif event.type == "charge.failed":
@@ -248,6 +249,8 @@ def notify_financial_manager(payment_id, status, reason = None):
     subject = "Otter Pond Payment: " + status
     to_emails = [get_active_finance_email()]
 
+    print("Sending email:")
+    print(json.dumps(email))
     emailer.send_plain_email(subject, email, to_emails)
 
 

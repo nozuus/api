@@ -125,7 +125,8 @@ def process_received_email(mail):
                 msg["Subject"] = new_subject
 
                 del msg["List-Id"]
-                msg["List-Id"] = "%s <%s>" % (new_subject, address)
+                msg["List-Id"] = "%s <%s>" % (subject_prefix, address)
+                print("Setting list id header to: " + msg["List-Id"])
             if subject_prefix is not None:
                 print("Sending to users on list with prefix: " + subject_prefix)
             else:
