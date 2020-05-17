@@ -82,3 +82,15 @@ def get_items_by_type(type):
     result = db_json.loads(response)["Items"]
 
     return result
+
+
+def get_items_for_pk_by_type(pk, type):
+    query_values = {
+        ":key": {"S": pk},
+        ":type": {"S": "%s_" % type}
+    }
+
+    response = dynamodb.query(TableName=table,
+                              KeyConditionExpression="pk = :key AND begins_with(sk,:type)",
+                              ExpressionAttributeValues=query_values)
+    return db_json.loads(response)["Items"]
