@@ -1,11 +1,20 @@
 import core.database.config_db as config_db
 import core.database.db as base_db
+import core.services.positions_service as positions_service
 from flask_jwt_extended import get_jwt_claims, verify_jwt_in_request
+
 
 def get_user_permission_names(user_email):
     permissions = config_db.get_permissions_for_user(user_email)
+    permission_names = [permission["sk"][11:] for permission in permissions]
 
-    return [permission["sk"][11:] for permission in permissions]
+    # Check if user has any permissions and apply those as well
+    positions = positions_service.get_positions_for_user(user_email)
+    for position in positions:
+        for permission in position["permissions"]:
+            if permission not in permission_names:
+                permission_names.append(permission)
+    return permission_names
 
 
 def check_permissions(required_permissions):
