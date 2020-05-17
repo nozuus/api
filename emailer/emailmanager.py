@@ -6,6 +6,7 @@ import email
 import json
 import os
 import datetime
+import core.services.positions_service as positions_service
 
 
 def email_received(event, context):
@@ -29,7 +30,7 @@ def process_received_email(mail):
 
         if email_list_db.check_message_id(message_id):
             print("Message ID exists in cache. Terminating.")
-            send_admin_email("Message in cache")
+            send_admin_email("Message in cache", "Message id: %s" % message_id)
             return
         else:
             email_list_db.store_message_id(message_id, str(datetime.datetime.now()))
@@ -50,7 +51,7 @@ def process_received_email(mail):
                 print("Email list found for recipient: " + to_email)
                 if not email_list["allow_external"]:
                     allow_external = False
-                user_emails = get_emails_for_list(to_email)
+                user_emails = get_emails_for_list(email_list)
                 users_to_send_to = []
                 for user_email in user_emails:
                     # Don't add the user if they're already being sent it, or if
@@ -84,7 +85,7 @@ def process_received_email(mail):
             print("Checking if email is valid: ", metadata_from)
             if not check_valid_from_email(metadata_from):
                 print("Invalid from email. Sending bounce")
-                send_admin_email("Invalid from email")
+                send_admin_email("Invalid from email", "From: %s" % metadata_from)
                 #send_invalid_from_email(metadata_from, to_emails, msg["Subject"])
                 return
 
@@ -141,7 +142,7 @@ def process_received_email(mail):
     except Exception as e:
         print("Exception. Printing object and serialized object: ")
         print(e)
-        send_admin_email("Exception")
+        send_admin_email("Exception", str(e))
     print("Finished email processing execution")
 
 
@@ -152,9 +153,13 @@ def split_from(msg_from):
     return msg_from_name, msg_from_email
 
 
-def get_emails_for_list(address):
+def get_emails_for_list(email_list):
     # Get Subscriptions
-    users_on_list = email_list_db.get_users_on_list(address)
+    if "position" in email_list and email_list["position"] is not None:
+        print("To list is position. Getting users for position %s" % email_list["position"])
+        user_emails = positions_service.get_users_for_position(email_list["position"])
+        return user_emails
+    users_on_list = email_list_db.get_users_on_list(email_list["pk"])
     user_emails = []
     for user_on_list in users_on_list:
         user_emails.append(user_on_list["pk"])
@@ -269,7 +274,7 @@ def find_embedded_to_address(headers, to_emails):
                 return
 
 
-def send_admin_email(reason=""):
+def send_admin_email(reason="", details="none"):
     admin_email = os.environ['admin_email']
     if admin_email is None or admin_email == "":
         print("Admin email not found. Terminating")
@@ -281,7 +286,7 @@ def send_admin_email(reason=""):
         "Body": {
             "Text": {
                 "Data": "Please check the logs from %s for an item needing "
-                        "attention." % (str(datetime.datetime.now()))
+                        "attention. \n\n Details: %s" % (str(datetime.datetime.now()), details)
 
             }
         }
