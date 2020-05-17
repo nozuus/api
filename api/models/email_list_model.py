@@ -12,6 +12,10 @@ list_model = Model("EmailList", {
     "allow_external": fields.Boolean
 })
 
+get_list_model = Model.inherit("GetEmailList", list_model, {
+    "position": fields.String(default=None)
+})
+
 update_list_model = Model("UpdateEmailList", {
     "subject_prefix": fields.String,
     "description": fields.String,

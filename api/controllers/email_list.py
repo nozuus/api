@@ -3,7 +3,7 @@ from flask_restplus import Namespace, Resource, fields
 import core.services.email_list_service as email_list_service
 import core.services.emailer_service as emailer_service
 import core.database.email_list_db as email_list_db
-from api.models.email_list_model import subscribe_model, list_model, role_permissions_model, get_role_permission_model, update_list_model
+from api.models.email_list_model import subscribe_model, list_model, role_permissions_model, get_role_permission_model, update_list_model, get_list_model
 from flask_jwt_extended import jwt_required
 from api.permissions_decorator import check_permissions
 
@@ -15,12 +15,13 @@ api.models[list_model.name] = list_model
 api.models[role_permissions_model.name] = role_permissions_model
 api.models[get_role_permission_model.name] = get_role_permission_model
 api.models[update_list_model.name] = update_list_model
+api.models[get_list_model.name] = get_list_model
 
 
 @api.route("/")
 class EmailLists(Resource):
     @api.doc("get_all_email_lists")
-    @api.marshal_list_with(list_model)
+    @api.marshal_list_with(get_list_model)
     @jwt_required
     def get(self):
         '''Get all email lists'''
@@ -35,7 +36,7 @@ class EmailLists(Resource):
 @api.route("/<address>")
 class EmailList(Resource):
     @api.doc("get_email_list_by_id")
-    @api.marshal_with(list_model)
+    @api.marshal_with(get_list_model)
     @jwt_required
     def get(self, address):
         '''Get email list by address'''
