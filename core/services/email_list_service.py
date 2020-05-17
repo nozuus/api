@@ -1,4 +1,5 @@
 import core.database.email_list_db as email_list_db
+import core.database.db as base_db
 import core.database.users_db as users_db
 import core.database.email_list_db as email_db
 import core.services.auth_services as auth_service
@@ -38,6 +39,19 @@ def create_email_list(email_list):
         return True
     else:
         raise Exception("Failed to create email list")
+
+
+def delete_email_list(email_address):
+    email_list = email_list_db.get_email_list_by_address(email_address)
+    if email_list is None:
+        raise Exception("Invalid email address")
+
+    subscribers = email_db.get_users_on_list(email_address)
+
+    for subscriber in subscribers:
+        base_db.delete_item(subscriber["pk"], subscriber["sk"])
+
+    return base_db.delete_partition(email_address)
 
 
 def update_role_permissions(address, role_id, permissions):

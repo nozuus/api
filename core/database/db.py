@@ -33,6 +33,13 @@ def delete_item(pk, sk):
     return response["ResponseMetadata"]["HTTPStatusCode"] == 200
 
 
+def delete_partition(pk):
+    block = get_entire_partition(pk)
+    for item  in block:
+        delete_item(item["pk"], item["sk"])
+    return
+
+
 def put_item_no_check(item_obj):
     item = json.loads(db_json.dumps(item_obj))
 
@@ -67,6 +74,20 @@ def get_item(pk, sk):
     if len(result) > 0:
         return result[0]
     return None
+
+
+def get_entire_partition(pk):
+    query_values = {
+        ":primary": {"S": pk},
+    }
+
+    response = dynamodb.query(TableName=table,
+                              KeyConditionExpression="pk = :primary",
+                              ExpressionAttributeValues=query_values)
+
+    result = db_json.loads(response)["Items"]
+
+    return result
 
 
 def get_items_by_type(type):

@@ -18,28 +18,48 @@ def create_position(position):
             if formatted not in all_permissions:
                 raise Exception("Invalid permission")
     if position["email_address"] is not None:
-        email_list = email_list_db.get_email_list_by_address(position["email_address"])
-        if email_list:
-            email_list["position"] = position_id
-            base_db.put_item_no_check(email_list)
-        else:
-            email_list = {
-                "address": position["emailAddress"],
-                "subject_prefix": None,
-                "description": "Email address for position: %s" %position["name"],
-                "allow_external": True,
-                "position": position_id
-            }
-            email_list_service.create_email_list(email_list);
+        create_email_for_position(position["email_address"], position_id, position["name"])
     if base_db.put_item_unique_pk(position):
         return str(position_id)
     else:
         raise Exception("Failed to create position")
 
 
+def create_email_for_position(email_address, position_id, position_name):
+    email_list = email_list_db.get_email_list_by_address(
+        email_address)
+    if email_list:
+        email_list["position"] = position_id
+        base_db.put_item_no_check(email_list)
+    else:
+        email_list = {
+            "address": email_address,
+            "subject_prefix": None,
+            "description": "Email address for position: %s" % position_name,
+            "allow_external": True,
+            "position": position_id
+        }
+        email_list_service.create_email_list(email_list);
+
+
 def get_position(position_id):
     position = base_db.get_item(position_id, "position")
     return position
+
+
+def update_position(position_id, position_update):
+    position = get_position(position_id)
+    if position is  None:
+        raise Exception("Invalid position ID")
+    if position["email_address"] != position_update["email_address"] or position["name"] != position_update["name"]:
+        email_list_service.delete_email_list(position["email_address"])
+        create_email_for_position(position_update["email_address"], position_id, position_update["name"])
+    position["email_address"] = position_update["email_address"]
+    position["name"] = position_update["name"]
+    position["description"] = position_update["description"]
+    position["permissions"] = position_update["permissions"]
+
+    return base_db.put_item_no_check(position);
 
 
 def get_all_positions():

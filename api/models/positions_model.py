@@ -2,7 +2,7 @@ from flask_restplus import fields, Model
 
 position_model = Model("Position", {
     'name': fields.String,
-    'description': fields.String,
+    'description': fields.String(default=None),
     'permissions': fields.List(fields.String),
     'email_address': fields.String(default=None)
 })

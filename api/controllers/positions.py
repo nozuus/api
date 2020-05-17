@@ -37,6 +37,18 @@ class Position(Resource):
         position = positions_service.get_position(position_id)
         return position
 
+    @api.doc("update_position")
+    @jwt_required
+    @api.expect(get_position_model)
+    @check_permissions("can_manage_permissions")
+    def put(self, position_id):
+        '''Update position'''
+        position = request.json
+        positions_service.update_position(position_id, position)
+        return {
+            'error': "Success"
+        }
+
 
 @api.route("/")
 class PositionsList(Resource):
