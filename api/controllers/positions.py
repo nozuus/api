@@ -11,6 +11,7 @@ api = Namespace('positions', description='Positions related operations')
 api.models[position_model.name] = position_model
 api.models[get_position_model.name] = get_position_model
 
+
 @api.route("/create")
 class PositionCreate(Resource):
     @api.doc("create_position")
@@ -47,6 +48,16 @@ class Position(Resource):
         positions_service.update_position(position_id, position)
         return {
             'error': "Success"
+        }
+
+    @api.doc("delete_position")
+    @jwt_required
+    @check_permissions("can_manage_permissions")
+    def delete(self, position_id):
+        '''Delete position'''
+        positions_service.delete_position(position_id)
+        return {
+            "error": "Success"
         }
 
 

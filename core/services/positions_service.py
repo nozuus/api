@@ -29,17 +29,16 @@ def create_email_for_position(email_address, position_id, position_name):
     email_list = email_list_db.get_email_list_by_address(
         email_address)
     if email_list:
-        email_list["position"] = position_id
-        base_db.put_item_no_check(email_list)
-    else:
-        email_list = {
-            "address": email_address,
-            "subject_prefix": None,
-            "description": "Email address for position: %s" % position_name,
-            "allow_external": True,
-            "position": position_id
-        }
-        email_list_service.create_email_list(email_list);
+        print("DELETING EMAIL LIST AND ASSIGNING TO POSITION")
+        email_list_service.delete_email_list(email_address)
+    email_list = {
+        "address": email_address,
+        "subject_prefix": None,
+        "description": "Email address for position: %s" % position_name,
+        "allow_external": True,
+        "position": position_id
+    }
+    email_list_service.create_email_list(email_list);
 
 
 def get_position(position_id):
@@ -123,3 +122,15 @@ def get_positions_for_user(user_email):
         positions.append(position)
 
     return positions
+
+
+def delete_position(position_id):
+    position = get_position(position_id)
+
+    if position is None:
+        raise Exception("Invalid position id")
+
+    base_db.delete_partition(position_id)
+    if position["email_address"] is not None:
+        email_list_service.delete_email_list(position["email_address"])
+    return
