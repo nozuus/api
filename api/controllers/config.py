@@ -4,6 +4,7 @@ from api.models.config_model import permission_model, setting_model
 import core.database.config_db as config_db
 import core.services.config_service as config_service
 from flask_jwt_extended import jwt_required
+from api.permissions_decorator import check_permissions
 
 api = Namespace('config', description='Config related operations')
 
@@ -26,6 +27,20 @@ class PermissionsResource(Resource):
             }
 
 
+    @api.doc("create_permission")
+    @api.expect(permission_model)
+    @jwt_required
+    @check_permissions("full_admin")
+    def  post(self):
+        '''Create position'''
+        body = request.json
+        config_service.create_permission(body)
+        return {
+            "error": "Success"
+        }
+
+
+
 @api.route("/settings")
 class SettingsResource(Resource):
     @api.doc("get_all_settings")
@@ -38,6 +53,7 @@ class SettingsResource(Resource):
     @api.doc("create_setting")
     @api.expect(setting_model)
     @jwt_required
+    @check_permissions("full_admin")
     def post(self):
         body = request.json
         config_service.create_setting(body)

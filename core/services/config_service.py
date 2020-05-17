@@ -1,4 +1,5 @@
 import core.database.config_db as config_db
+import core.database.db as base_db
 from flask_jwt_extended import get_jwt_claims, verify_jwt_in_request
 
 def get_user_permission_names(user_email):
@@ -42,3 +43,14 @@ def create_setting(setting):
     setting["sk"] = "setting_" + setting["identifier"]
 
     return config_db.put_item_no_check(setting)
+
+
+def create_permission(permission) :
+    permission["pk"] = "config"
+    permission["sk"] = "permission_%s" % permission["name"]
+
+
+    if base_db.put_item_no_check(permission) :
+        return
+    else:
+        raise Exception("Unable to create permission")
