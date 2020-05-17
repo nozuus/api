@@ -110,20 +110,6 @@ def get_users_for_position(position_id):
     return users
 
 
-def get_positions_for_user(user_email):
-    user = users_db.get_user_by_email(user_email)
-    if user is None:
-        raise Exception("Invalid user email")
-
-    positions_held = base_db.get_items_by_type("position_holder_%s" % user_email)
-    positions = []
-    for position_held in positions_held:
-        position = get_position(position_held["pk"])
-        positions.append(position)
-
-    return positions
-
-
 def delete_position(position_id):
     position = get_position(position_id)
 
