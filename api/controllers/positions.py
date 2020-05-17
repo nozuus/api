@@ -11,6 +11,7 @@ api = Namespace('positions', description='Positions related operations')
 api.models[position_model.name] = position_model
 api.models[get_position_model.name] = get_position_model
 
+
 @api.route("/create")
 class PositionCreate(Resource):
     @api.doc("create_position")
@@ -36,6 +37,28 @@ class Position(Resource):
         '''Get Position by id'''
         position = positions_service.get_position(position_id)
         return position
+
+    @api.doc("update_position")
+    @jwt_required
+    @api.expect(get_position_model)
+    @check_permissions("can_manage_permissions")
+    def put(self, position_id):
+        '''Update position'''
+        position = request.json
+        positions_service.update_position(position_id, position)
+        return {
+            'error': "Success"
+        }
+
+    @api.doc("delete_position")
+    @jwt_required
+    @check_permissions("can_manage_permissions")
+    def delete(self, position_id):
+        '''Delete position'''
+        positions_service.delete_position(position_id)
+        return {
+            "error": "Success"
+        }
 
 
 @api.route("/")
