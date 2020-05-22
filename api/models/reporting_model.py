@@ -4,6 +4,7 @@ from flask_restplus import fields, Model
 status_model = Model("StatusOptions", {
     "statuses": fields.List(fields.String),
     "default_status": fields.String(default=None),
+    "approved_status": fields.String(default=None)
 })
 
 report_create_model = Model("ReportCreate", {
