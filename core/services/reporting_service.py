@@ -3,6 +3,7 @@ import core.database.users_db as users_db
 import core.database.roles_db as roles_db
 import core.services.config_service as config_service
 import core.services.users_service as users_service
+import core.services.auth_services as auth_service
 import uuid
 
 
@@ -70,8 +71,12 @@ def create_report_entry(report_id, entry, existing = False, bypass_permissions =
     if "status" in entry and entry["status"] is not None:
         if "status_options" not in report_type or \
                 report_type["status_options"] is None \
-                or entry["status"] not in report_type["status_options"]:
+                or entry["status"] not in report_type["status_options"]["statuses"]:
             raise Exception("Invalid status")
+    else:
+        if "status_options" in report_type and report_type["status_options"] is not None \
+            and report_type["status_options"]["default_status"] is not None:
+            entry["status"] = report_type["status_options"]["default_status"]
 
     entry_id = "entry_%s_%s" % (entry["user_email"], str(uuid.uuid4())[:4])
     entry["pk"] = report_id
@@ -219,6 +224,73 @@ def add_preset_description(report_id, description):
     report["preset_descriptions"] = descriptions
 
     return reporting_db.put_item_no_check(report)
+
+
+def create_report_form(report_id, form):
+    report = reporting_db.get_item(report_id, 'report')
+    if report is None:
+        raise Exception("Invalid report id")
+
+    report_type = reporting_db.get_item(report["report_type_id"],
+                                        "report_type")
+
+    if report_type is None:
+        raise Exception("Error creating report form")
+
+    permissions = report_type["management_permissions"]
+
+    if not config_service.check_permissions(permissions):
+        raise Exception("User does not have permissions to edit report")
+
+    form["pk"] = report_id
+    form["sk"] = "form"
+
+    reporting_db.put_item_no_check(form)
+
+    return
+
+
+def get_report_form(report_id):
+    report = reporting_db.get_item(report_id, "report")
+    if report is None:
+        raise Exception("Invalid report id")
+
+    form = reporting_db.get_item(report_id, "form")
+
+    return form
+
+
+def submit_report_form(report_id, submission):
+    report = reporting_db.get_item(report_id, "report")
+    if report is None:
+        raise Exception("Invalid report id")
+
+    form = reporting_db.get_item(report_id, "form")
+    if form is None:
+        raise Exception("Report does not have form")
+
+    if len(submission["descriptionQuestionAnswers"]) != len(form["descriptionQuestions"]):
+        raise Exception("Invalid number of description question answers")
+
+    description_strings = []
+    for index in range(len(form["descriptionQuestions"])):
+        question = form["descriptionQuestions"][index]["question"]
+        answer = submission["descriptionQuestionAnswers"][index]
+        description_strings.append("%s\t%s" % (question, answer))
+
+    description = "\n".join(description_strings)
+
+    report_entry = {
+        'value': submission["value"],
+        'timestamp': submission["timestamp"],
+        'user_email': submission["user_email"],
+        'entered_by_email': submission["entered_by_email"],
+        'description': description
+    }
+
+    bypass_permissions = auth_service.get_identity() == report_entry["user_email"]
+
+    return create_report_entry(report_id, report_entry, False, bypass_permissions)
 
 
 def is_number(s):

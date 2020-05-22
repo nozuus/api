@@ -1,7 +1,10 @@
 from flask import request
 from flask_restplus import Namespace, Resource
 from flask_jwt_extended import jwt_required
-from api.models.reporting_model import report_create_model, get_report_model, type_create_model, get_type_model, semester_create_model, get_semester_model, entry_model, full_report_details, add_description
+from api.models.reporting_model import report_create_model, get_report_model, \
+    type_create_model, get_type_model, semester_create_model, get_semester_model, \
+    entry_model, full_report_details, add_description, report_form_model, \
+    description_question_model, report_form_submission
 from api.models.users_model import get_users_model
 import core.services.reporting_service as reporting_service
 import core.services.auth_services as auth_services
@@ -23,6 +26,9 @@ api.models[entry_model.name] = entry_model
 api.models[full_report_details.name] = full_report_details
 api.models[add_description.name] = add_description
 api.models[get_users_model.name] = get_users_model
+api.models[report_form_model.name] = report_form_model
+api.models[description_question_model.name] = description_question_model
+api.models[report_form_submission.name] = report_form_submission
 
 
 @api.route("/create")
@@ -73,6 +79,43 @@ class Report(Resource):
             return {
                 'error': "Error getting report by id: " + str(e)
             }
+
+
+@api.route("/<report_id>/form")
+class ReportForm(Resource):
+    @api.doc('get_report_form')
+    @api.marshal_with(report_form_model)
+    @jwt_required
+    def get(self, report_id):
+        '''Get report form'''
+        form = reporting_service.get_report_form(report_id)
+        return form
+
+    @api.doc('create_report_form')
+    @jwt_required
+    @api.expect(report_form_model)
+    def post(self, report_id):
+        '''Create report form'''
+        report_form = request.json
+        reporting_service.create_report_form(report_id, report_form)
+        return {
+            'error': "Success"
+        }
+
+
+@api.route("/<report_id>/form/submit")
+class ReportFormSubmit(Resource):
+    @api.doc("submit_report_form")
+    @api.expect(report_form_submission)
+    @jwt_required
+    def post(self, report_id):
+        '''Submit report form'''
+        submission = request.json
+        reporting_service.submit_report_form(report_id, submission)
+        return {
+            "error": "Success"
+        }
+
 
 @api.route("/export/<report_id>")
 class Report(Resource):
