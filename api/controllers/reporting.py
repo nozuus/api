@@ -2,7 +2,7 @@ from flask import request
 from flask_restplus import Namespace, Resource
 from flask_jwt_extended import jwt_required
 from api.models.reporting_model import report_create_model, get_report_model, \
-    type_create_model, get_type_model, semester_create_model, get_semester_model, \
+    type_create_model, status_model, get_type_model, semester_create_model, get_semester_model, \
     entry_model, full_report_details, add_description, report_form_model, \
     description_question_model, report_form_submission
 from api.models.users_model import get_users_model
@@ -29,6 +29,7 @@ api.models[get_users_model.name] = get_users_model
 api.models[report_form_model.name] = report_form_model
 api.models[description_question_model.name] = description_question_model
 api.models[report_form_submission.name] = report_form_submission
+api.models[status_model.name] = status_model
 
 
 @api.route("/create")
