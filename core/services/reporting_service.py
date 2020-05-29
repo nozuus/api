@@ -1,10 +1,25 @@
 import core.database.reporting_db as reporting_db
 import core.database.users_db as users_db
 import core.database.roles_db as roles_db
+import core.database.db as base_db
 import core.services.config_service as config_service
 import core.services.users_service as users_service
 import core.services.auth_services as auth_service
 import uuid
+
+
+def get_reports(only_admin = False):
+    reports = reporting_db.get_items_by_type("report")
+    if not only_admin:
+        return reports
+
+    to_return = []
+
+    for report in reports:
+        if check_report_permissions(report["pk"]):
+            to_return.append(report)
+
+    return to_return
 
 
 def create_report(report_obj):
@@ -37,6 +52,16 @@ def create_report_type(report_type_obj):
         raise Exception("Failed to create report type")
 
 
+def update_report_type(report_type_id, report_type_update):
+    type = reporting_db.get_item(report_type_id, "report_type")
+    if type is None:
+        raise Exception("Invalid report type id")
+    report_type_update["pk"] = type["pk"]
+    report_type_update["sk"] = type["sk"]
+    return base_db.put_item_no_check(report_type_update)
+
+
+
 def create_semester(semester_obj):
     semester_id = "semester_%s" % str(uuid.uuid4())[:8]
     semester_obj["pk"] = semester_id
@@ -45,6 +70,21 @@ def create_semester(semester_obj):
         return str(semester_id)
     else:
         raise Exception("Failed to create semester")
+
+
+def get_semester(semester_id):
+    semester = base_db.get_item(semester_id, "semester")
+    if semester is None:
+        raise Exception("Invalid semester ID")
+    return semester
+
+
+def update_semester(semester_id, semester_update):
+    semester = get_semester(semester_id)
+    semester["start_date"] = semester_update["start_date"]
+    semester["end_date"] = semester_update["end_date"]
+    semester["description"] = semester_update["description"]
+    return base_db.put_item_no_check(semester)
 
 
 def create_report_entry(report_id, entry, existing = False, bypass_permissions = False):
@@ -75,6 +115,7 @@ def create_report_entry(report_id, entry, existing = False, bypass_permissions =
             raise Exception("Invalid status")
     else:
         if "status_options" in report_type and report_type["status_options"] is not None \
+            and "default_status" in report_type["status_options"] \
             and report_type["status_options"]["default_status"] is not None:
             entry["status"] = report_type["status_options"]["default_status"]
 

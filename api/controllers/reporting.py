@@ -57,13 +57,19 @@ class ReportList(Resource):
     @jwt_required
     def get(self):
         '''Fetch all reports'''
-        try:
-            reports = reporting_db.get_items_by_type("report")
-            return reports
-        except Exception as e:
-            return {
-                'error': "Error getting all reports: " + str(e)
-            }
+        reports = reporting_service.get_reports()
+        return reports
+
+
+@api.route("/adminReports")
+class AdminReportList(Resource):
+    @api.doc('get_admin_reports')
+    @api.marshal_list_with(get_report_model)
+    @jwt_required
+    def get(self):
+        '''Fetch all reports'''
+        reports = reporting_service.get_reports(True)
+        return reports
 
 
 @api.route("/<report_id>")
@@ -244,15 +250,10 @@ class TypeCreate(Resource):
     def post(self):
         '''Create a new report type'''
         body = request.json
-        try:
-            if body["value_type"] == "optionselect" and "options" not in body:
-                return {"error": "Value type 'optionselect' requires a list of options"}
-            report_type_id = reporting_service.create_report_type(body)
-            return {"report_type_id": report_type_id}
-        except Exception as e:
-            return {
-                'error': "Error creating report type: " + str(e)
-            }
+        if body["value_type"] == "optionselect" and "options" not in body:
+            return {"error": "Value type 'optionselect' requires a list of options"}
+        report_type_id = reporting_service.create_report_type(body)
+        return {"report_type_id": report_type_id}
 
 
 @api.route("/types/")
@@ -288,6 +289,17 @@ class ReportTypeList(Resource):
                 'error': "Error getting all report types: " + str(e)
             }
 
+    @api.doc('update_report_type')
+    @api.expect(type_create_model)
+    @jwt_required
+    @check_permissions("can_manage_reporting")
+    def put(self, report_type_id):
+        body = request.json
+        reporting_service.update_report_type(report_type_id, body)
+        return {
+            "error": "Success"
+        }
+
 
 @api.route("/semesters/create")
 class SemesterCreate(Resource):
@@ -305,6 +317,27 @@ class SemesterCreate(Resource):
             return {
                 'error': "Error creating semester: " + str(e)
             }
+
+
+@api.route("/semesters/<semester_id>")
+class Semester(Resource):
+    @api.doc("update_semester")
+    @api.expect(semester_create_model)
+    @jwt_required
+    @check_permissions("can_manage_reporting")
+    def put(self, semester_id):
+        body = request.json
+        reporting_service.update_semester(semester_id, body)
+        return {
+            "error": "Success"
+        }
+
+    @api.doc("get_semester")
+    @api.marshal_with(get_semester_model)
+    @jwt_required
+    def get(self, semester_id):
+        semester = reporting_service.get_semester(semester_id)
+        return semester
 
 
 @api.route("/semesters/")
