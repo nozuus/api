@@ -41,13 +41,8 @@ class ReportCreate(Resource):
     def post(self):
         '''Create a new report'''
         body = request.json
-        try:
-            report_id = reporting_service.create_report(body)
-            return {"report_id": report_id}
-        except Exception as e:
-            return {
-                'error': "Error creating report: " + str(e)
-            }
+        report_id = reporting_service.create_report(body)
+        return {"report_id": report_id}
 
 
 @api.route("/")
