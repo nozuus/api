@@ -16,6 +16,12 @@ report_create_model = Model("ReportCreate", {
     'preset_descriptions': fields.List(fields.String, default=None, skip_none=True),
 })
 
+report_update_model = Model("ReportUpdate", {
+    'name': fields.String,
+    'description': fields.String,
+    'applicable_roles': fields.List(fields.String),
+})
+
 get_report_model = Model.inherit("GetReports", report_create_model, {
     "report_id": fields.String(attribute='pk')
 })

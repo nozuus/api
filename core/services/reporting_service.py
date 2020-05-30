@@ -42,6 +42,26 @@ def create_report(report_obj):
         raise Exception("Failed to create report")
 
 
+def update_report(report_id, report_update):
+    report = reporting_db.get_item(report_id, "report")
+    if report is None:
+        raise Exception("Invalid report ID")
+    report_type = reporting_db.get_item(report["report_type_id"],
+                                        "report_type")
+
+    permissions = report_type["management_permissions"]
+
+    if not config_service.check_permissions(
+            permissions):
+        raise Exception("User does not have permissions to manage report")
+
+    report["name"] = report_update["name"]
+    report["description"] = report_update["description"]
+    report["applicable_roles"] = report_update["applicable_roles"]
+
+    return base_db.put_item_no_check(report)
+
+
 def create_report_type(report_type_obj):
     type_id = "report_type_%s" % str(uuid.uuid4())[:8]
     report_type_obj["pk"] = type_id
