@@ -4,7 +4,8 @@ from flask_jwt_extended import jwt_required
 from api.models.reporting_model import report_create_model, get_report_model, \
     type_create_model, status_model, get_type_model, semester_create_model, get_semester_model, \
     entry_model, full_report_details, add_description, report_form_model, \
-    description_question_model, report_form_submission, report_update_model
+    description_question_model, report_form_submission, report_update_model, \
+    get_entry_model
 from api.models.users_model import get_users_model
 import core.services.reporting_service as reporting_service
 import core.services.auth_services as auth_services
@@ -31,6 +32,7 @@ api.models[description_question_model.name] = description_question_model
 api.models[report_form_submission.name] = report_form_submission
 api.models[status_model.name] = status_model
 api.models[report_update_model.name] = report_update_model
+api.models[get_entry_model.name] = get_entry_model
 
 
 @api.route("/create")
@@ -222,7 +224,7 @@ class ReportEntries(Resource):
             }
 
     @api.doc("get_entries")
-    @api.marshal_list_with(entry_model)
+    @api.marshal_list_with(get_entry_model)
     @jwt_required
     def get(self, report_id):
         try:
@@ -237,12 +239,21 @@ class ReportEntries(Resource):
 @api.route("/<report_id>/entries/<user_email>")
 class ReportEntriesByUser(Resource):
     @api.doc("get_entries_for_user")
-    @api.marshal_list_with(entry_model)
+    @api.marshal_list_with(get_entry_model)
     @jwt_required
     def get(self, report_id, user_email):
         username = auth_services.get_identity()
         entries = reporting_service.get_report_entries_for_user(report_id, user_email, username != user_email)
         return entries
+
+
+@api.route("/<report_id>/entries/<user_email>/<entry_id>")
+class DeleteEntry(Resource):
+    @api.doc("delete_report_entry")
+    @jwt_required
+    def delete(self, report_id, user_email, entry_id):
+        reporting_service.delete_entry(report_id, user_email, entry_id)
+        return {"error": "Success"}
 
 
 @api.route("/types/create")

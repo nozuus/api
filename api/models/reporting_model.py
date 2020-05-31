@@ -23,7 +23,7 @@ report_update_model = Model("ReportUpdate", {
 })
 
 get_report_model = Model.inherit("GetReports", report_create_model, {
-    "report_id": fields.String(attribute='pk')
+    "report_id": fields.String(attribute='pk'),
 })
 
 type_create_model = Model("ReportTypeCreate", {
@@ -56,6 +56,10 @@ entry_model = Model("Entry", {
     'gtid': fields.String(default=None, skip_none=True),
     'entered_by_email': fields.String,
     'status': fields.String(default=None, skip_none=True)
+})
+
+get_entry_model = Model.inherit("GetEntry", entry_model, {
+    "entry_id": fields.String(attribute='sk')
 })
 
 full_report_details = Model.inherit("GetFullReportDetails", get_report_model, {
