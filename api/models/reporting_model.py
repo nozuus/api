@@ -4,6 +4,7 @@ from flask_restplus import fields, Model
 status_model = Model("StatusOptions", {
     "statuses": fields.List(fields.String),
     "default_status": fields.String(default=None),
+    "approved_status": fields.String(default=None)
 })
 
 report_create_model = Model("ReportCreate", {
@@ -15,8 +16,14 @@ report_create_model = Model("ReportCreate", {
     'preset_descriptions': fields.List(fields.String, default=None, skip_none=True),
 })
 
+report_update_model = Model("ReportUpdate", {
+    'name': fields.String,
+    'description': fields.String,
+    'applicable_roles': fields.List(fields.String),
+})
+
 get_report_model = Model.inherit("GetReports", report_create_model, {
-    "report_id": fields.String(attribute='pk')
+    "report_id": fields.String(attribute='pk'),
 })
 
 type_create_model = Model("ReportTypeCreate", {
@@ -51,6 +58,10 @@ entry_model = Model("Entry", {
     'status': fields.String(default=None, skip_none=True)
 })
 
+get_entry_model = Model.inherit("GetEntry", entry_model, {
+    "entry_id": fields.String(attribute='sk')
+})
+
 full_report_details = Model.inherit("GetFullReportDetails", get_report_model, {
     "report_type": fields.Nested(get_type_model),
     "semester": fields.Nested(get_semester_model)
@@ -76,4 +87,8 @@ report_form_submission = Model("ReportFormSubmission", {
     'timestamp': fields.DateTime,
     'user_email': fields.String(),
     'entered_by_email': fields.String
+})
+
+set_status_model = Model("SetStatus", {
+    "new_status": fields.String
 })
