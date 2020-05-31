@@ -5,7 +5,7 @@ from api.models.reporting_model import report_create_model, get_report_model, \
     type_create_model, status_model, get_type_model, semester_create_model, get_semester_model, \
     entry_model, full_report_details, add_description, report_form_model, \
     description_question_model, report_form_submission, report_update_model, \
-    get_entry_model
+    get_entry_model, set_status_model
 from api.models.users_model import get_users_model
 import core.services.reporting_service as reporting_service
 import core.services.auth_services as auth_services
@@ -33,6 +33,7 @@ api.models[report_form_submission.name] = report_form_submission
 api.models[status_model.name] = status_model
 api.models[report_update_model.name] = report_update_model
 api.models[get_entry_model.name] = get_entry_model
+api.models[set_status_model.name] = set_status_model
 
 
 @api.route("/create")
@@ -259,6 +260,17 @@ class DeleteEntry(Resource):
     @jwt_required
     def delete(self, report_id, user_email, entry_id):
         reporting_service.delete_entry(report_id, user_email, entry_id)
+        return {"error": "Success"}
+
+
+@api.route("/<report_id>/entries/<user_email>/<entry_id>/status")
+class StatusUpdate(Resource):
+    @api.doc("update_entry_status")
+    @api.expect(set_status_model)
+    @jwt_required
+    def put(self, report_id, user_email, entry_id):
+        body = request.json
+        reporting_service.update_entry_status(report_id, user_email, entry_id, body["new_status"])
         return {"error": "Success"}
 
 

@@ -88,3 +88,7 @@ report_form_submission = Model("ReportFormSubmission", {
     'user_email': fields.String(),
     'entered_by_email': fields.String
 })
+
+set_status_model = Model("SetStatus", {
+    "new_status": fields.String
+})

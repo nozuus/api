@@ -206,6 +206,29 @@ def delete_entry(report_id, user_email, entry_id):
     base_db.delete_item(report_id, entry_id)
 
 
+def update_entry_status(report_id, user_email, entry_id, new_status):
+    report = reporting_db.get_item(report_id, "report")
+
+    if report is None:
+        raise Exception("Invalid Report ID")
+
+    report_type = reporting_db.get_item(report["report_type_id"], "report_type")
+
+    permissions = report_type["management_permissions"]
+
+    if not config_service.check_permissions(
+            permissions):
+        raise Exception(
+            "User does not have permissions to manage report entries")
+
+    entry = reporting_db.get_item(report_id, entry_id)
+
+    if entry is None:
+        raise Exception("Invalid entry ID")
+    entry["status"] = new_status
+    return base_db.put_item_no_check(entry)
+
+
 def check_report_permissions(report_id):
     report = reporting_db.get_item(report_id, "report")
     if report is None:
