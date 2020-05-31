@@ -328,6 +328,27 @@ def create_report_form(report_id, form):
     return
 
 
+def delete_report_form(report_id):
+    report = reporting_db.get_item(report_id, 'report')
+    if report is None:
+        raise Exception("Invalid report id")
+
+    report_type = reporting_db.get_item(report["report_type_id"],
+                                        "report_type")
+
+    if report_type is None:
+        raise Exception("Error creating report form")
+
+    permissions = report_type["management_permissions"]
+
+    if not config_service.check_permissions(permissions):
+        raise Exception("User does not have permissions to edit report")
+
+    base_db.delete_item(report_id, "form")
+
+    return
+
+
 def get_report_form(report_id):
     report = reporting_db.get_item(report_id, "report")
     if report is None:

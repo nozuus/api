@@ -115,6 +115,12 @@ class ReportForm(Resource):
             'error': "Success"
         }
 
+    @api.doc("delete_report_form")
+    @jwt_required
+    def delete(self, report_id):
+        reporting_service.delete_report_form(report_id)
+        return {"error": "Success"}
+
 
 @api.route("/<report_id>/form/submit")
 class ReportFormSubmit(Resource):
