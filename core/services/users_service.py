@@ -14,6 +14,16 @@ def create_user(user):
         raise Exception("Failed to create user")
 
 
+def delete_user(user_email):
+    user = {}
+    user["sk"] = "user"
+    user["pk"] = user_email
+    if users_db.delete_user(user):
+        return True
+    else:
+        raise Exception("Failed to delete user")
+
+
 def update_user(user_email, new_values):
     user = users_db.get_user_by_email(user_email)
     for key in new_values:
