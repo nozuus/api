@@ -16,7 +16,7 @@ user_create_model = Model("UserCreate", {
 })
 
 get_users_model = Model.inherit("GetUsers", user_create_model, {
-    "user_id": fields.String
+    # "user_id": fields.String No longer using this field
 })
 
 delete_users_model = Model("DeleteUser", {

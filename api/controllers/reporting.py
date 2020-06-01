@@ -1,7 +1,11 @@
 from flask import request
 from flask_restplus import Namespace, Resource
 from flask_jwt_extended import jwt_required
-from api.models.reporting_model import report_create_model, get_report_model, type_create_model, get_type_model, semester_create_model, get_semester_model, entry_model, full_report_details, add_description
+from api.models.reporting_model import report_create_model, get_report_model, \
+    type_create_model, status_model, get_type_model, semester_create_model, get_semester_model, \
+    entry_model, full_report_details, add_description, report_form_model, \
+    description_question_model, report_form_submission, report_update_model, \
+    get_entry_model, set_status_model
 from api.models.users_model import get_users_model
 import core.services.reporting_service as reporting_service
 import core.services.auth_services as auth_services
@@ -23,6 +27,13 @@ api.models[entry_model.name] = entry_model
 api.models[full_report_details.name] = full_report_details
 api.models[add_description.name] = add_description
 api.models[get_users_model.name] = get_users_model
+api.models[report_form_model.name] = report_form_model
+api.models[description_question_model.name] = description_question_model
+api.models[report_form_submission.name] = report_form_submission
+api.models[status_model.name] = status_model
+api.models[report_update_model.name] = report_update_model
+api.models[get_entry_model.name] = get_entry_model
+api.models[set_status_model.name] = set_status_model
 
 
 @api.route("/create")
@@ -34,13 +45,8 @@ class ReportCreate(Resource):
     def post(self):
         '''Create a new report'''
         body = request.json
-        try:
-            report_id = reporting_service.create_report(body)
-            return {"report_id": report_id}
-        except Exception as e:
-            return {
-                'error': "Error creating report: " + str(e)
-            }
+        report_id = reporting_service.create_report(body)
+        return {"report_id": report_id}
 
 
 @api.route("/")
@@ -50,13 +56,19 @@ class ReportList(Resource):
     @jwt_required
     def get(self):
         '''Fetch all reports'''
-        try:
-            reports = reporting_db.get_items_by_type("report")
-            return reports
-        except Exception as e:
-            return {
-                'error': "Error getting all reports: " + str(e)
-            }
+        reports = reporting_service.get_reports()
+        return reports
+
+
+@api.route("/adminReports")
+class AdminReportList(Resource):
+    @api.doc('get_admin_reports')
+    @api.marshal_list_with(get_report_model)
+    @jwt_required
+    def get(self):
+        '''Fetch all reports'''
+        reports = reporting_service.get_reports(True)
+        return reports
 
 
 @api.route("/<report_id>")
@@ -73,6 +85,57 @@ class Report(Resource):
             return {
                 'error': "Error getting report by id: " + str(e)
             }
+
+    @api.doc("update_report_by_id")
+    @api.expect(report_update_model)
+    @jwt_required
+    def put(self, report_id):
+        body = request.json
+        reporting_service.update_report(report_id, body)
+        return { "error": "Success" }
+
+
+@api.route("/<report_id>/form")
+class ReportForm(Resource):
+    @api.doc('get_report_form')
+    @api.marshal_with(report_form_model)
+    @jwt_required
+    def get(self, report_id):
+        '''Get report form'''
+        form = reporting_service.get_report_form(report_id)
+        return form
+
+    @api.doc('create_report_form')
+    @jwt_required
+    @api.expect(report_form_model)
+    def post(self, report_id):
+        '''Create report form'''
+        report_form = request.json
+        reporting_service.create_report_form(report_id, report_form)
+        return {
+            'error': "Success"
+        }
+
+    @api.doc("delete_report_form")
+    @jwt_required
+    def delete(self, report_id):
+        reporting_service.delete_report_form(report_id)
+        return {"error": "Success"}
+
+
+@api.route("/<report_id>/form/submit")
+class ReportFormSubmit(Resource):
+    @api.doc("submit_report_form")
+    @api.expect(report_form_submission)
+    @jwt_required
+    def post(self, report_id):
+        '''Submit report form'''
+        submission = request.json
+        reporting_service.submit_report_form(report_id, submission)
+        return {
+            "error": "Success"
+        }
+
 
 @api.route("/export/<report_id>")
 class Report(Resource):
@@ -168,7 +231,7 @@ class ReportEntries(Resource):
             }
 
     @api.doc("get_entries")
-    @api.marshal_list_with(entry_model)
+    @api.marshal_list_with(get_entry_model)
     @jwt_required
     def get(self, report_id):
         try:
@@ -183,12 +246,32 @@ class ReportEntries(Resource):
 @api.route("/<report_id>/entries/<user_email>")
 class ReportEntriesByUser(Resource):
     @api.doc("get_entries_for_user")
-    @api.marshal_list_with(entry_model)
+    @api.marshal_list_with(get_entry_model)
     @jwt_required
     def get(self, report_id, user_email):
         username = auth_services.get_identity()
         entries = reporting_service.get_report_entries_for_user(report_id, user_email, username != user_email)
         return entries
+
+
+@api.route("/<report_id>/entries/<user_email>/<entry_id>")
+class DeleteEntry(Resource):
+    @api.doc("delete_report_entry")
+    @jwt_required
+    def delete(self, report_id, user_email, entry_id):
+        reporting_service.delete_entry(report_id, user_email, entry_id)
+        return {"error": "Success"}
+
+
+@api.route("/<report_id>/entries/<user_email>/<entry_id>/status")
+class StatusUpdate(Resource):
+    @api.doc("update_entry_status")
+    @api.expect(set_status_model)
+    @jwt_required
+    def put(self, report_id, user_email, entry_id):
+        body = request.json
+        reporting_service.update_entry_status(report_id, user_email, entry_id, body["new_status"])
+        return {"error": "Success"}
 
 
 @api.route("/types/create")
@@ -200,15 +283,10 @@ class TypeCreate(Resource):
     def post(self):
         '''Create a new report type'''
         body = request.json
-        try:
-            if body["value_type"] == "optionselect" and "options" not in body:
-                return {"error": "Value type 'optionselect' requires a list of options"}
-            report_type_id = reporting_service.create_report_type(body)
-            return {"report_type_id": report_type_id}
-        except Exception as e:
-            return {
-                'error': "Error creating report type: " + str(e)
-            }
+        if body["value_type"] == "optionselect" and "options" not in body:
+            return {"error": "Value type 'optionselect' requires a list of options"}
+        report_type_id = reporting_service.create_report_type(body)
+        return {"report_type_id": report_type_id}
 
 
 @api.route("/types/")
@@ -244,6 +322,17 @@ class ReportTypeList(Resource):
                 'error': "Error getting all report types: " + str(e)
             }
 
+    @api.doc('update_report_type')
+    @api.expect(type_create_model)
+    @jwt_required
+    @check_permissions("can_manage_reporting")
+    def put(self, report_type_id):
+        body = request.json
+        reporting_service.update_report_type(report_type_id, body)
+        return {
+            "error": "Success"
+        }
+
 
 @api.route("/semesters/create")
 class SemesterCreate(Resource):
@@ -261,6 +350,27 @@ class SemesterCreate(Resource):
             return {
                 'error': "Error creating semester: " + str(e)
             }
+
+
+@api.route("/semesters/<semester_id>")
+class Semester(Resource):
+    @api.doc("update_semester")
+    @api.expect(semester_create_model)
+    @jwt_required
+    @check_permissions("can_manage_reporting")
+    def put(self, semester_id):
+        body = request.json
+        reporting_service.update_semester(semester_id, body)
+        return {
+            "error": "Success"
+        }
+
+    @api.doc("get_semester")
+    @api.marshal_with(get_semester_model)
+    @jwt_required
+    def get(self, semester_id):
+        semester = reporting_service.get_semester(semester_id)
+        return semester
 
 
 @api.route("/semesters/")
