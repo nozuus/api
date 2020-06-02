@@ -2,7 +2,7 @@ from flask import request
 from flask_restplus import Namespace, Resource
 import core.database.users_db as users_db
 import core.services.users_service as users_service
-from api.models.users_model import user_create_model, user_update_model, get_users_model, delete_users_model, enroll_buzzcard_model
+from api.models.users_model import user_create_model, user_update_model, get_users_model, enroll_buzzcard_model
 from flask_jwt_extended import jwt_required
 from api.permissions_decorator import check_permissions
 
@@ -11,7 +11,6 @@ api = Namespace('users', description='User related operations')
 api.models[user_create_model.name] = user_create_model
 api.models[user_update_model.name] = user_update_model
 api.models[get_users_model.name] = get_users_model
-api.models[delete_users_model.name] = delete_users_model
 api.models[enroll_buzzcard_model.name] = enroll_buzzcard_model
 
 @api.route('/<user_email>')
@@ -36,7 +35,6 @@ class User(Resource):
         }
 
     @api.doc('delete_user')
-    @api.expect(delete_users_model)
     @jwt_required
     @check_permissions()
     def delete(self, user_email):

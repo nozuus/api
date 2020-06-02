@@ -47,12 +47,14 @@ def delete_partition(pk):
 
 # Deletes any entry with substr in an entry's sk for the entire database
 def delete_scan(substr):
+    print(substr)
     matches = scan_sk_for_substr(substr)
+    print(matches)
     if not matches:
         return False
 
     for item in matches:
-        response = delete_item(item['sk'], item['sk'])
+        response = delete_item(item['pk']['S'], item['sk']['S'])
         if not response:
             return False
 
@@ -118,16 +120,19 @@ def scan_sk_for_substr(substr):
     LastEvaluatedKey = {}
     scan_results = []
     while LastEvaluatedKey is not None:
-        ExclusiveStartKey = None
-        if LastEvaluatedKey != {}:
-            ExclusiveStartKey = LastEvaluatedKey
-
-        scan_response = dynamodb.scan(
-            TableName=table,
-            FilterExpression='contains (sk, :substr)',
-            ExpressionAttributeValues=query_values,
-            ExclusiveStartKey=ExclusiveStartKey
-        )
+        if LastEvaluatedKey == {}:
+            scan_response = dynamodb.scan(
+                TableName=table,
+                FilterExpression='contains (sk, :substr)',
+                ExpressionAttributeValues=query_values,
+            )
+        else:
+            scan_response = dynamodb.scan(
+                TableName=table,
+                FilterExpression='contains (sk, :substr)',
+                ExpressionAttributeValues=query_values,
+                ExclusiveStartKey=LastEvaluatedKey
+            )
 
         if scan_response['ResponseMetadata']['HTTPStatusCode'] != 200:
             return False

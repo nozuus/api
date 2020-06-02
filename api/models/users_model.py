@@ -19,10 +19,6 @@ get_users_model = Model.inherit("GetUsers", user_create_model, {
     # "user_id": fields.String No longer using this field
 })
 
-delete_users_model = Model("DeleteUser", {
-    "user_email": fields.String
-})
-
 user_update_model = Model("UsersUpdate", {
     'last_name':fields.String(default=None),
     'first_name': fields.String(default=None),
