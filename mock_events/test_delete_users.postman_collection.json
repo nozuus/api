@@ -1,0 +1,533 @@
+{
+	"info": {
+		"_postman_id": "87755a13-d7d0-4deb-b534-d09086c0b163",
+		"name": "Test Delete Users",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create Bagul",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"last_name\": \"demedici\",\n  \"first_name\": \"bagul\",\n  \"middle_name\": \"idk\",\n  \"birthday\": \"eternity\",\n  \"user_email\": \"bagul.medici@gatech.edu\",\n  \"phone_number\": \"123567\",\n  \"major\": \"Engineering\",\n  \"role_id\": \"role_48e17655\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/users/create",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"users",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update bagul (optional)",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"last_name\": \"demedici\",\n  \"first_name\": \"bagul\",\n  \"middle_name\": \"idk\",\n  \"birthday\": \"eternity\",\n  \"user_email\": \"bagul.medici@gatech.edu\",\n  \"phone_number\": \"123567\",\n  \"major\": \"Engineering\",\n  \"role_id\": \"role_48e17655\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/users/bagul.medici@gatech.edu",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"users",
+						"bagul.medici@gatech.edu"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify bagul created",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/users",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get positions for bagul",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/positions/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"positions",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Make bagul president",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/positions/position_bc20eb9a/users/bagul.medici@gatech.edu",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"positions",
+						"position_bc20eb9a",
+						"users",
+						"bagul.medici@gatech.edu"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify bagul is president",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/positions/position_bc20eb9a/users",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"positions",
+						"position_bc20eb9a",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Make bagul test position",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/positions/position_193833e1/users/bagul.medici@gatech.edu",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"positions",
+						"position_193833e1",
+						"users",
+						"bagul.medici@gatech.edu"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify bagul is test position",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/positions/position_193833e1/users",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"positions",
+						"position_193833e1",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "reports for bagul",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/reporting",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"reporting"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Bagul adds to test report 1",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"description\": \"hope this works\",\n  \"value\": 2342.0,\n  \"timestamp\": \"2020-06-02T20:17:10.749Z\",\n  \"user_email\": \"bagul.medici@gatech.edu\",\n  \"gtid\": \"90309320\",\n  \"entered_by_email\": \"dbcker.fl@gmail.com\",\n  \"status\": null\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/reporting/report_5866e39e/entries",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"reporting",
+						"report_5866e39e",
+						"entries"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Bagul enters in form for someone else",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"description\": \"hope this works\",\n  \"value\": 2534.0,\n  \"timestamp\": \"2020-06-02T20:17:10.749Z\",\n  \"user_email\": \"dbecker.fl@gmail.com\",\n  \"entered_by_email\": \"bagul.medici@gatech.edu\",\n  \"gtid\": \"90309320\",\n  \"status\": null\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/reporting/report_2661efff/entries",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"reporting",
+						"report_2661efff",
+						"entries"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete bagul",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/users/bagul.medici@gatech.edu",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"users",
+						"bagul.medici@gatech.edu"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "verify bagul gone",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/users",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "check who is president",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/positions/position_bc20eb9a/users",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"positions",
+						"position_bc20eb9a",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "check who is test",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/positions/position_193833e1/users",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"positions",
+						"position_193833e1",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "check form 1 for evidence of bagul",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/reporting/report_5866e39e/entries",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"reporting",
+						"report_5866e39e",
+						"entries"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "check form 2 for evidence of bagul",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/reporting/report_2661efff/entries",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"reporting",
+						"report_2661efff",
+						"entries"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{currentAccessToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "af0e9e4b-c31e-410c-8946-a419fbff3ff2",
+				"type": "text/javascript",
+				"exec": [
+					"const echoPostRequest = {",
+					"  url: 'http://localhost:5000/auth/login',",
+					"  method: 'POST',",
+					"  header: 'Content-Type:application/json',",
+					"  body: {",
+					"    mode: 'application/json',",
+					"    raw: JSON.stringify(",
+					"        {",
+					"        \tuser_email: pm.collectionVariables.get('username'),",
+					"        \tpassword: pm.collectionVariables.get('password')",
+					"        })",
+					"  }",
+					"};",
+					"",
+					"var getToken = true;",
+					"",
+					"if (getToken === true) {",
+					"    pm.sendRequest(echoPostRequest, function (err, res) {",
+					"        console.log(err ? err : res.json());",
+					"        if (err === null) {",
+					"            console.log('Saving the token')",
+					"            var responseJson = res.json();",
+					"            console.log(responseJson);",
+					"            pm.collectionVariables.set('currentAccessToken', responseJson)",
+					"        }",
+					"    });",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "8d86b508-7884-42f3-8026-b27112ab9ff1",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "d89e18df-da74-45c7-bf08-f07348536799",
+			"key": "currentAccessToken",
+			"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1OTExMzY3OTIsIm5iZiI6MTU5MTEzNjc5MiwianRpIjoiMTkwMWYwYTEtYmM3Mi00ZWExLTkyYWEtZTNhMzFhNDMwZGZiIiwiZXhwIjoxNTkxMTUxMTkyLCJpZGVudGl0eSI6ImRiZWNrZXIuZmxAZ21haWwuY29tIiwiZnJlc2giOmZhbHNlLCJ0eXBlIjoiYWNjZXNzIiwidXNlcl9jbGFpbXMiOnsicGVybWlzc2lvbnMiOlsiZnVsbF9hZG1pbiIsImNhbl9tYW5hZ2VfcmVwb3J0aW5nIl19fQ.9BcN1muujTO8Vna55ClByT-EcXTSKFEAna6fRrXT61I",
+			"type": "string"
+		},
+		{
+			"id": "beae021c-5104-46f3-8b60-6f8c5c22ec92",
+			"key": "username",
+			"value": "dbecker.fl@gmail.com",
+			"type": "string"
+		},
+		{
+			"id": "bcbf42bf-451f-470d-ac72-7f74cf48970c",
+			"key": "password",
+			"value": "testpass",
+			"type": "string"
+		}
+	],
+	"protocolProfileBehavior": {}
+}
