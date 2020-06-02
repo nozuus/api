@@ -37,26 +37,32 @@ def delete_item(pk, sk):
 
 def delete_partition(pk):
     block = get_entire_partition(pk)
+    print('Deleting partition corresponding to {}'.format(pk))
     for item  in block:
+        print('Deleting item {}'.format(json.dumps(item)))
         response = delete_item(item["pk"], item["sk"])
         if not response:
+            print('Failed on item {}'.format(json.dumps(item)))
             return False
+    print('Successfully deleted partition corresponding to {}'.format(pk))
 
     return True
 
 
 # Deletes any entry with substr in an entry's sk for the entire database
 def delete_scan(substr):
-    print(substr)
     matches = scan_sk_for_substr(substr)
-    print(matches)
     if not matches:
         return False
 
+    print('Deleting items matching {} in scan'.format(substr))
     for item in matches:
+        print('Deleting item {}'.format(json.dumps(item)))
         response = delete_item(item['pk']['S'], item['sk']['S'])
         if not response:
+            print('Failed on item {}'.format(json.dumps(item)))
             return False
+    print('Successfully deleted items matching {} in scan'.format(substr))
 
     return True
 

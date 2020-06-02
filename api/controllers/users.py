@@ -41,10 +41,8 @@ class User(Resource):
         '''Deletes a user given its email'''
         deleted = users_service.delete_user(user_email)
         if deleted:
-            return {
-                'user_email': user_email
-            }
-        return { 'error': 'Unable to delete user' }
+            return { 'user_email': user_email }
+        raise Exception('Unable to delete user')
 
 
 @api.route("/<user_email>/role")
@@ -56,7 +54,7 @@ class UserRoleResource(Resource):
         role = users_service.get_user_role(user_email)
         if role:
             return role
-        return {"error": "Unable to load user role"}
+        raise Exception("Unable to load user role")
 
 
 @api.route("/<user_email>/permissions")

@@ -1,7 +1,7 @@
 import core.database.users_db as users_db
 import core.database.email_list_db as email_list_db
 import core.database.roles_db as roles_db
-from core.database.db import delete_partition, delete_scan
+from core.database.db import delete_partition, delete_scan, get_item
 import uuid
 import hashlib
 
@@ -16,6 +16,12 @@ def create_user(user):
 
 
 def delete_user(user_email):
+    # Check if user exists
+    user = get_item(user_email, 'user')
+    if not user:
+        raise Exception("User {} does not exist".format(user_email))
+
+    # Delete user
     pk_delete_success = delete_partition(user_email)
     sk_delete_success = delete_scan(user_email)
     if pk_delete_success and sk_delete_success:
