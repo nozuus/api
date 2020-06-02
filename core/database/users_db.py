@@ -14,10 +14,6 @@ def create_user(user):
     return response["ResponseMetadata"]["HTTPStatusCode"] == 200
 
 
-def delete_user(user):
-    return delete_item(user["pk"], user["sk"])
-
-
 def get_user_by_email(user_email):
     query_values = {
         ":user_email": {"S": user_email},

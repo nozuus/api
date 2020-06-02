@@ -19,7 +19,7 @@ else:
     dynamodb = boto3.client('dynamodb')
 
 
-# Shared Functions
+## Shared Functions
 
 def delete_item(pk, sk):
     query = {
@@ -27,8 +27,10 @@ def delete_item(pk, sk):
         "sk": {"S": sk}
     }
 
-    response = dynamodb.delete_item(TableName=table,
-                                    Key=query)
+    response = dynamodb.delete_item(
+        TableName=table,
+        Key=query
+    )
 
     return response["ResponseMetadata"]["HTTPStatusCode"] == 200
 
@@ -36,8 +38,25 @@ def delete_item(pk, sk):
 def delete_partition(pk):
     block = get_entire_partition(pk)
     for item  in block:
-        delete_item(item["pk"], item["sk"])
-    return
+        response = delete_item(item["pk"], item["sk"])
+        if not response:
+            return False
+
+    return True
+
+
+# Deletes any entry with substr in an entry's sk for the entire database
+def delete_scan(substr):
+    matches = scan_sk_for_substr(substr)
+    if not matches:
+        return False
+
+    for item in matches:
+        response = delete_item(item['sk'], item['sk'])
+        if not response:
+            return False
+
+    return True
 
 
 def put_item_no_check(item_obj):
@@ -88,6 +107,35 @@ def get_entire_partition(pk):
     result = db_json.loads(response)["Items"]
 
     return result
+
+
+def scan_sk_for_substr(substr):
+    query_values = {
+        ':substr': {'S': substr}
+    }
+
+    # Scan only returns 1 MB at a time, so iterative scanning required
+    LastEvaluatedKey = {}
+    scan_results = []
+    while LastEvaluatedKey is not None:
+        ExclusiveStartKey = None
+        if LastEvaluatedKey != {}:
+            ExclusiveStartKey = LastEvaluatedKey
+
+        scan_response = dynamodb.scan(
+            TableName=table,
+            FilterExpression='contains (sk, :substr)',
+            ExpressionAttributeValues=query_values,
+            ExclusiveStartKey=ExclusiveStartKey
+        )
+
+        if scan_response['ResponseMetadata']['HTTPStatusCode'] != 200:
+            return False
+
+        scan_results = scan_results + scan_response["Items"]
+        LastEvaluatedKey = scan_response["LastEvaluatedKey"] if "LastEvaluatedKey" in scan_response else None
+
+    return scan_results
 
 
 def get_items_by_type(type):
