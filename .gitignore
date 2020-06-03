@@ -71,6 +71,7 @@ venv3.7
 
 keys.yml
 
+.python-version
 
 *.pyc
 
