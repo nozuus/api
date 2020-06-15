@@ -14,6 +14,7 @@ from api.permissions_decorator import check_permissions
 import csv
 from werkzeug.wrappers import Response
 from io import StringIO
+import flask_excel as excel
 
 api = Namespace('reporting', description='Reporting related operations')
 
@@ -213,6 +214,9 @@ class ReportDescription(Resource):
         return {"error":"Success" if success else "Error"}
 
 
+
+
+
 @api.route("/<report_id>/entries")
 class ReportEntries(Resource):
     @api.doc("create_entry")
@@ -241,6 +245,15 @@ class ReportEntries(Resource):
             return {
                 'error': "Error fetching report entries: " + str(e)
             }
+
+@api.route("/<report_id>/entries/bulkUpload")
+class ReportBulkUpload(Resource):
+    @api.doc("bulk_upload_entries")
+    # @jwt_required
+    def get(self, report_id):
+        pyexcel_book = reporting_service.get_bulk_upload_sheet(report_id)
+        return excel.make_response(pyexcel_book,'xlsx')
+
 
 
 @api.route("/<report_id>/entries/<user_email>")

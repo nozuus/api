@@ -6,6 +6,7 @@ import core.services.config_service as config_service
 import core.services.users_service as users_service
 import core.services.auth_services as auth_service
 import uuid
+import pyexcel as pe
 
 
 def get_reports(only_admin = False):
@@ -421,3 +422,44 @@ def is_number(s):
         return True
     except ValueError:
         return False
+
+
+def get_bulk_upload_sheet(report_id):
+    report = reporting_db.get_item(report_id, "report")
+    # if report is None:
+    #     raise Exception("Invalid report ID")
+    # report_type = reporting_db.get_item(report["report_type_id"],
+    #                                     "report_type")
+    #
+    # permissions = report_type["management_permissions"]
+    #
+    # if not config_service.check_permissions(
+    #         permissions):
+    #     raise Exception("User does not have permissions to manage report")
+
+    users = users_db.get_all_users()
+
+    applicable_user_emails = []
+
+    for role in report["applicable_roles"]:
+        applicable_user_emails = applicable_user_emails + [user["pk"] for user in roles_db.get_users_by_role(role)]
+
+    applicable_users = [user for user in  users if user["pk"] in applicable_user_emails]
+
+    book_dict = {
+        "Entries Sheet":
+            [
+                ["User Name (Ignored)", "User Email (Auto-populated by User Name)", "Description", "Value"],
+                *[["", "=VLOOKUP(A{},'Applicable Users Sheet'!A:B,2,FALSE)".format(i)] for i in range(2, 1000)]
+            ],
+        "Applicable Users Sheet":
+            [
+                ["User Name", "User Email"],
+                *[[user["last_name"] + ", " + user["first_name"], user["pk"]] for user in applicable_users]
+            ]
+    }
+
+    book = pe.get_book(bookdict=book_dict)
+
+    return book
+
