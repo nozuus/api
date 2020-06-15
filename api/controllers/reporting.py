@@ -246,10 +246,10 @@ class ReportEntries(Resource):
                 'error': "Error fetching report entries: " + str(e)
             }
 
+
 @api.route("/<report_id>/entries/bulkUpload")
 class ReportBulkUpload(Resource):
     @api.doc("bulk_upload_entries")
-    # @jwt_required
     def get(self, report_id):
         pyexcel_book = reporting_service.get_bulk_upload_sheet(report_id)
         return excel.make_response(pyexcel_book,'xlsx')

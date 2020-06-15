@@ -426,16 +426,6 @@ def is_number(s):
 
 def get_bulk_upload_sheet(report_id):
     report = reporting_db.get_item(report_id, "report")
-    # if report is None:
-    #     raise Exception("Invalid report ID")
-    # report_type = reporting_db.get_item(report["report_type_id"],
-    #                                     "report_type")
-    #
-    # permissions = report_type["management_permissions"]
-    #
-    # if not config_service.check_permissions(
-    #         permissions):
-    #     raise Exception("User does not have permissions to manage report")
 
     users = users_db.get_all_users()
 
