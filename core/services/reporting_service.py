@@ -440,7 +440,7 @@ def get_bulk_upload_sheet(report_id):
         "Entries Sheet":
             [
                 ["User Name (Ignored)", "User Email (Auto-populated by User Name)", "Description", "Value"],
-                *[["", "=VLOOKUP(A{},'Applicable Users Sheet'!A:B,2,FALSE)".format(i)] for i in range(2, 1000)]
+                *[["", "=VLOOKUP(A{},'Applicable Users Sheet'!A:B,2,FALSE)".format(i)] for i in range(2, 100)]
             ],
         "Applicable Users Sheet":
             [
