@@ -462,55 +462,46 @@ def get_bulk_upload_sheet(report_id):
     return book
 
 
-def upload_bulk_entries(report_id, file):
-    with tempfile.TemporaryDirectory() as tmpdir:
-        os.chdir(tmpdir)
-        filename = file.filename
-        tmp_path = tmpdir + "/" + filename
-        print(tmp_path)
-        file.save(tmp_path)
-        file.close()
-        book = pe.get_book(file_name=tmp_path)
+def upload_bulk_entries(report_id, book):
+    entries = book["Entries Sheet"]
 
-        entries = book["Entries Sheet"]
+    headers = entries[0]
+    email = headers.index("User Email (Auto-populated by User Name)")
+    description = headers.index("Description")
+    value = headers.index("Value")
 
-        headers = entries[0]
-        email = headers.index("User Email (Auto-populated by User Name)")
-        description = headers.index("Description")
-        value = headers.index("Value")
+    report = reporting_db.get_item(report_id, "report")
+    if report is None:
+        raise Exception("Invalid report ID")
 
-        report = reporting_db.get_item(report_id, "report")
-        if report is None:
-            raise Exception("Invalid report ID")
+    report_type = reporting_db.get_item(report["report_type_id"],
+                                        "report_type")
 
-        report_type = reporting_db.get_item(report["report_type_id"],
-                                            "report_type")
-
-        successful_entries = []
-        failed_entries = []
-        for index in range(1, len(entries)):
-            if entries[index, email] == None or entries[index, email] == "" or entries[index, email] == "#N/A":
-                continue
-            entry = {
-                "description": entries[index, description],
-                "value": entries[index, value],
-                "user_email": entries[index, email],
-                "entered_by_email": auth_service.get_identity(),
-                "timestamp": datetime.now()
-            }
-            entry_string = "{}, {}, {}".format(entry["user_email"], entry["description"], entry["value"])
-            try:
-                entry_id = create_report_entry(report_id, entry, preload_report_type=report_type)
-                successful_entries.append(entry_id)
-            except:
-                failed_entries.append(entry_string)
-
-        upload = {
-            "pk": report_id,
-            "sk": "upload_%s" % (str(uuid.uuid4())[:8]),
-            "timestamp": datetime.now(),
-            "successful_entries": successful_entries,
-            "failed_entries": failed_entries
+    successful_entries = []
+    failed_entries = []
+    for index in range(1, len(entries)):
+        if entries[index, email] == None or entries[index, email] == "" or entries[index, email] == "#N/A":
+            continue
+        entry = {
+            "description": entries[index, description],
+            "value": entries[index, value],
+            "user_email": entries[index, email],
+            "entered_by_email": auth_service.get_identity(),
+            "timestamp": datetime.now()
         }
+        entry_string = "{}, {}, {}".format(entry["user_email"], entry["description"], entry["value"])
+        try:
+            entry_id = create_report_entry(report_id, entry, preload_report_type=report_type)
+            successful_entries.append(entry_id)
+        except:
+            failed_entries.append(entry_string)
 
-        return base_db.put_item_no_check(upload)
+    upload = {
+        "pk": report_id,
+        "sk": "upload_%s" % (str(uuid.uuid4())[:8]),
+        "timestamp": datetime.now(),
+        "successful_entries": successful_entries,
+        "failed_entries": failed_entries
+    }
+
+    return base_db.put_item_no_check(upload)
