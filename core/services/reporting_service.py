@@ -467,6 +467,7 @@ def upload_bulk_entries(report_id, file):
         os.chdir(tmpdir)
         filename = file.filename
         tmp_path = tmpdir + "/" + filename
+        print(tmp_path)
         file.save(tmp_path)
         file.close()
         book = pe.get_book(file_name=tmp_path)
