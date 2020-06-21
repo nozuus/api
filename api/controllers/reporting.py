@@ -15,6 +15,7 @@ import csv
 from werkzeug.wrappers import Response
 from io import StringIO
 import flask_excel as excel
+from werkzeug.datastructures import FileStorage
 
 api = Namespace('reporting', description='Reporting related operations')
 
@@ -35,6 +36,12 @@ api.models[status_model.name] = status_model
 api.models[report_update_model.name] = report_update_model
 api.models[get_entry_model.name] = get_entry_model
 api.models[set_status_model.name] = set_status_model
+
+
+# Used for bulk upload
+upload_parser = api.parser()
+upload_parser.add_argument('file', location='files',
+                           type=FileStorage, required=True)
 
 
 @api.route("/create")
@@ -253,6 +260,14 @@ class ReportBulkUpload(Resource):
     def get(self, report_id):
         pyexcel_book = reporting_service.get_bulk_upload_sheet(report_id)
         return excel.make_response(pyexcel_book,'xlsx')
+
+    @api.doc("bulk_upload_entrie_submit")
+    @api.expect(upload_parser)
+    def post(self, report_id):
+        args = upload_parser.parse_args()
+        uploaded_file = args['file']
+        reporting_service.upload_bulk_entries(report_id, uploaded_file)
+        return {"error": "Success"}
 
 
 

@@ -7,6 +7,7 @@ import core.services.users_service as users_service
 import core.services.auth_services as auth_service
 import uuid
 import pyexcel as pe
+from datetime import datetime
 
 
 def get_reports(only_admin = False):
@@ -108,10 +109,19 @@ def update_semester(semester_id, semester_update):
     return base_db.put_item_no_check(semester)
 
 
-def create_report_entry(report_id, entry, existing = False, bypass_permissions = False):
-    report = reporting_db.get_item(report_id, "report")
-    if report is None:
-        raise Exception("Invalid report ID")
+def _get_entry_id(user_email):
+    return "entry_%s_%s" % (user_email, str(uuid.uuid4())[:8])
+
+
+def create_report_entry(report_id, entry, existing = False, bypass_permissions = False, preload_report_type = None):
+    report_type = preload_report_type
+    if report_type is None:
+        report = reporting_db.get_item(report_id, "report")
+        if report is None:
+            raise Exception("Invalid report ID")
+
+        report_type = reporting_db.get_item(report["report_type_id"],
+                                                "report_type")
 
     if "user_email" not in entry or entry["user_email"] is None:
         if "gtid" not in entry or entry["gtid"] is None:
@@ -126,9 +136,6 @@ def create_report_entry(report_id, entry, existing = False, bypass_permissions =
         if user is None:
             raise Exception("Invalid user email")
 
-    report_type = reporting_db.get_item(report["report_type_id"],
-                                            "report_type")
-
     if "status" in entry and entry["status"] is not None:
         if "status_options" not in report_type or \
                 report_type["status_options"] is None \
@@ -140,7 +147,7 @@ def create_report_entry(report_id, entry, existing = False, bypass_permissions =
             and report_type["status_options"]["default_status"] is not None:
             entry["status"] = report_type["status_options"]["default_status"]
 
-    entry_id = "entry_%s_%s" % (entry["user_email"], str(uuid.uuid4())[:4])
+    entry_id = _get_entry_id(entry["user_email"])
     entry["pk"] = report_id
     entry["sk"] = entry_id
 
@@ -159,7 +166,7 @@ def create_report_entry(report_id, entry, existing = False, bypass_permissions =
             raise Exception("Entry already exists for user")
 
     if reporting_db.put_item_unique_pk(entry):
-        return True
+        return entry_id
     else:
         raise Exception("Failed to create report entry");
 
@@ -453,3 +460,51 @@ def get_bulk_upload_sheet(report_id):
 
     return book
 
+
+def upload_bulk_entries(report_id, file):
+    filename = file.filename
+    extension = filename.split(".")[1]
+    book = pe.load_book_from_memory(extension, file.read())
+
+    entries = book["Entries Sheet"]
+
+    headers = entries[0]
+    email = headers.index("User Email (Auto-populated by User Name)")
+    description = headers.index("Description")
+    value = headers.index("Value")
+
+    report = reporting_db.get_item(report_id, "report")
+    if report is None:
+        raise Exception("Invalid report ID")
+
+    report_type = reporting_db.get_item(report["report_type_id"],
+                                        "report_type")
+
+    successful_entries = []
+    failed_entries = []
+    for index in range(1, len(entries)):
+        if entries[index, email] == None or entries[index, email] == "" or entries[index, email] == "#N/A":
+            continue
+        entry = {
+            "description": entries[index, description],
+            "value": entries[index, value],
+            "user_email": entries[index, email],
+            "entered_by_email": auth_service.get_identity(),
+            "timestamp": datetime.now()
+        }
+        entry_string = "{}, {}, {}".format(entry["user_email"], entry["description"], entry["value"])
+        try:
+            entry_id = create_report_entry(report_id, entry, preload_report_type=report_type)
+            successful_entries.append(entry_id)
+        except:
+            failed_entries.append(entry_string)
+
+    upload = {
+        "pk": report_id,
+        "sk": "upload_%s" % (str(uuid.uuid4())[:8]),
+        "timestamp": datetime.now(),
+        "successful_entries": successful_entries,
+        "failed_entries": failed_entries
+    }
+
+    return base_db.put_item_no_check(upload)
