@@ -266,8 +266,7 @@ class ReportBulkUpload(Resource):
     def post(self, report_id):
         args = upload_parser.parse_args()
         uploaded_file = args['file']
-        book = request.get_book(field_name='file')
-        reporting_service.upload_bulk_entries(report_id, book)
+        reporting_service.upload_bulk_entries(report_id, uploaded_file)
         return {"error": "Success"}
 
 
