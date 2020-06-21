@@ -5,12 +5,10 @@ branches:
   - master
   - development
 script: ".travis.d/build.sh\n"
-python:
-  - "3.7"
 addons:
   apt:
     packages:
-#    - python3.7
+    - python3.7
     - python3-pip
 notifications:
   slack:

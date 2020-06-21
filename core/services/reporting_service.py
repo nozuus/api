@@ -470,7 +470,7 @@ def upload_bulk_entries(report_id, file):
         tmp_path = tmpdir + "/" + filename
         file.save(tmp_path)
         file.close()
-        df = pd.read_excel(tmp_path, sheet_name="Entries Sheet")
+        df = pd.read_csv(tmp_path)
 
         email = "User Email (Auto-populated by User Name)"
         description = "Description"
