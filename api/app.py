@@ -4,6 +4,8 @@ import core.services.config_service as config_service
 from flask_jwt_extended import JWTManager
 import os
 from flask_cors import CORS
+import flask_excel as excel
+
 
 app = Flask(__name__)
 CORS(app)
@@ -14,6 +16,7 @@ jwt = JWTManager(app)
 
 jwt._set_error_handler_callbacks(api)
 
+excel.init_excel(app)
 
 @jwt.invalid_token_loader
 def invalid_token(reason):
