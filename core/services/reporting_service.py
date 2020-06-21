@@ -464,7 +464,7 @@ def get_bulk_upload_sheet(report_id):
 def upload_bulk_entries(report_id, file):
     filename = file.filename
     extension = filename.split(".")[1]
-    book = pe.load_book_from_memory(extension, file.read())
+    book = pe.get_book(file_type=extension, file_content=file.read())
 
     entries = book["Entries Sheet"]
 
