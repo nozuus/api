@@ -37,7 +37,6 @@ api.models[report_update_model.name] = report_update_model
 api.models[get_entry_model.name] = get_entry_model
 api.models[set_status_model.name] = set_status_model
 
-
 # Used for bulk upload
 upload_parser = api.parser()
 upload_parser.add_argument('file', location='files',
