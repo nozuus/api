@@ -8,7 +8,7 @@ script: ".travis.d/build.sh\n"
 addons:
   apt:
     packages:
-    - python3
+    - python3.7
     - python3-pip
 notifications:
   slack:
