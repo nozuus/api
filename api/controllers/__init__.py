@@ -8,6 +8,7 @@ from .reporting import api as reporting_api
 from .payment import api as payment_api
 from .config import api as config_api
 from .positions import api as positions_api
+from .admin import api as admin_api
 
 authorizations = {
     'apikey': {
@@ -34,6 +35,7 @@ api.add_namespace(reporting_api, path="/reporting")
 api.add_namespace(config_api, path="/config")
 api.add_namespace(payment_api, path="/payment")
 api.add_namespace(positions_api, path="/positions")
+api.add_namespace(admin_api, path="/admin")
 
 
 @api.errorhandler(Exception)

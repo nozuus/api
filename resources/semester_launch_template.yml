@@ -1,0 +1,25 @@
+dev:
+  reports:
+    - name: _semester_ Work Hours
+      description: Work hours
+      report_type_id: report_type_8940f32a
+      enable_rollover: false
+      self_reporting_enabled: true
+      value_question: How many work hours did you do?
+      description_questions:
+        - question: What did you do?
+          type: text
+        - question: Who did you do it for?
+          type: text
+      applicable_roles:
+        - role_2129a58f
+        - role_b4fc6699
+    - name: _semester_ Finances
+      description: Finances
+      report_type_id: report_type_314db26c
+      enable_rollover: true
+      rollover_report_id: _financesRolloverId_
+      self_reporting_enabled: false
+      applicable_roles:
+        - role_2129a58f
+        - role_b4fc6699
