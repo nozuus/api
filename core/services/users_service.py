@@ -5,6 +5,14 @@ import uuid
 import hashlib
 
 
+def get_user(user_email):
+    return users_db.get_user_by_email(user_email)
+
+
+def get_all_users():
+    return users_db.get_all_users()
+
+
 def create_user(user):
     user["sk"] = "user"
     user["pk"] = user.pop("user_email")
