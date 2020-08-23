@@ -24,3 +24,67 @@ dev:
       applicable_roles:
         - role_2129a58f
         - role_b4fc6699
+prod:
+  reports:
+    - name: _semester_ Work Hours
+      description: Work Hours
+      report_type_id: report_type_c3633611
+      rollover_enabled: false
+      self_reporting_enabled: true
+      value_question: How many work hours did you do?
+      description_questions:
+        - question: What did you do?
+          type: text
+        - question: What committee chair / officer did you do it for?
+          type: text
+      applicable_roles:
+        - role_2ba6b06a
+        - role_3d73da36
+    - name: _semester_ Cleanup Hours
+      description: Cleanup Hours
+      report_type_id: report_type_c78ae460
+      rollover_enabled: false
+      self_reporting_enabled: false
+      applicable_roles:
+        - role_2ba6b06a
+        - role_3d73da36
+    - name: _semester_ Kitchen Hours
+      description: Kitchen Hours
+      report_type_id: report_type_e6ef79eb
+      rollover_enabled: false
+      self_reporting_enabled: false
+      applicable_roles:
+        - role_2ba6b06a
+        - role_3d73da36
+    - name: _semester_ Chapter Attendance
+      description: Chapter Attendance
+      report_type_id: report_type_e62b6976
+      rollover_enabled: false
+      self_reporting_enabled: false
+      applicable_roles:
+        - role_2ba6b06a
+        - role_3d73da36
+    - name: _semester_ Budget Meeting Attendance
+      description: Budget Meeting Attendance
+      report_type_id: report_type_e62b6976
+      rollover_enabled: false
+      self_reporting_enabled: false
+      applicable_roles:
+        - role_3d73da36
+    - name: _semester_ Rush Attendance
+      description: Rush Attendance
+      report_type_id: report_type_e62b6976
+      rollover_enabled: false
+      self_reporting_enabled: false
+      applicable_roles:
+        - role_2ba6b06a
+        - role_3d73da36
+    - name: _semester_ Finances
+      description: Finances
+      report_type_id: report_type_7e956e3e
+      self_reporting_enabled: false
+      rollover_enabled: true
+      rollover_report_id: _financesRolloverId_
+      applicable_roles:
+        - role_2ba6b06a
+        - role_3d73da36
