@@ -19,7 +19,7 @@ else:
     dynamodb = boto3.client('dynamodb')
 
 
-# Shared Functions
+## Shared Functions
 
 def delete_item(pk, sk):
     query = {
@@ -27,17 +27,44 @@ def delete_item(pk, sk):
         "sk": {"S": sk}
     }
 
-    response = dynamodb.delete_item(TableName=table,
-                                    Key=query)
+    response = dynamodb.delete_item(
+        TableName=table,
+        Key=query
+    )
 
     return response["ResponseMetadata"]["HTTPStatusCode"] == 200
 
 
 def delete_partition(pk):
     block = get_entire_partition(pk)
+    print('Deleting partition corresponding to {}'.format(pk))
     for item  in block:
-        delete_item(item["pk"], item["sk"])
-    return
+        print('Deleting item {}'.format(json.dumps(item)))
+        response = delete_item(item["pk"], item["sk"])
+        if not response:
+            print('Failed on item {}'.format(json.dumps(item)))
+            return False
+    print('Successfully deleted partition corresponding to {}'.format(pk))
+
+    return True
+
+
+# Deletes any entry with substr in an entry's sk for the entire database
+def delete_scan(substr):
+    matches = scan_sk_for_substr(substr)
+    if not matches:
+        return False
+
+    print('Deleting items matching {} in scan'.format(substr))
+    for item in matches:
+        print('Deleting item {}'.format(json.dumps(item)))
+        response = delete_item(item['pk']['S'], item['sk']['S'])
+        if not response:
+            print('Failed on item {}'.format(json.dumps(item)))
+            return False
+    print('Successfully deleted items matching {} in scan'.format(substr))
+
+    return True
 
 
 def put_item_no_check(item_obj):
@@ -88,6 +115,38 @@ def get_entire_partition(pk):
     result = db_json.loads(response)["Items"]
 
     return result
+
+
+def scan_sk_for_substr(substr):
+    query_values = {
+        ':substr': {'S': substr}
+    }
+
+    # Scan only returns 1 MB at a time, so iterative scanning required
+    LastEvaluatedKey = {}
+    scan_results = []
+    while LastEvaluatedKey is not None:
+        if LastEvaluatedKey == {}:
+            scan_response = dynamodb.scan(
+                TableName=table,
+                FilterExpression='contains (sk, :substr)',
+                ExpressionAttributeValues=query_values,
+            )
+        else:
+            scan_response = dynamodb.scan(
+                TableName=table,
+                FilterExpression='contains (sk, :substr)',
+                ExpressionAttributeValues=query_values,
+                ExclusiveStartKey=LastEvaluatedKey
+            )
+
+        if scan_response['ResponseMetadata']['HTTPStatusCode'] != 200:
+            return False
+
+        scan_results = scan_results + scan_response["Items"]
+        LastEvaluatedKey = scan_response["LastEvaluatedKey"] if "LastEvaluatedKey" in scan_response else None
+
+    return scan_results
 
 
 def get_items_by_type(type):

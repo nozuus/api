@@ -26,6 +26,20 @@ def get_reports(only_admin = False):
     return to_return
 
 
+def get_reports(only_admin = False):
+    reports = reporting_db.get_items_by_type("report")
+    if not only_admin:
+        return reports
+
+    to_return = []
+
+    for report in reports:
+        if check_report_permissions(report["pk"]):
+            to_return.append(report)
+
+    return to_return
+
+
 def create_report(report_obj):
     report_id = "report_%s" % str(uuid.uuid4())[:8]
     report_obj["pk"] = report_id
