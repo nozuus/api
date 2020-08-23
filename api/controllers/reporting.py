@@ -258,7 +258,8 @@ class ReportBulkUpload(Resource):
     @api.doc("bulk_upload_entries")
     def get(self, report_id):
         pyexcel_book = reporting_service.get_bulk_upload_sheet(report_id)
-        return excel.make_response(pyexcel_book,'xlsx', file_name="bulkUpload.xlsx")
+        return excel.make_response(pyexcel_book,'xlsx', file_name="bulkUpload")
+        #return excel.make_response(pyexcel_book,'xlsx', file_name="bulkUpload.xlsx")
 
     @api.doc("bulk_upload_entries_submit")
     @api.expect(upload_parser)

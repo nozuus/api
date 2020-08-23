@@ -83,7 +83,7 @@ report_form_model = Model("ReportForm", {
 
 report_form_submission = Model("ReportFormSubmission", {
     'value': fields.Raw,
-    'descriptionQuestionAnswers': fields.List(fields.String),
+    'descriptionQuestionAnswers': fields.List(fields.Raw),
     'timestamp': fields.DateTime,
     'user_email': fields.String(),
     'entered_by_email': fields.String

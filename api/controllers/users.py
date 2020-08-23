@@ -2,7 +2,10 @@ from flask import request
 from flask_restplus import Namespace, Resource
 import core.database.users_db as users_db
 import core.services.users_service as users_service
-from api.models.users_model import user_create_model, user_update_model, get_users_model, enroll_buzzcard_model
+import core.services.auth_services as auth_service
+import core.services.roles_service as roles_service
+import core.services.emailer_service as emailer_service
+from api.models.users_model import user_create_model, user_update_model, get_users_model,enroll_buzzcard_model
 from flask_jwt_extended import jwt_required
 from api.permissions_decorator import check_permissions
 
@@ -75,9 +78,15 @@ class UserCreate(Resource):
     def post(self):
         '''Create a new user'''
         body = request.json
-        users_service.create_user(body)
+        if users_service.create_user(body):
+            roles_service.update_user_role(body["pk"], body["role_id"])
+            auth_service.request_password_reset(body["pk"])
+            emailer_service.send_verification_email(body["pk"])
+            return {
+                'error': "success"
+            }
         return {
-            'error': "success"
+            'error': "Unable to create user"
         }
 
 
