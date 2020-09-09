@@ -7,10 +7,13 @@ import core.database.db as base_db
 import core.services.config_service as config_service
 import core.services.reporting_service as reporting_service
 import json
+import logging
 
 import core.services.emailer_service as emailer
 
 stripe.api_key = os.environ.get("STRIPE_KEY")
+
+logger = logging.getLogger()
 
 
 @jwt_required
@@ -72,45 +75,59 @@ def verify_account(amounts):
 
 @jwt_required
 def create_charge(amount):
-    user_email = get_jwt_identity()
-    payment_record = base_db.get_item(user_email, "payment")
-    amount = int(float(amount) * 100)
-    if not payment_record:
-        raise Exception("Error fetching payment record")
-
-    if payment_record["status"] != "Verified":
-        return "Account is not verified"
-
     try:
-        charge = stripe.Charge.create(
-            amount=amount,
-            currency='usd',
-            customer=payment_record["customer_id"]
-        )
-    except stripe.error.InvalidRequestError:
-        return "Invalid Amount"
+        user_email = get_jwt_identity()
+        payment_record = base_db.get_item(user_email, "payment")
+        amount = int(float(amount) * 100)
+        if not payment_record:
+            raise Exception("Error fetching payment record")
 
-    if charge["status"] == "pending":
-        amount_post_fees = int(.992 * amount) / 100
-        amount_post_fees = -(amount_post_fees if (amount / 100) - amount_post_fees < 5 else (amount / 100) - 5)
+        if payment_record["status"] != "Verified":
+            return "Account is not verified"
 
-        print("--- CHARGE CREATED ---")
-        print(json.dumps(charge))
+        try:
+            logger.warning("Creating charge")
+            charge = stripe.Charge.create(
+                amount=amount,
+                currency='usd',
+                customer=payment_record["customer_id"]
+            )
+            logger.warning("Charge Created:")
+            logger.warning(json.dumps(charge))
+        except stripe.error.InvalidRequestError:
+            return "Invalid Amount"
 
-        report_entry = {
-            "description": "Payment " + charge["id"],
-            "value": amount_post_fees,
-            "status": "PENDING",
-            "report_id": get_active_finances_report(),
-            "entered_by_email": user_email,
-            "user_email": user_email,
-            "timestamp": datetime.datetime.now()
-        }
+        if charge["status"] == "pending":
+            amount_post_fees = int(.992 * amount) / 100
+            amount_post_fees = -(amount_post_fees if (amount / 100) - amount_post_fees < 5 else (amount / 100) - 5)
 
-        reporting_service.create_report_entry(report_entry["report_id"], report_entry, bypass_permissions=True)
+            logger.warning("--- CHARGE CREATED ---")
+            logger.warning(json.dumps(charge))
 
-        notify_financial_manager(charge["id"], "PENDING")
-        return "Success"
+            report_entry = {
+                "description": "Payment " + charge["id"],
+                "value": amount_post_fees,
+                "status": "PENDING",
+                "report_id": get_active_finances_report(),
+                "entered_by_email": user_email,
+                "user_email": user_email,
+                "timestamp": datetime.datetime.now()
+            }
+
+            logger.warning("Creating report entry")
+            logger.warning(report_entry)
+
+            entry_id = reporting_service.create_report_entry(report_entry["report_id"], report_entry, bypass_permissions=True)
+
+            logger.warning("Report entry created: %s. Notifying admin" % entry_id)
+
+            notify_financial_manager(charge["id"], "PENDING")
+
+            logger.warning("Admin notified")
+            return "Success"
+    except Exception as e:
+        logger.error("ERROR CREATING CHARGE")
+        logger.error(e)
     return charge
 
 
