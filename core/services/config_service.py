@@ -30,7 +30,7 @@ def get_settings():
     settings = config_db.get_settings()
     to_return = []
     for setting in settings:
-        if check_permissions(setting["permissions"]):
+        if setting["permissions"] == None or len(setting["permissions"]) == 0 or check_permissions(setting["permissions"]):
             to_return.append(setting)
 
     return to_return
