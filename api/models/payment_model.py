@@ -14,3 +14,7 @@ verify_model = Model("VerifyAccount", {
 charge_model = Model("ChargeUser", {
     "amount": fields.Fixed(decimals=2)
 })
+
+execute_model = Model("ExecutePayment", {
+    "report_entry_id": fields.String
+})

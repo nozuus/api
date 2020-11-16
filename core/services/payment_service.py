@@ -3,6 +3,7 @@ import os
 import datetime
 from flask_jwt_extended import get_jwt_identity, jwt_required
 import core.database.users_db as users_db
+import core.database.reporting_db as reporting_db
 import core.database.db as base_db
 import core.services.config_service as config_service
 import core.services.reporting_service as reporting_service
@@ -129,6 +130,83 @@ def create_charge(amount):
         logger.error("ERROR CREATING CHARGE")
         logger.error(e)
     return charge
+
+
+@jwt_required
+def prepare_charge(amount):
+    user_email = get_jwt_identity()
+    payment_record = base_db.get_item(user_email, "payment")
+    amount = int(float(amount) * 100)
+    if not payment_record:
+        raise Exception("Error fetching payment record")
+
+    if payment_record["status"] != "Verified":
+        return "Account is not verified"
+
+    amount_post_fees = int(.992 * amount) / 100
+    amount_post_fees = -(amount_post_fees if (amount / 100) - amount_post_fees < 5 else (amount / 100) - 5)
+
+    report_entry = {
+        "description": "Payment",
+        "value": amount_post_fees,
+        "status": "PENDING APPROVAL",
+        "report_id": get_active_finances_report(),
+        "entered_by_email": user_email,
+        "user_email": user_email,
+        "timestamp": datetime.datetime.now()
+    }
+
+    entry_id = reporting_service.create_report_entry(report_entry["report_id"], report_entry, bypass_permissions=True)
+
+    notify_financial_manager_pre_approval(user_email, amount_post_fees)
+
+    return entry_id
+
+
+@jwt_required
+def execute_charge(entry_id):
+    finances_report_id = get_active_finances_report()
+
+    report = base_db.get_item(finances_report_id, "report")
+
+    report_type = base_db.get_item(report["report_type_id"],
+                                        "report_type")
+
+    permissions = report_type["management_permissions"]
+
+    if not config_service.check_permissions(permissions):
+        raise Exception("User does not have permissions to execute charge")
+
+    report_entry = base_db.get_item(finances_report_id, entry_id)
+
+    amount = abs(report_entry["value"])
+    total = amount / .992
+    fees = total - amount
+    if fees > 5:
+        total = amount + 5
+
+    total = int(round(total, 2) * 100)
+    customer_email = report_entry["user_email"]
+    payment_record = base_db.get_item(customer_email, "payment")
+    try:
+        logger.warning("Creating charge")
+        charge = stripe.Charge.create(
+            amount=total ,
+            currency='usd',
+            customer=payment_record["customer_id"]
+        )
+        logger.warning("Charge Created:")
+        logger.warning(json.dumps(charge))
+    except stripe.error.InvalidRequestError as e:
+        logger.error("Error creating charge", e)
+        return "Invalid Amount"
+
+
+    report_entry["description"] = "Payment " + charge["id"]
+    report_entry["status"] = "PENDING"
+    base_db.put_item_no_check(report_entry)
+    notify_financial_manager(charge["id"], "PENDING")
+    return "Success"
 
 
 def get_account_status():
@@ -264,6 +342,24 @@ def notify_financial_manager(payment_id, status, reason = None):
 
     email += "\n\nit'get dat money'b\n\nOtter Pond"
     subject = "Otter Pond Payment: " + status
+    to_emails = [get_active_finance_email()]
+
+    print("Sending email:")
+    print(json.dumps(email))
+    emailer.send_plain_email(subject, email, to_emails)
+
+
+
+def notify_financial_manager_pre_approval(user_email, amount):
+    email = "Dear Financial Manager,\n\nA user has submitted a payment pending your approval. Log into Otter Pond to execute payment.\n\n"
+
+    user = users_db.get_user_by_email(user_email)
+    email += "User: " + user["last_name"] + ", " +  user["first_name"]
+    email += "\nAmount: " + str(abs(amount))
+    email += "\nStatus: PENDING APPROVAL"
+
+    email += "\n\nit'get dat money'b\n\nOtter Pond"
+    subject = "Otter Pond Payment Pending Approval"
     to_emails = [get_active_finance_email()]
 
     print("Sending email:")

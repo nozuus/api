@@ -1,6 +1,6 @@
 from flask import request, Response
 from flask_restplus import Namespace, Resource, fields
-from api.models.payment_model import enroll_model, verify_model, charge_model
+from api.models.payment_model import enroll_model, verify_model, charge_model, execute_model
 from flask_jwt_extended import jwt_required
 import core.services.payment_service as payment_service
 import json
@@ -11,6 +11,7 @@ api = Namespace('payment', description='Payment related operations')
 api.models[enroll_model.name] = enroll_model
 api.models[verify_model.name] = verify_model
 api.models[charge_model.name] = charge_model
+api.models[execute_model.name] = execute_model
 
 
 @api.route("/enroll")
@@ -44,7 +45,7 @@ class PaymentVerify(Resource):
 
 @api.route("/charge")
 class PaymentCharge(Resource):
-    @api.doc("charge_user")
+    @api.doc("Used to directly charge a user, i.e. submitting this will create the report entry and send it to Stripe")
     @api.expect(charge_model)
     @jwt_required
     def post(self):
@@ -54,6 +55,30 @@ class PaymentCharge(Resource):
         result = payment_service.create_charge(body["amount"])
         print("Result of Charge: ", result)
         return {"error": result}
+
+
+@api.route("/prepareCharge")
+class PreparePaymentCharge(Resource):
+    @api.doc("Used to indicate that a user is ready to be charged. Creates a report entry and gives it the status of PENDING APPROVAL")
+    @api.expect(charge_model)
+    @jwt_required
+    def post(self):
+        '''Prepare a charge '''
+        body = request.json
+        result = payment_service.prepare_charge(body["amount"])
+        return {"error": "Success"}
+
+
+@api.route("/executeCharge")
+class ExecutePaymentCharge(Resource):
+    @api.doc("Used to execute a charge that has previously been prepared")
+    @api.expect(execute_model)
+    @jwt_required
+    def post(self):
+        '''Execute a charge'''
+        body = request.json
+        result = payment_service.execute_charge(body["report_entry_id"])
+        return {"error": "Success"}
 
 
 @api.route("/webhook")
