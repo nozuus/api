@@ -5,6 +5,7 @@ import core.database.db as base_db
 import core.services.config_service as config_service
 import core.services.users_service as users_service
 import core.services.auth_services as auth_service
+import core.services.emailer_service as emailer_service
 import uuid
 import pyexcel as pe
 from datetime import datetime
@@ -181,6 +182,19 @@ def create_report_entry(report_id, entry, existing = False, bypass_permissions =
         if len(reporting_db.checkReportEntryForUser(report_id, entry["user_email"], entry["description"])) > 0:
             raise Exception("Entry already exists for user")
 
+    try:
+        to_emails = [entry["user_email"], entry["entered_by_email"]]
+        subject = "Report Entry Created"
+        body = '<p>Hello!</p><p>A new entry has been created for you in the %s report. ' \
+               'Go to <a href="https://www.theotterpond.com">Otter Pond</a> to view ' \
+               'the entry.</p><br /><p>Description: %s</p><p>Value: %s</p><p>Entered By: %s</p><br />' \
+               '<p>- The Otter Pond Team</p>' % (
+               report["name"], entry["description"], str(entry["value"]),
+               entry["entered_by_email"])
+        emailer_service.send_html_body(subject, body, to_emails)
+    except:
+        print("Error sending report email")
+
     if reporting_db.put_item_unique_pk(entry):
         return entry_id
     else:
@@ -246,6 +260,18 @@ def update_entry_status(report_id, user_email, entry_id, new_status):
             "User does not have permissions to manage report entries")
 
     entry = reporting_db.get_item(report_id, entry_id)
+
+    try:
+        to_emails = [entry["user_email"]]
+        subject = "Report Entry Status Updated"
+        body = '<p>Hello!</p><p>One of your entries in the %s report has a new status. ' \
+               'Go to <a href="https://www.theotterpond.com">Otter Pond</a> to view ' \
+               'the entry.</p><br /><p>Description: %s</p><p>Status: %s</p><br />' \
+               '<p>- The Otter Pond Team</p>' % (
+               report["name"], entry["description"], new_status)
+        emailer_service.send_html_body(subject, body, to_emails)
+    except:
+        print("Error sending report email")
 
     if entry is None:
         raise Exception("Invalid entry ID")
