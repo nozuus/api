@@ -23,5 +23,5 @@ class SemesterLaunchResource(Resource):
     @api.expect(semester_launch_model)
     def post(self):
         body = request.json
-        admin_service.launch_semester(body)
-        return { "error": "Success" }
+        exceptions = admin_service.launch_semester(body)
+        return { "exceptions": exceptions }
