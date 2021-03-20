@@ -2,7 +2,7 @@ Click==7.0
 Flask==1.0.2
 flask-restplus==0.12.1
 itsdangerous==1.1.0
-Jinja2==2.10
+Jinja2==2.11.3
 MarkupSafe==1.1.0
 Werkzeug==0.14.1
 dynamodb-json==1.3
